@@ -1,6 +1,11 @@
+import json
+
+import arrow
+import requests
 from flask import Blueprint, request, redirect
 
 from api.database import db
+from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response, get_response
 from common.edsm import get_system_from_edsm
 from common.space import distance_between_systems
@@ -46,11 +51,25 @@ def flask_get_stations_selling_commodity_old(system, commodity):
 def flask_get_galnet():
     lang = request.args.get('lang')
     if lang is None or lang == 'en':
-        return redirect("https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json", code=301)
+        url = "https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json"
     else:
-        return redirect(
-            "https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json&language=" + lang,
-            code=301)
+        url = "https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json&language=" + lang
+
+    req = requests.get(url, headers=get_requests_headers())
+    if req.status_code != 200:
+        return error_response('Cannot fetch content')
+
+    content = json.loads(req.content.decode("utf-8"))
+    res = []
+    for item in content['items']:
+        res.append({
+            'uri': item['url'],
+            'content': item['content_html'],
+            'title': item['title'],
+            'timestamp': arrow.get(item['date_modified']).timestamp,
+
+        })
+    return get_response(res)
 
 
 def get_distance(first, second):
