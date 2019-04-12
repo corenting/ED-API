@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # General config
-DEBUG_MODE = bool(os.environ['DEBUG'])
+DEBUG_MODE = os.environ['DEBUG'] == 'True'
 APP_VERSION = '2.4.1'
 WORKING_DIR = '/opt/ed-api/'
 
