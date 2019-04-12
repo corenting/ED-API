@@ -5,12 +5,11 @@ from datetime import datetime
 import json
 import requests
 
-from config import FCM_API_KEY, WORKING_DIR
+from config import FCM_API_KEY, WORKING_DIR, DEBUG_MODE
 
-debug = False
 ed_api_url = "https://ed.9cw.eu/v2/community_goals/"
 
-if debug:
+if DEBUG_MODE:
     previous_file_path = "previous.json"
 else:
     previous_file_path = WORKING_DIR + "previous.json"
@@ -55,7 +54,7 @@ def store_json(data):
 
 
 def send_fcm_notification(topic, data):
-    if debug:
+    if DEBUG_MODE:
         topic += '_test'
     extra_kwargs = {
         'priority': 'high'
