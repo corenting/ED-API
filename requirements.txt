@@ -4,7 +4,7 @@ flask-sqlalchemy
 arrow
 jsonlines
 sqlalchemy
-psycopg2
+psycopg2-binary
 bs4
 pyfcm
 python-dotenv
