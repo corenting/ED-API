@@ -64,7 +64,7 @@ def flask_get_galnet():
     for item in content['items']:
         res.append({
             'uri': item['url'],
-            'content': item['content_html'],
+            'content': item['content_html'] if 'content_html' in item else 'No description',
             'title': item['title'],
             'timestamp': arrow.get(item['date_modified']).timestamp,
 
