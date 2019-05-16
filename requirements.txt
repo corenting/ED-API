@@ -9,3 +9,4 @@ bs4
 pyfcm
 python-dotenv
 pyzmq
+html5lib

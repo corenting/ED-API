@@ -39,10 +39,10 @@ def get_community_goals_v2():
     if req.status_code != 200:
         return {'success': 0}
 
-    response = json.loads(req.content.decode("utf-8"))
+    inara_api_response = json.loads(req.content.decode("utf-8"))
 
     try:
-        if response['header']['eventStatus'] != 200 and response['events'][0]['eventStatus'] != 200:
+        if inara_api_response['header']['eventStatus'] != 200 and inara_api_response['events'][0]['eventStatus'] != 200:
             return {'success': 0}
     except:
         return {'success': 0}
@@ -54,20 +54,20 @@ def get_community_goals_v2():
         req_page = requests.get('https://inara.cz/galaxy-communitygoals', headers=get_requests_headers())
         if req_page.status_code == 200:
             rewards_ok = True
-            soup = BeautifulSoup(req_page.content, 'lxml')
+            soup = BeautifulSoup(req_page.content, 'html5lib')
             rewards = soup.select('table')
     except:
         pass
 
     # Generate response
-    res = {'success': 1}
+    api_response = {'success': 1}
     idx = 0
-    for eventParent in response['events'][0]:
-        event = None
+    for eventParent in inara_api_response['events']:
         try:
-            event = eventParent['eventData']
+            event = eventParent['eventData'][0]
         except:
             event = None
+
         if event is None:
             continue
 
@@ -112,11 +112,11 @@ def get_community_goals_v2():
 
         idx = idx + 1
 
-        if 'goals' not in res:
-            res['goals'] = [goal]
+        if 'goals' not in api_response:
+            api_response['goals'] = [goal]
         else:
-            res['goals'].append(goal)
+            api_response['goals'].append(goal)
 
-    if 'goals' not in res:
-        res['goals'] = []
-    return res
+    if 'goals' not in api_response:
+        api_response['goals'] = []
+    return api_response
