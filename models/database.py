@@ -152,6 +152,16 @@ class BlueprintIngredientLink(Base):
     ingredient = relationship('BlueprintIngredient', lazy='joined')
 
 
+class CommunityGoalStatus(Base):
+    __tablename__ = 'community_goals_status'
+
+    id = Column(Integer, primary_key=True)
+    last_update = Column(DateTime, nullable=False)
+    is_finished = Column(Boolean, nullable=False)
+    current_tier = Column(Integer, nullable=False)
+    title = Column(String(255), nullable=False)
+
+
 @contextmanager
 def get_session(engine):
     """Provide a transactional scope around a series of operations."""

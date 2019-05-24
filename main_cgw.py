@@ -1,56 +1,22 @@
 #!/usr/bin/env python3
 
-from pyfcm import FCMNotification
 from datetime import datetime
-import json
-import requests
 
-from config import FCM_API_KEY, WORKING_DIR, DEBUG_MODE
+import arrow
+from pyfcm import FCMNotification
+from sqlalchemy import create_engine
 
-ed_api_url = "https://ed.9cw.eu/v2/community_goals/"
+from api.community_goals.main import get_community_goals_v2
+from config import FCM_API_KEY, DEBUG_MODE, DB_URI
 
-if DEBUG_MODE:
-    previous_file_path = "previous.json"
-else:
-    previous_file_path = WORKING_DIR + "previous.json"
+# FCM config
+from models.database import get_session, CommunityGoalStatus
 
 api_key = FCM_API_KEY
-
 push_service = FCMNotification(api_key=api_key)
 
-
-class DownloadException(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-def download_json():
-    try:
-        # Download JSON
-        req = requests.get(ed_api_url, headers={'User-Agent': 'EDCGW'})
-
-        if req.status_code != 200:
-            raise DownloadException('error ' + str(req.status_code) + ' while downloading community goals')
-
-        json_content = json.loads(req.content.decode("utf-8"))
-        req.close()
-        return json_content
-    except Exception as ex:
-        print("Download error (" + str(ex) + ")")
-        return None
-
-
-def store_json(data):
-    try:
-        with open(previous_file_path, "w") as stored_file:
-            stored_file.write(json.dumps(data))
-        return True
-    except Exception as ex:
-        print("Write error (" + str(ex) + ")")
-        return False
+# Database config
+db_engine = create_engine(DB_URI)
 
 
 def send_fcm_notification(topic, data):
@@ -63,80 +29,133 @@ def send_fcm_notification(topic, data):
     return push_service.notify_topic_subscribers(topic_name=topic,
                                                  data_message=data,
                                                  extra_kwargs=extra_kwargs,
-                                                 collapse_key=data["goal"]["title"],
+                                                 collapse_key=data['goal']['title'],
                                                  time_to_live=86400)
 
 
 def handle_change(change_type, goal):
+    notif_goal = {
+        'title': goal.title,
+        'tier_progress': {
+            'current': goal.current_tier
+        }
+    }
+
     data = {
-        'goal': goal,
+        'goal': notif_goal,
         'date': str(datetime.utcnow())
     }
     fcm_ret = send_fcm_notification(change_type, data)
     if fcm_ret["failure"] != 0:
-        print(' Failed to send FCM message : ' + fcm_ret)
+        print(' Failed to send FCM message : ' + str(fcm_ret))
     else:
         print(' FCM notification sent')
 
 
-def compare_json(previous, latest):
-    for goal in latest["goals"]:
-        try:
-            previous_goal = next((previous_item for previous_item in previous["goals"]
-                                  if previous_item["id"] == goal["id"]), None)
+def compare_data(previous, latest):
+    for goal in latest:
+        previous_goal = next((x for x in previous if x.id == goal.id), None)
 
-            # First check if new goal
-            if previous_goal is None:
-                print(' Goal "' + goal["title"] + '" started')
-                handle_change("new_goal", goal)
-                continue
+        # New goal
+        if previous_goal is None:
+            print(' Goal "' + goal.title + '" started')
+            handle_change('new_goal', goal)
+            continue
 
-            ongoing_prev = previous_goal["ongoing"]
-            ongoing_now = goal["ongoing"]
+        # Finished goal
+        if goal.is_finished and not previous_goal.is_finished:
+            print(' Goal "' + goal.title + '" finished')
+            handle_change('finished_goal', goal)
+            continue
 
-            # Check if goal finished
-            if ongoing_prev and not ongoing_now:
-                print(' Goal "' + goal["title"] + '" finished')
-                handle_change("finished_goal", goal)
-                continue
-
-            tier_prev = previous_goal["tier_progress"]["current"]
-            tier_now = goal["tier_progress"]["current"]
-
-            # Check if new tier
-            if tier_now > tier_prev and tier_now != 0 and tier_now == tier_prev + 1 and ongoing_now:
-                print(' New tier (' + str(tier_now) + ' was ' + str(tier_prev) + ')' + ' for goal "' + goal["title"]
-                      + '"')
-                handle_change("new_tier", goal)
-                continue
-
-        except Exception as e2:
-            print(' Error handling a goal : ' + str(e2))
+        # Check if new tier
+        if goal.current_tier > previous_goal.current_tier and not goal.is_finished:
+            print(' New tier (' + str(goal.current_tier) + ' was ' + str(previous_goal.current_tier) + ')' +
+                  ' for goal "' + goal.title + '"')
+            handle_change('new_tier', goal)
             continue
 
 
-if __name__ == "__main__":
-    print('Looking for CGs changes at ' + str(datetime.now()) + ':')
-    # First download latest json
-    latest_json = download_json()
-    if latest_json is None:
+def store_updated_data(latest_data, previous_data):
+    with get_session(db_engine) as db_session:
+
+        # If no previous store all
+        if previous_data is None:
+            for item in latest_data:
+                db_session.add(item)
+            return
+
+        # Else compare to not store bad data
+        for item in latest_data:
+            previous_item = next((x for x in previous_data if x.id == item.id), None)
+
+            # No previous item, store
+            if previous_item is None:
+                db_session.add(item)
+                continue
+
+            # If previous has bigger tier, don't save new one
+            if previous_item.current_tier > item.current_tier:
+                continue
+
+            # If previous is not ongoing but now is ongoing, ignore
+            if not previous_item.is_finished and item.is_finished:
+                continue
+
+            # Else, update
+            db_item = db_session.query(CommunityGoalStatus).filter(CommunityGoalStatus.id == item.id).first()
+            db_item.id = item.id
+            db_item.last_update = item.last_update
+            db_item.is_finished = item.is_finished
+            db_item.current_tier = item.current_tier
+            db_item.title = item.title
+
+
+def main():
+    print('Looking for CGs changes at ' + str(arrow.utcnow()) + ':')
+
+    # First get latest data
+    api_data = get_community_goals_v2()
+    latest_data = []
+    for goal in api_data['goals']:
+
+        # Get date
+        last_update_date = arrow.utcnow()
+        if 'date' in goal and 'last_update' in goal['date']:
+            last_update_date = arrow.get(goal['date']['last_update'])
+
+        # Get title
+        if 'title' in goal and len(goal['title']) != 0:
+            title = goal['title']
+        else:
+            continue
+
+        latest_data.append(CommunityGoalStatus(
+            id=goal['id'],
+            last_update=last_update_date.datetime,
+            is_finished=not goal['ongoing'],
+            current_tier=goal['tier_progress']['current'] if 'tier_progress' in goal else 0,
+            title=title
+        ))
+
+    if latest_data is None:
         exit(-1)
 
-    # Open previous one
-    try:
-        with open(previous_file_path) as previous_data:
-            previous_json = json.load(previous_data)
-    except Exception as e:
-        print(' Cannot open previous json, error (' + str(e) + ')')
-        previous_json = None
+    # Get previous data from db
+    with get_session(db_engine) as db_session:
+        previous_data = db_session.query(CommunityGoalStatus).all()
 
-    # If no previous data, write it and exit
-    if previous_json is None:
-        store_json(latest_json)
-        exit(0)
+        # If no previous data, write it and exit
+        if len(previous_data) == 0:
+            store_updated_data(latest_data, None)
+            exit(0)
 
-    # Else compare
-    compare_json(previous_json, latest_json)
+        # Else compare
+        compare_data(previous_data, latest_data)
 
-    # Then replace previous
-    store_json(latest_json)
+        # Then replace previous
+        store_updated_data(latest_data, previous_data)
+
+
+if __name__ == "__main__":
+    main()
