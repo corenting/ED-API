@@ -62,15 +62,7 @@ def get_community_goals_v2():
     # Generate response
     api_response = {'success': 1}
     idx = 0
-    for eventParent in inara_api_response['events']:
-        try:
-            event = eventParent['eventData'][0]
-        except:
-            event = None
-
-        if event is None:
-            continue
-
+    for event in inara_api_response['events'][0]['eventData']:
         rewards_result = []
         try:
             # Get corresponding rewards array
