@@ -8,6 +8,7 @@ from api.database import register_db, db
 from api.engineering.main import engineering_bp
 from api.helpers.json_encoder import CustomJsonEncoder
 from api.misc.main import misc_bp
+from api.ships.main import ships_bp
 from api.system.main import system_bp
 from config import DEBUG_MODE, DB_URI
 from models.internal.api_error import ApiError
@@ -23,6 +24,7 @@ register_db(app)
 app.register_blueprint(community_goals_bp, url_prefix='/community_goals')
 app.register_blueprint(commodities_bp, url_prefix='/commodities')
 app.register_blueprint(engineering_bp, url_prefix='/engineering')
+app.register_blueprint(ships_bp, url_prefix='/ships')
 app.register_blueprint(system_bp, url_prefix='/system')
 app.register_blueprint(misc_bp, url_prefix='/')
 

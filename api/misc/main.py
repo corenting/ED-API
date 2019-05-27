@@ -19,11 +19,6 @@ def flask_hello():
     return "ED-API is running."
 
 
-@misc_bp.route("/ships/")
-def flask_get_ships():
-    return get_response(get_ships_list(request.args.get('name')))
-
-
 @misc_bp.route("/distance/<first>/<second>")
 def flask_get_distance(first, second):
     return get_response(get_distance(first, second))
@@ -93,11 +88,3 @@ def get_distance(first, second):
         'to': second_system,
         'distance': distance_between_systems(first_system, second_system)
     }
-
-
-def get_ships_list(name_filter):
-    if not name_filter:
-        db_list = db.session.query(Ship).all()
-    else:
-        db_list = db.session.query(Ship).filter(Ship.name.ilike('%' + name_filter + '%')).all()
-    return db_list
