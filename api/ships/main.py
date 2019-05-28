@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Blueprint, request
+from flask import Blueprint, request, redirect
 
 from api.database import db
 from api.helpers.request import get_requests_headers
@@ -18,7 +18,19 @@ def flask_get_ships():
 
 @ships_bp.route("/details")
 def flask_get_ships_details():
-    return get_response(get_ships_details(request.args.get('name')))
+    res = get_ships_details(request.args.get('name'))
+    if res is None:
+        res = error_response('Ship not found')
+    return get_response(res)
+
+
+@ships_bp.route("/picture/<ship>")
+def flask_get_ship_picture(ship):
+    res_item = get_ships_details(ship)
+    if res_item is None:
+        return get_response(error_response('Ship not found'))
+    else:
+        return redirect(res_item['landing_pad_picture'], 301)
 
 
 def get_ships_details(filter_ship_name):
@@ -46,10 +58,7 @@ def get_ships_details(filter_ship_name):
         return res
     else:
         res = next((x for x in res if x['name'].lower() == filter_ship_name.lower()), None)
-        if res is None:
-            return error_response('Ship not found')
-        else:
-            return res
+        return res
 
 
 def get_ship_name(name):

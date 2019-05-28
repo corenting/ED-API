@@ -32,7 +32,7 @@ def flask_get_stations_selling_buying_commodity(system, commodity):
     selling = request_param("selling", 0)
     min_demand = request_param("demand", 0)
     if min_demand == 1:
-        min_demand = 0  # TODO : remove hack after app update
+        min_demand = 0  # TODO : remove hack after next app update
     return get_response(
         get_stations_selling_buying_commodity(system, commodity, min_stock, min_demand, pad_size, selling == 1))
 
