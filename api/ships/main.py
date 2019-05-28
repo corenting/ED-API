@@ -18,10 +18,10 @@ def flask_get_ships():
 
 @ships_bp.route("/details")
 def flask_get_ships_details():
-    return get_response(get_ships_details())
+    return get_response(get_ships_details(request.args.get('name')))
 
 
-def get_ships_details():
+def get_ships_details(filter_ship_name):
     url_base = 'https://elitedangerous-website-backend-production.elitedangerous.com'
     url = "{0}/api/ships?_format=json".format(url_base)
     req = requests.get(url, headers=get_requests_headers())
@@ -40,7 +40,16 @@ def get_ships_details():
             'description': item['body'].replace('<p>', '').replace('</p>', ''),
 
         })
-    return res
+
+    # Send response
+    if filter_ship_name is None:
+        return res
+    else:
+        res = next((x for x in res if x['name'].lower() == filter_ship_name.lower()), None)
+        if res is None:
+            return error_response('Ship not found')
+        else:
+            return res
 
 
 def get_ship_name(name):

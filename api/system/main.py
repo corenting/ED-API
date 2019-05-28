@@ -93,7 +93,11 @@ def get_system_info(system_name):
         return error_response(system_name + ' system not found')
 
     sys_body = sys_req.content
-    sys_json = json.loads(sys_body.decode("utf-8"))[0]
+    sys_json_list = json.loads(sys_body.decode("utf-8"))
+    if len(sys_json_list) == 0:
+        return error_response(system_name + ' system not found')
+
+    sys_json = sys_json_list[0]
     sys_req.close()
 
     # Check if information is null in JSON, to replace it with empty object instead of empty list (EDSM bug)
