@@ -59,8 +59,16 @@ def get_community_goals_v2():
     except:
         pass
 
-    # Generate response
-    api_response = {'success': 1}
+    # Prepare response
+    api_response = {
+        'success': 1,
+        'goals': []
+    }
+
+    # Check if there is any ongoing community goals
+    if 'eventData' not in inara_api_response['events'][0]:
+        return api_response
+
     idx = 0
     for event in inara_api_response['events'][0]['eventData']:
         rewards_result = []
@@ -104,11 +112,6 @@ def get_community_goals_v2():
 
         idx = idx + 1
 
-        if 'goals' not in api_response:
-            api_response['goals'] = [goal]
-        else:
-            api_response['goals'].append(goal)
+        api_response['goals'].append(goal)
 
-    if 'goals' not in api_response:
-        api_response['goals'] = []
     return api_response
