@@ -98,8 +98,8 @@ def store_updated_data(latest_data, previous_data):
             if previous_item.current_tier > item.current_tier:
                 continue
 
-            # If previous is not ongoing but now is ongoing, ignore
-            if not previous_item.is_finished and item.is_finished:
+            # If previous is finished but now is ongoing, ignore
+            if previous_item.is_finished and not item.is_finished:
                 continue
 
             # Else, update
