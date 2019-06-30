@@ -10,7 +10,7 @@ commodities_bp = Blueprint("commodities", __name__)
 
 @commodities_bp.route("/")
 def flask_get_commodities():
-    return get_response(get_commodities_list(request.args.get('name'), request.args.get('live_prices')))
+    return get_response(get_commodities_list(request.args.get('name')))
 
 
 @commodities_bp.route("/<name>")
@@ -41,28 +41,25 @@ def get_commodity(name_filter):
     }
 
 
-def get_commodities_list(name_filter, live_price=False):
+def get_commodities_list(name_filter):
     if not name_filter:
         db_list = db.session.query(Commodity).all()
     else:
         db_list = db.session.query(Commodity).filter(Commodity.name.ilike('%' + name_filter + '%')).all()
 
-    if live_price and not name_filter:
-        new_results = []
-        live_results = db.engine.execute(
-            'select commodity_id, avg(buy_price) as buy_avg, avg(sell_price) as sell_avg'
-            'from commodities_prices group by commodity_id;').fetchall()
-        for entry in db_list:
-            live_entry = next((x for x in live_results if x[0] == entry.id), None)
-            new_results.append({
-                'average_price': entry.average_price,
-                'category': entry.category,
-                'id': entry.id,
-                'is_rare': entry.is_rare,
-                'name': entry.name,
-                'average_buy_price': float(live_entry[1]) if live_entry is not None else None,
-                'average_sell_price': float(live_entry[2]) if live_entry is not None else None,
-            })
-        return new_results
-    else:
-        return db_list
+    new_results = []
+    live_results = db.engine.execute(
+        'select commodity_id, avg(buy_price) as buy_avg, avg(sell_price) as sell_avg '
+        'from commodities_prices group by commodity_id;').fetchall()
+    for entry in db_list:
+        live_entry = next((x for x in live_results if x[0] == entry.id), None)
+        new_results.append({
+            'average_price': entry.average_price,
+            'category': entry.category,
+            'id': entry.id,
+            'is_rare': entry.is_rare,
+            'name': entry.name,
+            'average_buy_price': float(live_entry[1]) if live_entry is not None else None,
+            'average_sell_price': float(live_entry[2]) if live_entry is not None else None,
+        })
+    return new_results
