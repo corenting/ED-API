@@ -13,7 +13,7 @@ def get_price(session, station_id, commodity_name):
     :param commodity_name:
     :return:
     """
-    cq = session.query(Commodity.id).filter(Commodity.name == commodity_name)
+    cq = session.query(Commodity.id).filter(Commodity.internal_name == commodity_name)
     if cq and cq.count():
         cid = cq.first()[0]
 
@@ -27,26 +27,6 @@ def get_price(session, station_id, commodity_name):
             return pq.first()
 
     return None
-
-
-def get_price_by_id(session, station_id, commodity_id):
-    """
-    Get the price entry for a commodity at a particular station
-    :param session:
-    :param station_id:
-    :param commodity_id:
-    :return:
-    """
-
-    pq = session.query(CommodityPrice).filter(
-        and_(
-            CommodityPrice.station_id == station_id,
-            CommodityPrice.commodity_id == commodity_id
-        ))
-    if pq and pq.count():
-        return pq.first()
-    else:
-        return None
 
 
 def get_station_by_names(session, star_name, station_name):

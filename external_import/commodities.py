@@ -59,9 +59,9 @@ def import_commodities(db_session):
         for commodity in eddb_json:
             csv_commodity = next((x for x in csv_results if int(x['id']) == int(commodity['ed_id'])), None)
             if csv_commodity is None:
-                internal_name = commodity['name']
+                internal_name = commodity['name'].lower()
             else:
-                internal_name = csv_commodity['symbol']
+                internal_name = csv_commodity['symbol'].lower()
             item = Commodity(id=commodity["id"], name=commodity["name"], internal_name=internal_name,
                              average_price=commodity["average_price"], is_rare=bool(commodity["is_rare"]),
                              category_id=commodity["category_id"])
