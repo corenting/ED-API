@@ -74,6 +74,7 @@ class Commodity(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
+    internal_name = Column(String(255), nullable=False)
     average_price = Column(Integer, nullable=True)
     is_rare = Column(Boolean, nullable=False)
     category_id = Column(Integer, ForeignKey('commodities_categories.id'))
