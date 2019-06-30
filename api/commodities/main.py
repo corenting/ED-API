@@ -34,7 +34,7 @@ def get_commodity(name_filter):
         'where commodity_id = :id group by commodity_id;'),
         id=db_commodity.id).fetchall()
 
-    return {
+    item = {
         'average_price': db_commodity.average_price,
         'category': db_commodity.category,
         'id': db_commodity.id,
@@ -45,6 +45,14 @@ def get_commodity(name_filter):
         'minimum_buy_price': float(live_avg[0][2]) if live_avg is not None else None,
         'maximum_sell_price': float(live_avg[0][3]) if live_avg is not None else None,
     }
+
+    # Add max profit
+    max_profit = None
+    if live_avg is not None:
+        max_profit = item['maximum_sell_price'] - item['minimum_buy_price']
+    item['maximum_profit'] = max_profit
+
+    return item
 
 
 def get_commodities_list(name_filter, live_price=False):
