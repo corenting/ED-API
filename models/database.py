@@ -77,8 +77,8 @@ class Commodity(Base):
     internal_name = Column(String(255), nullable=False)
     average_price = Column(Integer, nullable=True)
     is_rare = Column(Boolean, nullable=False)
-    category_id = Column(Integer, ForeignKey('commodities_categories.id'))
 
+    category_id = Column(Integer, ForeignKey('commodities_categories.id'))
     category = relationship('CommodityCategory', lazy='joined')
 
 
@@ -86,16 +86,17 @@ class CommodityPrice(Base):
     __tablename__ = 'commodities_prices'
 
     id = Column(Integer, primary_key=True)
-    station_id = Column(Integer, index=True)
-    commodity_id = Column(Integer, index=True)
     supply = Column(BigInteger)
     buy_price = Column(Integer)
     sell_price = Column(Integer)
     demand = Column(BigInteger)
     collected_at = Column(Integer, index=True)
 
-    commodity = relationship('Commodity', lazy='joined', foreign_keys=[id],
-                             primaryjoin='Commodity.id == foreign(CommodityPrice.commodity_id)')
+    commodity_id = Column(Integer, ForeignKey('commodities.id'), index=True)
+    commodity = relationship('Commodity', lazy='joined')
+
+    station_id = Column(Integer, ForeignKey('stations.id'), index=True)
+    station = relationship('Station', lazy='joined')
 
     def from_eddn_dict(self, timestamp, data):
         msg_time = arrow.get(timestamp).to('utc').timestamp

@@ -23,6 +23,9 @@ def handle_eddn_message(db_engine, data):
                 if station:
                     # go through all the commodities and update prices
                     for item in data["message"]["commodities"]:
-                        price = get_price(session, station.id, item["name"])
-                        if price:
-                            price.from_eddn_dict(data["message"]["timestamp"], item)
+                        try:
+                            price = get_price(session, station.id, item["name"])
+                            if price:
+                                price.from_eddn_dict(data["message"]["timestamp"], item)
+                        except:
+                            print('Error updating price, message was: {}'.format(data['message']))

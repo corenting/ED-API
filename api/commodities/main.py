@@ -1,9 +1,11 @@
+import arrow
 from flask import Blueprint, request
-from sqlalchemy import text
+from sqlalchemy import text, desc, asc, and_
 
 from api.database import db
 from api.helpers.response import get_response, error_response
-from models.database import Commodity
+from common.market import price_difference
+from models.database import Commodity, CommodityPrice, Station
 
 commodities_bp = Blueprint("commodities", __name__)
 
@@ -28,11 +30,25 @@ def get_commodity(name_filter):
         'select '
         'avg(buy_price) as buy_avg,'
         'avg(sell_price) as sell_avg,'
-        'min(nullif(buy_price, 0)) as min_buy, '
+        'min(nullif(buy_price, 0)) as min_buy,'
         'max(sell_price) as max_sell '
         'from commodities_prices '
         'where commodity_id = :id group by commodity_id;'),
         id=db_commodity.id).fetchall()
+
+    # Get maximum selling stations and minimum buying ones
+    max_sellers = db.session.query(CommodityPrice).join(
+        CommodityPrice.station
+    ).filter(
+        CommodityPrice.commodity_id == db_commodity.id
+    ).order_by(desc(CommodityPrice.sell_price)).limit(25).all()
+
+    min_buyers = db.session.query(CommodityPrice).join(
+        CommodityPrice.station
+    ).filter(and_(
+        CommodityPrice.commodity_id == db_commodity.id,
+        CommodityPrice.buy_price != 0
+    )).order_by(asc(CommodityPrice.buy_price)).limit(25).all()
 
     item = {
         'average_price': db_commodity.average_price,
@@ -44,6 +60,24 @@ def get_commodity(name_filter):
         'average_sell_price': float(live_avg[0][1]) if live_avg is not None else None,
         'minimum_buy_price': float(live_avg[0][2]) if live_avg is not None else None,
         'maximum_sell_price': float(live_avg[0][3]) if live_avg is not None else None,
+        'maximum_sellers': [{
+            'station': x.station,
+            'supply': x.supply,
+            'sell_price': x.sell_price,
+            'demand': x.demand,
+            'collected_at': arrow.get(x.collected_at).isoformat(),
+            'price_difference_percentage':
+                price_difference(db_commodity.average_price, x.sell_price, is_selling=True)
+        } for x in max_sellers],
+        "minimum_buyers": [{
+            'station': x.station,
+            'supply': x.supply,
+            'buy_price': x.buy_price,
+            'demand': x.demand,
+            'collected_at': arrow.get(x.collected_at).isoformat(),
+            'price_difference_percentage':
+                price_difference(db_commodity.average_price, x.buy_price, is_selling=False)
+        } for x in min_buyers]
     }
 
     # Add max profit
