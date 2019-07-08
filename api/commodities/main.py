@@ -34,15 +34,16 @@ def get_commodity(name_filter):
         'max(sell_price) as max_sell '
         'from commodities_prices '
         'where commodity_id = :id group by commodity_id;'),
-        id=db_commodity.id).fetchall()
+        id=db_commodity.id).fetchall()[0]
 
-    # Get maximum selling stations and minimum buying ones
+    # Get maximum selling stations
     max_sellers = db.session.query(CommodityPrice).join(
         CommodityPrice.station
     ).filter(
         CommodityPrice.commodity_id == db_commodity.id
     ).order_by(desc(CommodityPrice.sell_price)).limit(25).all()
 
+    # Get min buying stations
     min_buyers = db.session.query(CommodityPrice).join(
         CommodityPrice.station
     ).filter(and_(
@@ -50,16 +51,29 @@ def get_commodity(name_filter):
         CommodityPrice.buy_price != 0
     )).order_by(asc(CommodityPrice.buy_price)).limit(25).all()
 
+    # Prices
+    if live_avg is None:
+        prices = {
+            'average_buy_price': 0,
+            'average_sell_price': 0,
+            'minimum_buy_price': 0,
+            'maximum_sell_price': 0,
+        }
+    else:
+        prices = {
+            'average_buy_price': float(live_avg[0]) if live_avg[0] is not None else 0,
+            'average_sell_price': float(live_avg[1]) if live_avg[1] is not None else 0,
+            'minimum_buy_price': float(live_avg[2]) if live_avg[2] is not None else 0,
+            'maximum_sell_price': float(live_avg[3]) if live_avg[3] is not None else 0
+        }
+
     item = {
+        **prices,
         'average_price': db_commodity.average_price,
         'category': db_commodity.category,
         'id': db_commodity.id,
         'is_rare': db_commodity.is_rare,
         'name': db_commodity.name,
-        'average_buy_price': float(live_avg[0][0]) if live_avg is not None else None,
-        'average_sell_price': float(live_avg[0][1]) if live_avg is not None else None,
-        'minimum_buy_price': float(live_avg[0][2]) if live_avg is not None else None,
-        'maximum_sell_price': float(live_avg[0][3]) if live_avg is not None else None,
         'maximum_sellers': [{
             'station': x.station,
             'supply': x.supply,
@@ -83,7 +97,7 @@ def get_commodity(name_filter):
     # Add max profit
     max_profit = None
     if live_avg is not None:
-        max_profit = item['maximum_sell_price'] - item['minimum_buy_price']
+        max_profit = max(item['maximum_sell_price'] - item['minimum_buy_price'], 0)
     item['maximum_profit'] = max_profit
 
     return item
