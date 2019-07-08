@@ -92,11 +92,12 @@ class CommodityPrice(Base):
     demand = Column(BigInteger)
     collected_at = Column(Integer, index=True)
 
-    commodity_id = Column(Integer, ForeignKey('commodities.id'), index=True)
-    commodity = relationship('Commodity', lazy='joined')
+    commodity_id = Column(Integer, index=True)
+    # commodity = relationship('Commodity', lazy='joined')
 
-    station_id = Column(Integer, ForeignKey('stations.id'), index=True)
-    station = relationship('Station', lazy='joined')
+    station_id = Column(Integer, index=True)
+
+    # station = relationship('Station', lazy='joined')
 
     def from_eddn_dict(self, timestamp, data):
         msg_time = arrow.get(timestamp).to('utc').timestamp
