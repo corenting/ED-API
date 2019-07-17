@@ -1,7 +1,7 @@
 import arrow
 from sqlalchemy import Column, Integer, Float, Boolean, String, BigInteger, DateTime, ForeignKey, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship, sessionmaker, deferred
 from sqlalchemy.util.compat import contextmanager
 
 database_metadata = MetaData()
@@ -95,12 +95,12 @@ class CommodityPrice(Base):
     commodity_id = Column(Integer, index=True)
     commodity = relationship('Commodity',
                              primaryjoin='foreign(CommodityPrice.commodity_id) == remote(Commodity.id)',
-                             lazy='joined')
+                             lazy='select')
 
     station_id = Column(Integer, index=True)
     station = relationship('Station',
                            primaryjoin='foreign(CommodityPrice.station_id) == remote(Station.id)',
-                           lazy='joined')
+                           lazy='select')
 
     def from_eddn_dict(self, timestamp, data):
         msg_time = arrow.get(timestamp).to('utc').timestamp
