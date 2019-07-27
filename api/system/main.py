@@ -143,7 +143,7 @@ def get_system_info(system_name):
         'security': get_name_or_unknown_from_obj('security', db_system),
         'primary_economy': get_name_or_unknown_from_obj('primary_economy', db_system),
         'controlling_faction_name': controlling_faction_name,
-        'population': sys_json['information']['population'],
+        'population': 0 if 'population' not in sys_json['information'] else sys_json['information']['population'],
         'factions': factions_res,
         'permit_required': db_system.permit_required if db_system is not None else False,
         'updated_at': arrow.utcnow().isoformat(),
