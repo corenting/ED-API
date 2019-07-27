@@ -5,7 +5,7 @@ from sqlalchemy import text, desc, asc, and_
 from api.database import db
 from api.helpers.response import get_response, error_response
 from common.market import price_difference
-from models.database import Commodity, CommodityPrice, Station
+from models.database import Commodity, CommodityPrice
 
 commodities_bp = Blueprint("commodities", __name__)
 

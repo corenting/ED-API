@@ -1,7 +1,7 @@
 import arrow
 from sqlalchemy import Column, Integer, Float, Boolean, String, BigInteger, DateTime, ForeignKey, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker, deferred
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.util.compat import contextmanager
 
 database_metadata = MetaData()

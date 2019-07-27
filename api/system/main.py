@@ -138,7 +138,7 @@ def get_system_info(system_name):
     return {
         'name': sys_json['name'],
         'allegiance': get_name_or_unknown_from_obj('allegiance', db_system),
-        'state': get_faction_state_name(sys_json['information']['factionState']),
+        'state': get_faction_state_name(sys_json['information'].get('factionState')),
         'government': get_name_or_unknown_from_obj('government', db_system),
         'security': get_name_or_unknown_from_obj('security', db_system),
         'primary_economy': get_name_or_unknown_from_obj('primary_economy', db_system),
