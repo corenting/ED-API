@@ -1,5 +1,5 @@
 import arrow
-from sqlalchemy import Column, Integer, Float, Boolean, String, BigInteger, DateTime, ForeignKey, MetaData
+from sqlalchemy import Column, Integer, Float, Boolean, BigInteger, DateTime, ForeignKey, MetaData, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.util.compat import contextmanager
@@ -16,15 +16,15 @@ class System(Base):
     y = Column(Float, nullable=False)
     z = Column(Float, nullable=False)
     permit_required = Column(Boolean, nullable=False)
-    name = Column(String(255), nullable=False)
-    allegiance = Column(String(255), nullable=True)
-    government = Column(String(255), nullable=True)
-    security = Column(String(255), nullable=True)
-    primary_economy = Column(String(255), nullable=True)
+    name = Column(Text, nullable=False)
+    allegiance = Column(Text, nullable=True)
+    government = Column(Text, nullable=True)
+    security = Column(Text, nullable=True)
+    primary_economy = Column(Text, nullable=True)
     updated_at = Column(Integer, nullable=False)
     population = Column(BigInteger, nullable=True)
-    power = Column(String(255), nullable=True)
-    power_state = Column(String(255), nullable=True)
+    power = Column(Text, nullable=True)
+    power_state = Column(Text, nullable=True)
 
     stations = relationship("Station", backref="systems")
 
@@ -33,12 +33,12 @@ class Station(Base):
     __tablename__ = 'stations'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
     last_shipyard_update = Column(DateTime, nullable=True)
     distance_to_star = Column(Integer, nullable=True)
-    max_landing_pad = Column(String(3), nullable=True)
+    max_landing_pad = Column(Text, nullable=True)
     is_planetary = Column(Boolean, nullable=False)
-    type = Column(String(255), nullable=True)
+    type = Column(Text, nullable=True)
 
     system_id = Column(Integer, ForeignKey('systems.id'))
     system = relationship('System', lazy='joined', back_populates="stations")
@@ -59,22 +59,23 @@ class Ship(Base):
     __tablename__ = 'ships'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
+    internal_name = Column(Text, nullable=False)
 
 
 class CommodityCategory(Base):
     __tablename__ = 'commodities_categories'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
 
 
 class Commodity(Base):
     __tablename__ = 'commodities'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    internal_name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
+    internal_name = Column(Text, nullable=False)
     average_price = Column(Integer, nullable=True)
     is_rare = Column(Boolean, nullable=False)
 
@@ -117,22 +118,22 @@ class Engineer(Base):
     __tablename__ = 'engineers'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
 
 
 class BlueprintIngredient(Base):
     __tablename__ = 'blueprint_ingredients'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
 
 
 class EngineerBlueprint(Base):
     __tablename__ = 'engineer_blueprints'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    type = Column(String(255), nullable=False)
+    name = Column(Text, nullable=False)
+    type = Column(Text, nullable=False)
     grade = Column(Integer, nullable=True)
     engineers = relationship('BlueprintEngineerLink', lazy='joined')
     ingredients = relationship('BlueprintIngredientLink', lazy='joined')
@@ -165,7 +166,7 @@ class CommunityGoalStatus(Base):
     last_update = Column(DateTime, nullable=False)
     is_finished = Column(Boolean, nullable=False)
     current_tier = Column(Integer, nullable=False)
-    title = Column(String(255), nullable=False)
+    title = Column(Text, nullable=False)
 
 
 @contextmanager
