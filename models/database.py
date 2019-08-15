@@ -60,7 +60,6 @@ class Ship(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
-    internal_name = Column(Text, nullable=False)
 
 
 class CommodityCategory(Base):
