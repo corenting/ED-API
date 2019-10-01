@@ -15,9 +15,9 @@ def flask_get_galnet():
     # Get articles
     lang = request.args.get('lang')
     if lang is None or lang == 'en':
-        url = "https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json"
+        url = "https://rss-bridge.9cw.eu/?action=display&bridge=EliteDangerousGalnet&format=Json"
     else:
-        url = "https://9cw.eu/rss-bridge/?action=display&bridge=EliteDangerousGalnet&format=Json&language=" + lang
+        url = "https://rss-bridge.9cw.eu/?action=display&bridge=EliteDangerousGalnet&format=Json&language=" + lang
     req = requests.get(url, headers=get_requests_headers())
     if req.status_code != 200:
         return error_response('Cannot fetch content')
