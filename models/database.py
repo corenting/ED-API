@@ -168,6 +168,27 @@ class CommunityGoalStatus(Base):
     title = Column(Text, nullable=False)
 
 
+class ModuleGroup(Base):
+    __tablename__ = 'modules_groups'
+
+    id = Column(Integer, primary_key=True)
+    category_id = Column(Integer, nullable=False)
+    name = Column(Text, nullable=False)
+    category = Column(Text, nullable=False)
+
+
+class Module(Base):
+    __tablename__ = 'modules'
+
+    id = Column(Integer, primary_key=True)
+    module_class = Column(Integer, nullable=False)
+    rating = Column(Text, nullable=False)
+    price = Column(BigInteger, nullable=True)
+
+    group_id = Column(Integer, ForeignKey('modules_groups.id'))
+    group = relationship('ModuleGroup', lazy='joined')
+
+
 @contextmanager
 def get_session(engine):
     """Provide a transactional scope around a series of operations."""
