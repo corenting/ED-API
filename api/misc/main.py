@@ -22,19 +22,19 @@ def flask_get_distance(first, second):
 # Old redirect
 @misc_bp.route("/v2/community_goals/")
 def flask_get_community_goals_v2_old():
-    return redirect('community_goals/v2/', 301)
+    return redirect("community_goals/v2/", 301)
 
 
 # Old redirect
 @misc_bp.route("/<system>/stations/ships/<ship>")
 def flask_get_stations_selling_ship_old(system, ship):
-    return redirect('system/{}/stations/ships/{}'.format(system, ship), 301)
+    return redirect("system/{}/stations/ships/{}".format(system, ship), 301)
 
 
 # Old redirect
 @misc_bp.route("/<system>/stations/commodities/<commodity>")
 def flask_get_stations_selling_commodity_old(system, commodity):
-    return redirect('system/{}/stations/commodities/{}'.format(system, commodity), 301)
+    return redirect("system/{}/stations/commodities/{}".format(system, commodity), 301)
 
 
 def get_distance(first, second):
@@ -49,12 +49,12 @@ def get_distance(first, second):
         second_system = get_system_from_edsm(second)
 
     if first_system is None:
-        return error_response(first + ' system not found')
+        return error_response(first + " system not found")
     if second_system is None:
-        return error_response(second + ' system not found')
+        return error_response(second + " system not found")
 
     return {
-        'from': first_system,
-        'to': second_system,
-        'distance': distance_between_systems(first_system, second_system)
+        "from": first_system,
+        "to": second_system,
+        "distance": distance_between_systems(first_system, second_system),
     }

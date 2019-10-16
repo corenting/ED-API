@@ -21,35 +21,27 @@ db_engine = create_engine(DB_URI)
 
 def send_fcm_notification(topic, data):
     if DEBUG_MODE:
-        topic += '_test'
-    extra_kwargs = {
-        'priority': 'high'
-    }
+        topic += "_test"
+    extra_kwargs = {"priority": "high"}
 
-    return push_service.notify_topic_subscribers(topic_name=topic,
-                                                 data_message=data,
-                                                 extra_kwargs=extra_kwargs,
-                                                 collapse_key=data['goal']['title'],
-                                                 time_to_live=86400)
+    return push_service.notify_topic_subscribers(
+        topic_name=topic,
+        data_message=data,
+        extra_kwargs=extra_kwargs,
+        collapse_key=data["goal"]["title"],
+        time_to_live=86400,
+    )
 
 
 def handle_change(change_type, goal):
-    notif_goal = {
-        'title': goal.title,
-        'tier_progress': {
-            'current': goal.current_tier
-        }
-    }
+    notif_goal = {"title": goal.title, "tier_progress": {"current": goal.current_tier}}
 
-    data = {
-        'goal': notif_goal,
-        'date': str(datetime.utcnow())
-    }
+    data = {"goal": notif_goal, "date": str(datetime.utcnow())}
     fcm_ret = send_fcm_notification(change_type, data)
     if fcm_ret["failure"] != 0:
-        print(' Failed to send FCM message : ' + str(fcm_ret))
+        print(" Failed to send FCM message : " + str(fcm_ret))
     else:
-        print(' FCM notification sent')
+        print(" FCM notification sent")
 
 
 def compare_data(previous, latest):
@@ -59,20 +51,28 @@ def compare_data(previous, latest):
         # New goal
         if previous_goal is None:
             print(' Goal "' + goal.title + '" started')
-            handle_change('new_goal', goal)
+            handle_change("new_goal", goal)
             continue
 
         # Finished goal
         if goal.is_finished and not previous_goal.is_finished:
             print(' Goal "' + goal.title + '" finished')
-            handle_change('finished_goal', goal)
+            handle_change("finished_goal", goal)
             continue
 
         # Check if new tier
         if goal.current_tier > previous_goal.current_tier and not goal.is_finished:
-            print(' New tier (' + str(goal.current_tier) + ' was ' + str(previous_goal.current_tier) + ')' +
-                  ' for goal "' + goal.title + '"')
-            handle_change('new_tier', goal)
+            print(
+                " New tier ("
+                + str(goal.current_tier)
+                + " was "
+                + str(previous_goal.current_tier)
+                + ")"
+                + ' for goal "'
+                + goal.title
+                + '"'
+            )
+            handle_change("new_tier", goal)
             continue
 
 
@@ -103,7 +103,11 @@ def store_updated_data(latest_data, previous_data):
                 continue
 
             # Else, update
-            db_item = db_session.query(CommunityGoalStatus).filter(CommunityGoalStatus.id == item.id).first()
+            db_item = (
+                db_session.query(CommunityGoalStatus)
+                .filter(CommunityGoalStatus.id == item.id)
+                .first()
+            )
             db_item.id = item.id
             db_item.last_update = item.last_update
             db_item.is_finished = item.is_finished
@@ -112,31 +116,35 @@ def store_updated_data(latest_data, previous_data):
 
 
 def main():
-    print('Looking for CGs changes at ' + str(arrow.utcnow()) + ':')
+    print("Looking for CGs changes at " + str(arrow.utcnow()) + ":")
 
     # First get latest data
     api_data = get_community_goals_v2()
     latest_data = []
-    for goal in api_data['goals']:
+    for goal in api_data["goals"]:
 
         # Get date
         last_update_date = arrow.utcnow()
-        if 'date' in goal and 'last_update' in goal['date']:
-            last_update_date = arrow.get(goal['date']['last_update'])
+        if "date" in goal and "last_update" in goal["date"]:
+            last_update_date = arrow.get(goal["date"]["last_update"])
 
         # Get title
-        if 'title' in goal and len(goal['title']) != 0:
-            title = goal['title']
+        if "title" in goal and len(goal["title"]) != 0:
+            title = goal["title"]
         else:
             continue
 
-        latest_data.append(CommunityGoalStatus(
-            id=goal['id'],
-            last_update=last_update_date.datetime,
-            is_finished=not goal['ongoing'],
-            current_tier=goal['tier_progress']['current'] if 'tier_progress' in goal else 0,
-            title=title
-        ))
+        latest_data.append(
+            CommunityGoalStatus(
+                id=goal["id"],
+                last_update=last_update_date.datetime,
+                is_finished=not goal["ongoing"],
+                current_tier=goal["tier_progress"]["current"]
+                if "tier_progress" in goal
+                else 0,
+                title=title,
+            )
+        )
 
     if latest_data is None:
         exit(-1)

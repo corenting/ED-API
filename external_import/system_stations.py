@@ -11,7 +11,7 @@ from models.internal.import_exception import ImportException
 
 def import_systems_and_stations(db_session):
     try:
-        print('Systems import started')
+        print("Systems import started")
         # First remove existing data
         db_session.query(StationShipLink).delete()
         db_session.query(Station).delete()
@@ -20,11 +20,18 @@ def import_systems_and_stations(db_session):
 
         # Download systems JSONL
         with tempfile.TemporaryFile() as file:
-            req = requests.get('https://eddb.io/archive/v6/systems_populated.jsonl', headers=get_requests_headers())
+            req = requests.get(
+                "https://eddb.io/archive/v6/systems_populated.jsonl",
+                headers=get_requests_headers(),
+            )
 
             # Check errors
             if req.status_code != 200:
-                raise ImportException('Error ' + str(req.status_code) + ' while downloading systems_populated.jsonl')
+                raise ImportException(
+                    "Error "
+                    + str(req.status_code)
+                    + " while downloading systems_populated.jsonl"
+                )
 
             file.write(req.content)
             req.close()
@@ -34,24 +41,41 @@ def import_systems_and_stations(db_session):
             with jsonlines.Reader(file) as reader:
                 # Add system
                 for s in reader:
-                    system = System(id=s["id"], x=s["x"], y=s["y"], z=s["z"], name=s["name"],
-                                    permit_required=s['needs_permit'], allegiance=s['allegiance'],
-                                    government=s['government'], security=s['security'],
-                                    primary_economy=s['primary_economy'], updated_at=s['updated_at'],
-                                    population=s['population'], power=s['power'], power_state=s['power_state'])
+                    system = System(
+                        id=s["id"],
+                        x=s["x"],
+                        y=s["y"],
+                        z=s["z"],
+                        name=s["name"],
+                        permit_required=s["needs_permit"],
+                        allegiance=s["allegiance"],
+                        government=s["government"],
+                        security=s["security"],
+                        primary_economy=s["primary_economy"],
+                        updated_at=s["updated_at"],
+                        population=s["population"],
+                        power=s["power"],
+                        power_state=s["power_state"],
+                    )
                     db_session.add(system)
         db_session.flush()
-        print('Systems import finished')
+        print("Systems import finished")
 
         # Download stations JSONL
-        print('Stations import started')
+        print("Stations import started")
         with tempfile.TemporaryFile() as file:
-            req = requests.get('https://eddb.io/archive/v6/stations.jsonl',
-                               headers=get_requests_headers())
+            req = requests.get(
+                "https://eddb.io/archive/v6/stations.jsonl",
+                headers=get_requests_headers(),
+            )
 
             # Check errors
             if req.status_code != 200:
-                raise ImportException('Error ' + str(req.status_code) + ' while downloading stations.jsonl')
+                raise ImportException(
+                    "Error "
+                    + str(req.status_code)
+                    + " while downloading stations.jsonl"
+                )
 
             file.write(req.content)
             req.close()
@@ -59,44 +83,54 @@ def import_systems_and_stations(db_session):
 
             # First loop to add ships
             with jsonlines.Reader(file) as reader:
-                print('    Ships import started')
+                print("    Ships import started")
                 ships_list = []
                 for s in reader:
-                    for sh in s['selling_ships']:
+                    for sh in s["selling_ships"]:
                         ship = Ship(name=sh)
                         if not any(db_ship.name == ship.name for db_ship in ships_list):
                             ships_list.append(ship)
                     for ship_elt in ships_list:
                         db_session.add(ship_elt)
             db_session.flush()
-            print('    Ships import finished')
+            print("    Ships import finished")
 
             # Second loop to add the stations themselves and the association tables
             file.seek(0)
             with jsonlines.Reader(file) as reader:
                 for item in reader:
-                    last_shipyard_update = timestamp_to_date(item["shipyard_updated_at"])
-                    landing_pad_size = item['max_landing_pad_size']
-                    if landing_pad_size == 'None':
+                    last_shipyard_update = timestamp_to_date(
+                        item["shipyard_updated_at"]
+                    )
+                    landing_pad_size = item["max_landing_pad_size"]
+                    if landing_pad_size == "None":
                         landing_pad_size = None
 
-                    new_station = Station(name=item["name"], id=item["id"],
-                                          is_planetary=item["is_planetary"],
-                                          max_landing_pad=landing_pad_size,
-                                          distance_to_star=item['distance_to_star'], type=item['type'],
-                                          system_id=item['system_id'],
-                                          last_shipyard_update=last_shipyard_update)
+                    new_station = Station(
+                        name=item["name"],
+                        id=item["id"],
+                        is_planetary=item["is_planetary"],
+                        max_landing_pad=landing_pad_size,
+                        distance_to_star=item["distance_to_star"],
+                        type=item["type"],
+                        system_id=item["system_id"],
+                        last_shipyard_update=last_shipyard_update,
+                    )
                     ships_array = item["selling_ships"]
                     if len(ships_array) != 0:
                         for ship in ships_array:
-                            db_ship = next((x for x in ships_list if x.name == ship), None)
-                            ship_link = StationShipLink(station=new_station, ship=db_ship)
+                            db_ship = next(
+                                (x for x in ships_list if x.name == ship), None
+                            )
+                            ship_link = StationShipLink(
+                                station=new_station, ship=db_ship
+                            )
                             db_session.add(ship_link)
                     else:
                         db_session.add(new_station)
                     db_session.flush()
         db_session.commit()
-        print('Stations import finished')
+        print("Stations import finished")
 
         return True
     except Exception as e:

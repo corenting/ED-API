@@ -11,4 +11,6 @@ def distance_between_systems(first, second):
 
 
 def point_is_in_sphere(point_x, point_y, point_z, center_x, center_y, center_z):
-    return (point_x - center_x) ^ 2 + (point_y - center_y) ^ 2 + (point_z - center_z) ^ 2 < 25 ^ 2
+    return (point_x - center_x) ^ 2 + (point_y - center_y) ^ 2 + (
+        point_z - center_z
+    ) ^ 2 < 25 ^ 2

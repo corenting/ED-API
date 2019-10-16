@@ -10,5 +10,5 @@ class ApiError(Exception):
 
     def to_dict(self):
         rv = dict(self.payload or ())
-        rv['error'] = self.message
+        rv["error"] = self.message
         return rv

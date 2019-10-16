@@ -3,7 +3,7 @@ from eddn.utils import get_station_by_names, get_price
 from models.database import get_session
 
 SCHEMA_REF = "$schemaRef"
-COMMODITY_SCHEMA = 'https://eddn.edcd.io/schemas/commodity/3'
+COMMODITY_SCHEMA = "https://eddn.edcd.io/schemas/commodity/3"
 
 
 def handle_eddn_message(db_engine, data):
@@ -28,4 +28,8 @@ def handle_eddn_message(db_engine, data):
                             if price:
                                 price.from_eddn_dict(data["message"]["timestamp"], item)
                         except:
-                            print('Error updating price, message was: {}'.format(data['message']))
+                            print(
+                                "Error updating price, message was: {}".format(
+                                    data["message"]
+                                )
+                            )

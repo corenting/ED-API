@@ -2,9 +2,7 @@ from flask import request
 
 
 def get_requests_headers():
-    return {
-        'User-Agent': 'ED-API',
-    }
+    return {"User-Agent": "ED-API"}
 
 
 def request_param(name, default_value=0):

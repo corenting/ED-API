@@ -17,18 +17,18 @@ from models.internal.api_error import ApiError
 # App config
 app = Flask(__name__)
 app.json_encoder = CustomJsonEncoder
-app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = DB_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 register_db(app)
 
 # Blueprints
-app.register_blueprint(community_goals_bp, url_prefix='/community_goals')
-app.register_blueprint(commodities_bp, url_prefix='/commodities')
-app.register_blueprint(engineering_bp, url_prefix='/engineering')
-app.register_blueprint(ships_bp, url_prefix='/ships')
-app.register_blueprint(system_bp, url_prefix='/system')
-app.register_blueprint(galnet_bp, url_prefix='/galnet')
-app.register_blueprint(misc_bp, url_prefix='/')
+app.register_blueprint(community_goals_bp, url_prefix="/community_goals")
+app.register_blueprint(commodities_bp, url_prefix="/commodities")
+app.register_blueprint(engineering_bp, url_prefix="/engineering")
+app.register_blueprint(ships_bp, url_prefix="/ships")
+app.register_blueprint(system_bp, url_prefix="/system")
+app.register_blueprint(galnet_bp, url_prefix="/galnet")
+app.register_blueprint(misc_bp, url_prefix="/")
 
 
 @app.errorhandler(ApiError)
@@ -41,6 +41,6 @@ def handle_invalid_usage(error):
 if __name__ == "__main__":
     db.create_all()
     if DEBUG_MODE:
-        app.run(host='0.0.0.0', debug=True)
+        app.run(host="0.0.0.0", debug=True)
     else:
-        app.run(host='0.0.0.0')
+        app.run(host="0.0.0.0")

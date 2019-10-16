@@ -14,33 +14,41 @@ from models.internal.import_exception import ImportException
 
 def import_commodities(db_session):
     try:
-        print('Commodities import started')
+        print("Commodities import started")
         # First remove existing data
         db_session.query(Commodity).delete()
         db_session.query(CommodityCategory).delete()
 
         # Download JSON
-        req = requests.get('https://eddb.io/archive/v6/commodities.json',
-                           headers=get_requests_headers())
+        req = requests.get(
+            "https://eddb.io/archive/v6/commodities.json",
+            headers=get_requests_headers(),
+        )
 
         if req.status_code != 200:
-            raise ImportException('Error ' + str(req.status_code) + ' while downloading commodities.json')
+            raise ImportException(
+                "Error " + str(req.status_code) + " while downloading commodities.json"
+            )
 
         body = req.content
         eddb_json = json.loads(body.decode("utf-8"))
         req.close()
 
         # Download CSV of names
-        req = requests.get('https://raw.githubusercontent.com/EDCD/FDevIDs/master/commodity.csv',
-                           headers=get_requests_headers())
+        req = requests.get(
+            "https://raw.githubusercontent.com/EDCD/FDevIDs/master/commodity.csv",
+            headers=get_requests_headers(),
+        )
 
         if req.status_code != 200:
-            raise ImportException('Error ' + str(req.status_code) + ' while downloading commodity.csv')
+            raise ImportException(
+                "Error " + str(req.status_code) + " while downloading commodity.csv"
+            )
 
         body = req.content
         csv_results = []
         csv_file = StringIO(str(body.decode("utf-8")))
-        reader = csv.DictReader(csv_file, delimiter=',')
+        reader = csv.DictReader(csv_file, delimiter=",")
         for row in reader:  # each row is a list
             csv_results.append(row)
         csv_file.close()
@@ -49,7 +57,9 @@ def import_commodities(db_session):
         # First loop to add commodities categories
         categories_list = []
         for commodity in eddb_json:
-            category = CommodityCategory(id=commodity["category"]["id"], name=commodity["category"]["name"])
+            category = CommodityCategory(
+                id=commodity["category"]["id"], name=commodity["category"]["name"]
+            )
             if not any(db_cat.id == category.id for db_cat in categories_list):
                 categories_list.append(category)
         for cat in categories_list:
@@ -57,17 +67,25 @@ def import_commodities(db_session):
 
         # Second loop to add the commodities themselves
         for commodity in eddb_json:
-            csv_commodity = next((x for x in csv_results if int(x['id']) == int(commodity['ed_id'])), None)
+            csv_commodity = next(
+                (x for x in csv_results if int(x["id"]) == int(commodity["ed_id"])),
+                None,
+            )
             if csv_commodity is None:
-                internal_name = commodity['name'].lower()
+                internal_name = commodity["name"].lower()
             else:
-                internal_name = csv_commodity['symbol'].lower()
-            item = Commodity(id=commodity["id"], name=commodity["name"], internal_name=internal_name,
-                             average_price=commodity["average_price"], is_rare=bool(commodity["is_rare"]),
-                             category_id=commodity["category_id"])
+                internal_name = csv_commodity["symbol"].lower()
+            item = Commodity(
+                id=commodity["id"],
+                name=commodity["name"],
+                internal_name=internal_name,
+                average_price=commodity["average_price"],
+                is_rare=bool(commodity["is_rare"]),
+                category_id=commodity["category_id"],
+            )
             db_session.add(item)
         db_session.commit()
-        print('Commodities import finished')
+        print("Commodities import finished")
         return True
     except Exception as e:
         print("Commodities import error (" + str(e) + ")")
@@ -75,7 +93,7 @@ def import_commodities(db_session):
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     db_engine = create_engine(DB_URI)
     with get_session(db_engine) as sess:
         import_commodities(sess)

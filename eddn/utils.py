@@ -21,8 +21,9 @@ def get_price(session, station_id, commodity_name):
         pq = session.query(CommodityPrice).filter(
             and_(
                 CommodityPrice.station_id == station_id,
-                CommodityPrice.commodity_id == cid
-            ))
+                CommodityPrice.commodity_id == cid,
+            )
+        )
         if pq and pq.count():
             return pq.first()
 
@@ -43,10 +44,8 @@ def get_station_by_names(session, star_name, station_name):
             star_id = star_id[0]
             # find the station
             stations = session.query(Station.id).filter(
-                and_(
-                    Station.system_id == star_id,
-                    Station.name == station_name
-                ))
+                and_(Station.system_id == star_id, Station.name == station_name)
+            )
             if stations and stations.count() == 1:
                 station = stations.first()[0]
                 return session.query(Station).get(station)

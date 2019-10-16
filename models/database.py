@@ -1,5 +1,15 @@
 import arrow
-from sqlalchemy import Column, Integer, Float, Boolean, BigInteger, DateTime, ForeignKey, MetaData, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    Float,
+    Boolean,
+    BigInteger,
+    DateTime,
+    ForeignKey,
+    MetaData,
+    Text,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.util.compat import contextmanager
@@ -9,7 +19,7 @@ Base = declarative_base(metadata=database_metadata)
 
 
 class System(Base):
-    __tablename__ = 'systems'
+    __tablename__ = "systems"
 
     id = Column(Integer, primary_key=True)
     x = Column(Float, nullable=False)
@@ -30,7 +40,7 @@ class System(Base):
 
 
 class Station(Base):
-    __tablename__ = 'stations'
+    __tablename__ = "stations"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
@@ -40,37 +50,37 @@ class Station(Base):
     is_planetary = Column(Boolean, nullable=False)
     type = Column(Text, nullable=True)
 
-    system_id = Column(Integer, ForeignKey('systems.id'))
-    system = relationship('System', lazy='joined', back_populates="stations")
+    system_id = Column(Integer, ForeignKey("systems.id"))
+    system = relationship("System", lazy="joined", back_populates="stations")
 
-    ships_sold = relationship('StationShipLink', lazy='joined')
+    ships_sold = relationship("StationShipLink", lazy="joined")
 
 
 class StationShipLink(Base):
-    __tablename__ = 'station_ship_link'
+    __tablename__ = "station_ship_link"
 
-    station_id = Column(Integer, ForeignKey('stations.id'), primary_key=True)
-    ship_id = Column(Integer, ForeignKey('ships.id'), primary_key=True)
-    station = relationship('Station', lazy='joined')
-    ship = relationship('Ship', lazy='joined')
+    station_id = Column(Integer, ForeignKey("stations.id"), primary_key=True)
+    ship_id = Column(Integer, ForeignKey("ships.id"), primary_key=True)
+    station = relationship("Station", lazy="joined")
+    ship = relationship("Ship", lazy="joined")
 
 
 class Ship(Base):
-    __tablename__ = 'ships'
+    __tablename__ = "ships"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
 
 
 class CommodityCategory(Base):
-    __tablename__ = 'commodities_categories'
+    __tablename__ = "commodities_categories"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
 
 
 class Commodity(Base):
-    __tablename__ = 'commodities'
+    __tablename__ = "commodities"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
@@ -78,12 +88,12 @@ class Commodity(Base):
     average_price = Column(Integer, nullable=True)
     is_rare = Column(Boolean, nullable=False)
 
-    category_id = Column(Integer, ForeignKey('commodities_categories.id'))
-    category = relationship('CommodityCategory', lazy='joined')
+    category_id = Column(Integer, ForeignKey("commodities_categories.id"))
+    category = relationship("CommodityCategory", lazy="joined")
 
 
 class CommodityPrice(Base):
-    __tablename__ = 'commodities_prices'
+    __tablename__ = "commodities_prices"
 
     id = Column(Integer, primary_key=True)
     supply = Column(BigInteger)
@@ -93,17 +103,21 @@ class CommodityPrice(Base):
     collected_at = Column(Integer, index=True)
 
     commodity_id = Column(Integer, index=True)
-    commodity = relationship('Commodity',
-                             primaryjoin='foreign(CommodityPrice.commodity_id) == remote(Commodity.id)',
-                             lazy='select')
+    commodity = relationship(
+        "Commodity",
+        primaryjoin="foreign(CommodityPrice.commodity_id) == remote(Commodity.id)",
+        lazy="select",
+    )
 
     station_id = Column(Integer, index=True)
-    station = relationship('Station',
-                           primaryjoin='foreign(CommodityPrice.station_id) == remote(Station.id)',
-                           lazy='select')
+    station = relationship(
+        "Station",
+        primaryjoin="foreign(CommodityPrice.station_id) == remote(Station.id)",
+        lazy="select",
+    )
 
     def from_eddn_dict(self, timestamp, data):
-        msg_time = arrow.get(timestamp).to('utc').timestamp
+        msg_time = arrow.get(timestamp).to("utc").timestamp
 
         if msg_time > self.collected_at:
             self.demand = data.get("demand")
@@ -114,52 +128,54 @@ class CommodityPrice(Base):
 
 
 class Engineer(Base):
-    __tablename__ = 'engineers'
+    __tablename__ = "engineers"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
 
 
 class BlueprintIngredient(Base):
-    __tablename__ = 'blueprint_ingredients'
+    __tablename__ = "blueprint_ingredients"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
 
 
 class EngineerBlueprint(Base):
-    __tablename__ = 'engineer_blueprints'
+    __tablename__ = "engineer_blueprints"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
     type = Column(Text, nullable=False)
     grade = Column(Integer, nullable=True)
-    engineers = relationship('BlueprintEngineerLink', lazy='joined')
-    ingredients = relationship('BlueprintIngredientLink', lazy='joined')
+    engineers = relationship("BlueprintEngineerLink", lazy="joined")
+    ingredients = relationship("BlueprintIngredientLink", lazy="joined")
 
 
 class BlueprintEngineerLink(Base):
-    __tablename__ = 'blueprint_engineer_link'
+    __tablename__ = "blueprint_engineer_link"
 
-    blueprint_id = Column(Integer, ForeignKey('engineer_blueprints.id'), primary_key=True)
-    engineer_id = Column(Integer, ForeignKey('engineers.id'), primary_key=True)
-    blueprint = relationship('EngineerBlueprint', lazy='joined')
-    engineer = relationship('Engineer', lazy='joined')
+    blueprint_id = Column(
+        Integer, ForeignKey("engineer_blueprints.id"), primary_key=True
+    )
+    engineer_id = Column(Integer, ForeignKey("engineers.id"), primary_key=True)
+    blueprint = relationship("EngineerBlueprint", lazy="joined")
+    engineer = relationship("Engineer", lazy="joined")
 
 
 class BlueprintIngredientLink(Base):
-    __tablename__ = 'blueprint_ingredient_link'
+    __tablename__ = "blueprint_ingredient_link"
 
     id = Column(Integer, primary_key=True)
-    blueprint_id = Column(Integer, ForeignKey('engineer_blueprints.id'))
-    ingredient_id = Column(Integer, ForeignKey('blueprint_ingredients.id'))
+    blueprint_id = Column(Integer, ForeignKey("engineer_blueprints.id"))
+    ingredient_id = Column(Integer, ForeignKey("blueprint_ingredients.id"))
     quantity = Column(Integer)
-    blueprint = relationship('EngineerBlueprint', lazy='joined')
-    ingredient = relationship('BlueprintIngredient', lazy='joined')
+    blueprint = relationship("EngineerBlueprint", lazy="joined")
+    ingredient = relationship("BlueprintIngredient", lazy="joined")
 
 
 class CommunityGoalStatus(Base):
-    __tablename__ = 'community_goals_status'
+    __tablename__ = "community_goals_status"
 
     id = Column(Integer, primary_key=True)
     last_update = Column(DateTime, nullable=False)
@@ -169,7 +185,7 @@ class CommunityGoalStatus(Base):
 
 
 class ModuleGroup(Base):
-    __tablename__ = 'modules_groups'
+    __tablename__ = "modules_groups"
 
     id = Column(Integer, primary_key=True)
     category_id = Column(Integer, nullable=False)
@@ -178,15 +194,15 @@ class ModuleGroup(Base):
 
 
 class Module(Base):
-    __tablename__ = 'modules'
+    __tablename__ = "modules"
 
     id = Column(Integer, primary_key=True)
     module_class = Column(Integer, nullable=False)
     rating = Column(Text, nullable=False)
     price = Column(BigInteger, nullable=True)
 
-    group_id = Column(Integer, ForeignKey('modules_groups.id'))
-    group = relationship('ModuleGroup', lazy='joined')
+    group_id = Column(Integer, ForeignKey("modules_groups.id"))
+    group = relationship("ModuleGroup", lazy="joined")
 
 
 @contextmanager
