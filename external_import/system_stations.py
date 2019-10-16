@@ -5,7 +5,7 @@ from jsonlines import jsonlines
 
 from api.helpers.request import get_requests_headers
 from common.utils import timestamp_to_date
-from models.database import StationShipLink, Station, Ship, System
+from models.database import StationModuleLink, StationShipLink, Station, Ship, System
 from models.internal.import_exception import ImportException
 
 
@@ -116,6 +116,10 @@ def import_systems_and_stations(db_session):
                         system_id=item["system_id"],
                         last_shipyard_update=last_shipyard_update,
                     )
+                    db_session.add(new_station)
+                    db_session.flush()
+
+                    # Ships sold by the station
                     ships_array = item["selling_ships"]
                     if len(ships_array) != 0:
                         for ship in ships_array:
@@ -126,9 +130,18 @@ def import_systems_and_stations(db_session):
                                 station=new_station, ship=db_ship
                             )
                             db_session.add(ship_link)
-                    else:
-                        db_session.add(new_station)
                     db_session.flush()
+
+                    # Modules sold by the station
+                    modules_array = item["selling_modules"]
+                    if len(modules_array) != 0:
+                        for module in modules_array:
+                            module_link = StationModuleLink(
+                                station=new_station, module_id=module
+                            )
+                            db_session.add(module_link)
+                    db_session.flush()
+
         db_session.commit()
         print("Stations import finished")
 

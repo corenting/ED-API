@@ -25,3 +25,5 @@ def commodities_import():
 def modules_import():
     with get_session(db_engine) as session:
         modules.import_modules(session)
+
+systems_and_stations_import()

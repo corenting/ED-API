@@ -65,6 +65,15 @@ class StationShipLink(Base):
     ship = relationship("Ship", lazy="joined")
 
 
+class StationModuleLink(Base):
+    __tablename__ = "station_module_link"
+
+    station_id = Column(Integer, ForeignKey("stations.id"), primary_key=True)
+    module_id = Column(Integer, ForeignKey("modules.id"), primary_key=True)
+    station = relationship("Station", lazy="joined")
+    module = relationship("Module", lazy="joined")
+
+
 class Ship(Base):
     __tablename__ = "ships"
 
