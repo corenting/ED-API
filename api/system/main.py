@@ -22,6 +22,7 @@ from models.database import (
     Ship,
     CommodityPrice,
     Commodity,
+    StationModuleLink,
 )
 
 system_bp = Blueprint("system", __name__)
@@ -30,6 +31,11 @@ system_bp = Blueprint("system", __name__)
 @system_bp.route("/<system>/stations/ships/<ship>")
 def flask_get_stations_selling_ship(system, ship):
     return get_response(get_stations_selling_ship(system, ship))
+
+
+@system_bp.route("/<system>/stations/modules/<module_id>")
+def flask_get_stations_selling_module(system, module_id):
+    return get_response(get_stations_selling_module(system, module_id))
 
 
 @system_bp.route("/<system>/stations/commodities/<commodity>")
@@ -335,6 +341,44 @@ def get_stations_selling_ship(reference_system_name, ship):
             <= reference_system.y + 25
             and reference_system.z - 25
             <= StationShipLink.station.system.z
+            <= reference_system.z + 25
+        )
+        .all()
+    )
+    ret_list = [
+        {
+            "station": s.station,
+            "distance": distance_between_systems(reference_system, s.station.system),
+        }
+        for s in stations
+    ]
+    ret_list.sort(key=lambda o: o["distance"])
+    return ret_list[:150]
+
+
+def get_stations_selling_module(reference_system_name, module_id):
+    # First, try to get ref system from local db
+    reference_system = (
+        db.session.query(System).filter(System.name == reference_system_name).first()
+    )
+    # Else, try to get it from EDSM API
+    if reference_system is None:
+        reference_system = get_system_from_edsm(reference_system_name)
+    if reference_system is None:
+        return error_response(reference_system_name + " system not found")
+
+    stations = (
+        db.session.query(StationModuleLink)
+        .filter(
+            StationModuleLink.module_id == module_id
+            and reference_system.x - 25
+            <= StationModuleLink.station.system.x
+            <= reference_system.x + 25
+            and reference_system.y - 25
+            <= StationModuleLink.station.system.y
+            <= reference_system.y + 25
+            and reference_system.z - 25
+            <= StationModuleLink.station.system.z
             <= reference_system.z + 25
         )
         .all()

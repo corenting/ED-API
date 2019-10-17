@@ -1,5 +1,4 @@
 import arrow
-
 from flask.json import JSONEncoder
 
 from models.database import (
@@ -13,6 +12,7 @@ from models.database import (
     Ship,
     StationShipLink,
     Station,
+    StationModuleLink,
 )
 
 
@@ -62,6 +62,13 @@ class CustomJsonEncoder(JSONEncoder):
             return {"name": obj.name}
         if isinstance(obj, StationShipLink):
             return obj.ship.name
+        if isinstance(obj, StationModuleLink):
+            return {
+                "id": obj.module.id,
+                "class": obj.module.module_class,
+                "rating": obj.module.rating,
+                "group": obj.module.group.name,
+            }
         if isinstance(obj, Station):
             return {
                 "id": obj.id,
@@ -75,5 +82,6 @@ class CustomJsonEncoder(JSONEncoder):
                 "type": obj.type,
                 "system": obj.system,
                 "ships_sold": obj.ships_sold,
+                "modules_sold": obj.modules_sold,
             }
         return super(CustomJsonEncoder, self).default(obj)

@@ -54,6 +54,7 @@ class Station(Base):
     system = relationship("System", lazy="joined", back_populates="stations")
 
     ships_sold = relationship("StationShipLink", lazy="joined")
+    modules_sold = relationship("StationModuleLink", lazy="joined")
 
 
 class StationShipLink(Base):
@@ -115,14 +116,14 @@ class CommodityPrice(Base):
     commodity = relationship(
         "Commodity",
         primaryjoin="foreign(CommodityPrice.commodity_id) == remote(Commodity.id)",
-        lazy="select",
+        lazy="joined",
     )
 
     station_id = Column(Integer, index=True)
     station = relationship(
         "Station",
         primaryjoin="foreign(CommodityPrice.station_id) == remote(Station.id)",
-        lazy="select",
+        lazy="joined",
     )
 
     def from_eddn_dict(self, timestamp, data):
