@@ -6,7 +6,7 @@ import arrow
 from pyfcm import FCMNotification
 from sqlalchemy import create_engine
 
-from api.community_goals.main import get_community_goals_v2
+from api.community_goals.main import get_community_goals
 from config import FCM_API_KEY, DEBUG_MODE, DB_URI
 
 # FCM config
@@ -119,7 +119,7 @@ def main():
     print("Looking for CGs changes at " + str(arrow.utcnow()) + ":")
 
     # First get latest data
-    api_data = get_community_goals_v2()
+    api_data = get_community_goals()
     latest_data = []
     for goal in api_data["goals"]:
 

@@ -2,10 +2,10 @@ import json
 
 import arrow
 import requests
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 
 from api.helpers.request import get_requests_headers
-from api.helpers.response import error_response, get_response
+from api.helpers.response import error_response
 
 galnet_bp = Blueprint("galnet", __name__)
 
@@ -23,7 +23,7 @@ def flask_get_galnet():
         )
     req = requests.get(url, headers=get_requests_headers())
     if req.status_code != 200:
-        return error_response("Cannot fetch content")
+        return error_response("Cannot fetch content", 500)
     articles = json.loads(req.content.decode("utf-8"))
 
     # Get official website JSON for the pictures
@@ -60,4 +60,4 @@ def flask_get_galnet():
             )
 
         res.append(new_item)
-    return get_response(res)
+    return jsonify(res)

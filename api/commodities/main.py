@@ -1,9 +1,9 @@
 import arrow
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from sqlalchemy import text, desc, asc, and_
 
 from api.database import db
-from api.helpers.response import get_response, error_response
+from api.helpers.response import error_response
 from common.market import price_difference
 from models.database import Commodity, CommodityPrice
 
@@ -12,20 +12,55 @@ commodities_bp = Blueprint("commodities", __name__)
 
 @commodities_bp.route("/")
 def flask_get_commodities():
-    return get_response(
-        get_commodities_list(request.args.get("name"), request.args.get("live_prices"))
-    )
+    name_filter = request.args.get("name")
+    live_price = request.args.get("live_prices") == 1
+
+    # Get all commodities or only the ones corresponding to the filter
+    if not name_filter:
+        db_list = db.session.query(Commodity).all()
+    else:
+        db_list = (
+            db.session.query(Commodity)
+            .filter(Commodity.name.ilike("%" + name_filter + "%"))
+            .all()
+        )
+
+    if live_price and not name_filter:
+        new_results = []
+        average_prices = db.engine.execute(
+            "select commodity_id, avg(buy_price) as buy_avg, avg(sell_price) as sell_avg "
+            "from commodities_prices group by commodity_id;"
+        ).fetchall()
+        for entry in db_list:
+            commodity_avg_prices = next(
+                (x for x in average_prices if x[0] == entry.id), None
+            )
+            new_results.append(
+                {
+                    "average_price": entry.average_price,
+                    "category": entry.category,
+                    "id": entry.id,
+                    "is_rare": entry.is_rare,
+                    "name": entry.name,
+                    "average_buy_price": float(commodity_avg_prices[1])
+                    if commodity_avg_prices is not None
+                    else None,
+                    "average_sell_price": float(commodity_avg_prices[2])
+                    if commodity_avg_prices is not None
+                    else None,
+                }
+            )
+        return jsonify(new_results)
+    else:
+        return jsonify(db_list)
 
 
 @commodities_bp.route("/<name>")
 def flask_get_commodity(name):
-    return get_response(get_commodity(name))
-
-
-def get_commodity(name_filter):
+    # Fetch the commodity from the db by name
     db_commodity = (
         db.session.query(Commodity)
-        .filter(Commodity.name.ilike("%" + name_filter + "%"))
+        .filter(Commodity.name.ilike("%" + name + "%"))
         .first()
     )
     if db_commodity is None:
@@ -127,42 +162,4 @@ def get_commodity(name_filter):
         max_profit = max(item["maximum_sell_price"] - item["minimum_buy_price"], 0)
     item["maximum_profit"] = max_profit
 
-    return item
-
-
-def get_commodities_list(name_filter, live_price=False):
-    if not name_filter:
-        db_list = db.session.query(Commodity).all()
-    else:
-        db_list = (
-            db.session.query(Commodity)
-            .filter(Commodity.name.ilike("%" + name_filter + "%"))
-            .all()
-        )
-
-    if live_price and not name_filter:
-        new_results = []
-        live_results = db.engine.execute(
-            "select commodity_id, avg(buy_price) as buy_avg, avg(sell_price) as sell_avg "
-            "from commodities_prices group by commodity_id;"
-        ).fetchall()
-        for entry in db_list:
-            live_entry = next((x for x in live_results if x[0] == entry.id), None)
-            new_results.append(
-                {
-                    "average_price": entry.average_price,
-                    "category": entry.category,
-                    "id": entry.id,
-                    "is_rare": entry.is_rare,
-                    "name": entry.name,
-                    "average_buy_price": float(live_entry[1])
-                    if live_entry is not None
-                    else None,
-                    "average_sell_price": float(live_entry[2])
-                    if live_entry is not None
-                    else None,
-                }
-            )
-        return new_results
-    else:
-        return db_list
+    return jsonify(item)

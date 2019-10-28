@@ -1,7 +1,6 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
 
 from api.database import db
-from api.helpers.response import get_response
 from models.database import Engineer, EngineerBlueprint
 
 engineering_bp = Blueprint("engineering", __name__)
@@ -9,25 +8,6 @@ engineering_bp = Blueprint("engineering", __name__)
 
 @engineering_bp.route("/blueprints/")
 def flask_get_blueprints():
-    return get_response(get_blueprints_list())
-
-
-@engineering_bp.route("/synthesis/")
-def flask_get_synthesis():
-    return get_response(get_specific_blueprints_list("@Synthesis"))
-
-
-@engineering_bp.route("/technology/")
-def flask_get_technology():
-    return get_response(get_specific_blueprints_list("@Technology"))
-
-
-@engineering_bp.route("/engineers/")
-def flask_get_engineers():
-    return get_response(get_engineers_list())
-
-
-def get_blueprints_list():
     blueprints = (
         db.session.query(EngineerBlueprint)
         .filter(~EngineerBlueprint.type.ilike("Unlock"))
@@ -39,24 +19,21 @@ def get_blueprints_list():
         if not any(eng.engineer.name == "@Synthesis" for eng in x.engineers)
         and not any(eng.engineer.name == "@Technology" for eng in x.engineers)
     ]
-    return blueprints
+    return jsonify(blueprints)
 
 
-def get_specific_blueprints_list(type_name):
-    blueprints = (
-        db.session.query(EngineerBlueprint)
-        .filter(~EngineerBlueprint.type.ilike("Unlock"))
-        .all()
-    )
-    blueprints = [
-        x
-        for x in blueprints
-        if any(eng.engineer.name == type_name for eng in x.engineers)
-    ]
-    return blueprints
+@engineering_bp.route("/synthesis/")
+def flask_get_synthesis():
+    return jsonify(get_specific_blueprints_list("@Synthesis"))
 
 
-def get_engineers_list():
+@engineering_bp.route("/technology/")
+def flask_get_technology():
+    return jsonify(get_specific_blueprints_list("@Technology"))
+
+
+@engineering_bp.route("/engineers/")
+def flask_get_engineers():
     engineers = (
         db.session.query(Engineer)
         .filter(~Engineer.name.ilike("@Technology"), ~Engineer.name.ilike("@Synthesis"))
@@ -80,4 +57,18 @@ def get_engineers_list():
                 else unlock_condition.ingredients,
             }
         )
-    return ret_list
+    return jsonify(ret_list)
+
+
+def get_specific_blueprints_list(type_name):
+    blueprints = (
+        db.session.query(EngineerBlueprint)
+        .filter(~EngineerBlueprint.type.ilike("Unlock"))
+        .all()
+    )
+    blueprints = [
+        x
+        for x in blueprints
+        if any(eng.engineer.name == type_name for eng in x.engineers)
+    ]
+    return blueprints
