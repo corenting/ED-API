@@ -6,19 +6,17 @@ from bs4 import BeautifulSoup
 from flask import Blueprint, jsonify
 
 from api.helpers.request import get_requests_headers
-from api.helpers.response import error_response
 from config import APP_VERSION, DEBUG_MODE, INARA_API_KEY
 
 community_goals_bp = Blueprint("community_goals", __name__)
 
 
 @community_goals_bp.route("/v2/")
-def flask_old_get_redirect():
-    return flask_get_community_goals()
+def flask_get_community_goals_v2():
+    return jsonify(get_community_goals_v2())
 
 
-@community_goals_bp.route("/")
-def flask_get_community_goals():
+def get_community_goals_v2():
     request_body = {
         "header": {
             "appName": "EDCompanion",
@@ -41,7 +39,7 @@ def flask_get_community_goals():
     )
     # Check for errors
     if req.status_code != 200:
-        return error_response("Cannot contact Inara API", status_code=500)
+        return {"success": 0}
 
     inara_api_response = json.loads(req.content.decode("utf-8"))
 
@@ -50,11 +48,9 @@ def flask_get_community_goals():
             inara_api_response["header"]["eventStatus"] != 200
             and inara_api_response["events"][0]["eventStatus"] != 200
         ):
-            return error_response("Inara returned an error", status_code=500)
+            return {"success": 0}
     except:
-        return error_response(
-            "Unknown error while processing Inara API response", status_code=500
-        )
+        return {"success": 0}
 
     # Get page for rewards
     rewards_ok = False
@@ -71,11 +67,11 @@ def flask_get_community_goals():
         pass
 
     # Prepare response
-    response = []
+    api_response = {"success": 1, "goals": []}
 
-    #  If no ongoing goals return earlier
+    # Check if there is any ongoing community goals
     if "eventData" not in inara_api_response["events"][0]:
-        return jsonify(response)
+        return api_response
 
     idx = 0
     for event in inara_api_response["events"][0]["eventData"]:
@@ -119,6 +115,6 @@ def flask_get_community_goals():
 
         idx = idx + 1
 
-        response.append(goal)
+        api_response["goals"].append(goal)
 
-    return jsonify(response)
+    return api_response
