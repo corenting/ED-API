@@ -82,6 +82,6 @@ class CustomJsonEncoder(JSONEncoder):
                 "type": obj.type,
                 "system": obj.system,
                 "ships_sold": obj.ships_sold,
-                "modules_sold": obj.modules_sold,
+                # "modules_sold": obj.modules_sold,
             }
         return super(CustomJsonEncoder, self).default(obj)

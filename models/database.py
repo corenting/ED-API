@@ -54,7 +54,7 @@ class Station(Base):
     system = relationship("System", lazy="joined", back_populates="stations")
 
     ships_sold = relationship("StationShipLink", lazy="joined")
-    modules_sold = relationship("StationModuleLink", lazy="joined")
+    # modules_sold = relationship("StationModuleLink", lazy="joined")
 
 
 class StationShipLink(Base):
