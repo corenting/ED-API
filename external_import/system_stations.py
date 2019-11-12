@@ -9,14 +9,18 @@ from models.database import StationModuleLink, StationShipLink, Station, Ship, S
 from models.internal.import_exception import ImportException
 
 
+def remove_existing_data(db_session):
+    db_session.query(StationModuleLink).delete()
+    db_session.query(StationShipLink).delete()
+    db_session.query(Station).delete()
+    db_session.query(Ship).delete()
+    db_session.query(System).delete()
+
+
 def import_systems_and_stations(db_session):
     try:
-        print("Systems import started")
-        # First remove existing data
-        db_session.query(StationShipLink).delete()
-        db_session.query(Station).delete()
-        db_session.query(Ship).delete()
-        db_session.query(System).delete()
+        print("Systems/stations import started")
+        remove_existing_data(db_session)
 
         # Download systems JSONL
         with tempfile.TemporaryFile() as file:
@@ -130,7 +134,6 @@ def import_systems_and_stations(db_session):
                                 station=new_station, ship=db_ship
                             )
                             db_session.add(ship_link)
-                    db_session.flush()
 
                     # Modules sold by the station
                     modules_array = item["selling_modules"]
@@ -140,10 +143,9 @@ def import_systems_and_stations(db_session):
                                 station=new_station, module_id=module
                             )
                             db_session.add(module_link)
-                    db_session.flush()
 
         db_session.commit()
-        print("Stations import finished")
+        print("Systems/stations import finished")
 
         return True
     except Exception as e:

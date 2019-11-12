@@ -1,16 +1,11 @@
-import csv
 import json
-from io import StringIO
 
 import requests
 from sqlalchemy import create_engine
 
-from api.database import db
 from api.helpers.request import get_requests_headers
 from config import DB_URI
 from models.database import (
-    Commodity,
-    CommodityCategory,
     get_session,
     Module,
     ModuleGroup,
