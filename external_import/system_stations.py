@@ -6,7 +6,15 @@ from jsonlines import jsonlines
 
 from api.helpers.request import get_requests_headers
 from common.utils import timestamp_to_date
-from models.database import StationModuleLink, StationShipLink, Station, Ship, System, Module, ModuleGroup
+from models.database import (
+    StationModuleLink,
+    StationShipLink,
+    Station,
+    Ship,
+    System,
+    Module,
+    ModuleGroup,
+)
 from models.internal.import_exception import ImportException
 
 
@@ -75,13 +83,15 @@ def import_modules(db_session):
     # Second loop to add the modules themselves
     modules_to_add = []
     for module in eddb_json:
-        modules_to_add.append(Module(
-            id=module["id"],
-            module_class=module["class"],
-            rating=module["rating"],
-            price=module["price"],
-            group_id=module["group_id"],
-        ))
+        modules_to_add.append(
+            Module(
+                id=module["id"],
+                module_class=module["class"],
+                rating=module["rating"],
+                price=module["price"],
+                group_id=module["group_id"],
+            )
+        )
     db_session.bulk_save_objects(modules_to_add)
     db_session.flush()
     print("    Modules import finished")
@@ -204,11 +214,14 @@ def import_systems_and_stations(db_session):
                     ships_to_add = []
                     if len(ships_array) != 0:
                         for ship in ships_array:
-                            db_ship = next((x for x in ships_added if x.name == ship), None)
-                            ships_to_add.append(StationShipLink(
-                                station_id=new_station.id,
-                                ship_id=db_ship.id
-                            ))
+                            db_ship = next(
+                                (x for x in ships_added if x.name == ship), None
+                            )
+                            ships_to_add.append(
+                                StationShipLink(
+                                    station_id=new_station.id, ship_id=db_ship.id
+                                )
+                            )
                     db_session.bulk_save_objects(ships_to_add)
 
         db_session.commit()

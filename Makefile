@@ -1,4 +1,4 @@
-PYTHON=venv/bin/python
+PYTHON=.venv/bin/python
 
 .SILENT: lint
 .PHONY: lint
