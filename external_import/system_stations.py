@@ -125,24 +125,27 @@ def import_systems_and_stations(db_session):
 
                     # Ships sold by the station
                     ships_array = item["selling_ships"]
+                    ships_to_add = []
                     if len(ships_array) != 0:
                         for ship in ships_array:
                             db_ship = next(
                                 (x for x in ships_list if x.name == ship), None
                             )
-                            ship_link = StationShipLink(
+                            ships_to_add.append(StationShipLink(
                                 station=new_station, ship=db_ship
-                            )
-                            db_session.add(ship_link)
+                            ))
+
+                    db_session.bulk_save_objects(ships_to_add)
 
                     # Modules sold by the station
                     modules_array = item["selling_modules"]
+                    modules_to_add = []
                     if len(modules_array) != 0:
                         for module in modules_array:
-                            module_link = StationModuleLink(
+                            modules_to_add.append(StationModuleLink(
                                 station=new_station, module_id=module
-                            )
-                            db_session.add(module_link)
+                            ))
+                    db_session.bulk_save_objects(modules_to_add)
 
         db_session.commit()
         print("Systems/stations import finished")
