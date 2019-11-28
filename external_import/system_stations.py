@@ -211,18 +211,6 @@ def import_systems_and_stations(db_session):
                             ))
                     db_session.bulk_save_objects(ships_to_add)
 
-                    # Modules sold by the station
-                    modules_array = item["selling_modules"]
-                    modules_to_add = []
-                    if len(modules_array) != 0:
-                        for module in modules_array:
-                            db_module = next((x for x in modules_added if x.id == module), None)
-                            modules_to_add.append(StationModuleLink(
-                                station_id=new_station.id,
-                                module_id=db_module.id
-                            ))
-                    db_session.bulk_save_objects(modules_to_add)
-
         db_session.commit()
         print("Systems/stations import finished")
 
