@@ -95,7 +95,6 @@ def import_modules(db_session):
     db_session.bulk_save_objects(modules_to_add)
     db_session.flush()
     print("    Modules import finished")
-    return modules_to_add
 
 
 def import_systems(db_session):
@@ -158,7 +157,7 @@ def import_systems_and_stations(db_session):
         print("Systems/stations import started")
         remove_existing_data(db_session)
 
-        modules_added = import_modules(db_session)
+        import_modules(db_session)
         import_systems(db_session)
 
         print("Stations import started")
@@ -230,7 +229,7 @@ def import_systems_and_stations(db_session):
                         for module in modules_array:
                             modules_to_add.append(StationModuleLink(
                                 station_id=new_station.id,
-                                module_id=module.id
+                                module_id=module
                             ))
 
         db_session.bulk_save_objects(modules_to_add)
