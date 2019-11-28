@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
 from config import DB_URI
-from external_import import blueprints, system_stations, commodities, modules
+from external_import import blueprints, system_stations, commodities
 from models.database import get_session
 
 db_engine = create_engine(DB_URI)
@@ -20,8 +20,3 @@ def systems_and_stations_import():
 def commodities_import():
     with get_session(db_engine) as session:
         commodities.import_commodities(session)
-
-
-def modules_import():
-    with get_session(db_engine) as session:
-        modules.import_modules(session)
