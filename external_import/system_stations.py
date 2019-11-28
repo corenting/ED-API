@@ -161,7 +161,6 @@ def import_systems_and_stations(db_session):
         import_systems(db_session)
 
         print("Stations import started")
-        modules_to_add = []
         with tempfile.TemporaryFile() as file:
             req = requests.get(
                 "https://eddb.io/archive/v6/stations.jsonl",
@@ -225,14 +224,15 @@ def import_systems_and_stations(db_session):
 
                     # Modules sold by the station
                     modules_array = item["selling_modules"]
+                    modules_to_add = []
                     if len(modules_array) != 0:
                         for module in modules_array:
                             modules_to_add.append(StationModuleLink(
                                 station_id=new_station.id,
                                 module_id=module
                             ))
+                    db_session.bulk_save_objects(modules_to_add)
 
-        db_session.bulk_save_objects(modules_to_add)
         db_session.commit()
         print("Systems/stations import finished")
 
