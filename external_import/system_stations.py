@@ -6,6 +6,7 @@ from jsonlines import jsonlines
 
 from api.helpers.request import get_requests_headers
 from common.utils import timestamp_to_date
+from config import WORKING_DIR
 from models.database import (
     StationModuleLink,
     StationShipLink,
@@ -146,6 +147,30 @@ def import_systems(db_session):
     print("Systems import finished")
 
 
+def import_modules_sold(station_file, db_session):
+    print("    Sold modules import started")
+
+    # First generate a CSV file for Postgres to ingest
+    with jsonlines.Reader(station_file) as reader:
+        with open(WORKING_DIR + "modules_sold.csv", "w+") as csv_file:
+            csv_file.write('station_id,module_id\n')
+            for item in reader:
+                modules_array = item['selling_modules']
+                station_id = item['id']
+                if len(modules_array) != 0:
+                    for module in modules_array:
+                        csv_file.write('{},{}\n'.format(station_id, module))
+
+    # Tell Postgres to ingest the file
+    db_session.execute(
+        "COPY station_module_link FROM '"
+        + WORKING_DIR
+        + "modules_sold.csv' CSV HEADER"
+    )
+
+    print("    Sold modules import finished")
+
+
 def import_systems_and_stations(db_session):
     """
     Main function, calling other functions and importing
@@ -221,6 +246,10 @@ def import_systems_and_stations(db_session):
                                 )
                             )
                     db_session.bulk_save_objects(ships_to_add)
+
+            # Now import modules sold through a faster CSV import
+            file.seek(0)
+            import_modules_sold(file, db_session)
 
         db_session.commit()
         print("Systems/stations import finished")
