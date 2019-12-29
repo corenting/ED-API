@@ -53,8 +53,6 @@ class Station(Base):
     system_id = Column(Integer, ForeignKey("systems.id"))
     system = relationship("System", lazy="joined", back_populates="stations")
 
-    ships_sold = relationship("StationShipLink", lazy="joined")
-
 
 class StationShipLink(Base):
     __tablename__ = "station_ship_link"
