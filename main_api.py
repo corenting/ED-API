@@ -6,6 +6,7 @@ from api.commodities.main import commodities_bp
 from api.community_goals.main import community_goals_bp
 from api.database import register_db, db
 from api.engineering.main import engineering_bp
+from api.news.main import news_bp
 from api.galnet.main import galnet_bp
 from api.helpers.json_encoder import CustomJsonEncoder
 from api.misc.main import misc_bp
@@ -28,6 +29,7 @@ app.register_blueprint(engineering_bp, url_prefix="/engineering")
 app.register_blueprint(ships_bp, url_prefix="/ships")
 app.register_blueprint(system_bp, url_prefix="/system")
 app.register_blueprint(galnet_bp, url_prefix="/galnet")
+app.register_blueprint(news_bp, url_prefix="/news")
 app.register_blueprint(misc_bp, url_prefix="/")
 
 
