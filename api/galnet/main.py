@@ -21,7 +21,7 @@ def flask_get_galnet():
             "https://rss-bridge.9cw.eu/?action=display&bridge=EliteDangerousGalnet&format=Json&language="
             + lang
         )
-    req = requests.get(url, headers=get_requests_headers())
+    req = requests.get(url, headers=get_requests_headers(), timeout=1)
     if req.status_code != 200:
         return error_response("Cannot fetch content", 500)
     articles = json.loads(req.content.decode("utf-8"))
@@ -31,6 +31,7 @@ def flask_get_galnet():
     website_api_req = requests.get(
         "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json",
         headers=get_requests_headers(),
+        timeout=1,
     )
     if website_api_req.status_code == 200:
         # only first 15 elements like other source used

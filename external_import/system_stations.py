@@ -153,19 +153,17 @@ def import_modules_sold(station_file, db_session):
     # First generate a CSV file for Postgres to ingest
     with jsonlines.Reader(station_file) as reader:
         with open(WORKING_DIR + "modules_sold.csv", "w+") as csv_file:
-            csv_file.write('station_id,module_id\n')
+            csv_file.write("station_id,module_id\n")
             for item in reader:
-                modules_array = item['selling_modules']
-                station_id = item['id']
+                modules_array = item["selling_modules"]
+                station_id = item["id"]
                 if len(modules_array) != 0:
                     for module in modules_array:
-                        csv_file.write('{},{}\n'.format(station_id, module))
+                        csv_file.write("{},{}\n".format(station_id, module))
 
     # Tell Postgres to ingest the file
     db_session.execute(
-        "COPY station_module_link FROM '"
-        + WORKING_DIR
-        + "modules_sold.csv' CSV HEADER"
+        "COPY station_module_link FROM '" + WORKING_DIR + "modules_sold.csv' CSV HEADER"
     )
 
     print("    Sold modules import finished")
