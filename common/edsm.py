@@ -7,7 +7,7 @@ from api.helpers.request import get_requests_headers
 from models.database import System
 
 
-def get_factions_from_edsm(name, include_history=False):
+def get_factions(name, include_history=False):
     try:
         # Download JSON
         url = "https://www.edsm.net/api-system-v1/factions?systemName=" + quote(name)
@@ -29,12 +29,12 @@ def get_factions_from_edsm(name, include_history=False):
         return None
 
 
-def get_system_from_edsm(name):
+def get_system(name):
     try:
         # Download JSON
         url = (
-            "https://www.edsm.net/api-v1/systems?showPermit=1&showId=1&showCoordinates=1&systemName="
-            + quote(name)
+                "https://www.edsm.net/api-v1/systems?showPermit=1&showId=1&showCoordinates=1&systemName="
+                + quote(name)
         )
         req = requests.get(url, headers=get_requests_headers())
 

@@ -1,6 +1,6 @@
-PYTHON=.venv/bin/python
+PYTHON=poetry run
 
 .SILENT: lint
 .PHONY: lint
 lint:
-	$(PYTHON) -m black --exclude venv .
+	$(PYTHON) black .

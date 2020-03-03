@@ -1,24 +1,15 @@
 import os
 from dotenv import load_dotenv
 
+APP_VERSION = "3.0"
+
 load_dotenv()
 
-# General config
 DEBUG_MODE = os.environ["DEBUG"] == "True"
-APP_VERSION = "2.4.1"
 WORKING_DIR = "/opt/ed-api/"
-
-# EDDN
 EDDN_RELAY = "tcp://eddn.edcd.io:9500"
 EDDN_TIMEOUT = 600000
-
-# Inara
 INARA_API_KEY = os.environ["INARA_API_KEY"]
-
-# Database
-DB_URI = "sqlite:///edapi.db"
-if not DEBUG_MODE:
-    DB_URI = os.environ["PROD_DB"]
-
-# FCM
+DB_URI = os.environ["DATABASE_URI"]
 FCM_API_KEY = os.environ["FCM_API_KEY"]
+LOG_LEVEL = os.environ["LOG_LEVEL"] if "LOG_LEVEL" in os.environ else "INFO"

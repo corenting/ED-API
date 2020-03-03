@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, jsonify
 
 from api.database import db
 from api.helpers.response import error_response
-from common.edsm import get_system_from_edsm
+from common.edsm import get_system
 from common.space import distance_between_systems
 from models.database import System
 
@@ -22,9 +22,9 @@ def flask_get_distance(first, second):
 
     # Else, try to get them from EDSM API
     if first_system is None:
-        first_system = get_system_from_edsm(first)
+        first_system = get_system(first)
     if second_system is None:
-        second_system = get_system_from_edsm(second)
+        second_system = get_system(second)
 
     if first_system is None:
         return error_response(first + " system not found", 400)

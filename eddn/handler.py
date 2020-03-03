@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
+import logging
+
 from eddn.utils import get_station_by_names, get_price
 from models.database import get_session
 
 SCHEMA_REF = "$schemaRef"
 COMMODITY_SCHEMA = "https://eddn.edcd.io/schemas/commodity/3"
+logger = logging.getLogger(__name__)
 
 
 def handle_eddn_message(db_engine, data):
@@ -15,7 +17,6 @@ def handle_eddn_message(db_engine, data):
     """
     if data:
         if data.get(SCHEMA_REF, "") == COMMODITY_SCHEMA:
-            # update prices!
             star_name = data["message"]["systemName"]
             station_name = data["message"]["stationName"]
             with get_session(db_engine) as session:
@@ -28,8 +29,8 @@ def handle_eddn_message(db_engine, data):
                             if price:
                                 price.from_eddn_dict(data["message"]["timestamp"], item)
                         except:
-                            print(
-                                "Error updating price, message was: {}".format(
-                                    data["message"]
-                                )
+                            logger.exception(
+                                "Failed to update price",
+                                extra={"eddn_message": data["message"]},
+                                exc_info=True,
                             )

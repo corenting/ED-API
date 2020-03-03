@@ -10,7 +10,7 @@ from models.database import (
     Engineer,
     BlueprintIngredient,
 )
-from models.internal.import_exception import ImportException
+from models.exceptions.import_exception import ImportException
 
 
 def import_blueprints(db_session):

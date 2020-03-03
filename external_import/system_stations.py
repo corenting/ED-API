@@ -16,7 +16,7 @@ from models.database import (
     Module,
     ModuleGroup,
 )
-from models.internal.import_exception import ImportException
+from models.exceptions.import_exception import ImportException
 
 
 def remove_existing_data(db_session):

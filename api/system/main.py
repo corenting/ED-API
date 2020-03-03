@@ -9,7 +9,7 @@ from sqlalchemy import and_
 from api.database import db
 from api.helpers.request import get_requests_headers, request_param
 from api.helpers.response import error_response
-from common.edsm import get_factions_from_edsm, get_system_from_edsm
+from common.edsm import get_factions, get_system
 from common.faction import get_faction_state_name, get_faction_history_item
 from common.market import price_difference
 from common.space import distance_between_systems
@@ -34,7 +34,7 @@ def flask_get_stations_selling_ship(system, ship):
     reference_system = db.session.query(System).filter(System.name == system).first()
     # Else, try to get it from EDSM API
     if reference_system is None:
-        reference_system = get_system_from_edsm(system)
+        reference_system = get_system(system)
     if reference_system is None:
         return error_response(system + " system not found")
 
@@ -76,7 +76,7 @@ def flask_get_stations_selling_module(system, module_id):
     reference_system = db.session.query(System).filter(System.name == system).first()
     # Else, try to get it from EDSM API
     if reference_system is None:
-        reference_system = get_system_from_edsm(system)
+        reference_system = get_system(system)
     if reference_system is None:
         return error_response(system + " system not found")
 
@@ -118,7 +118,7 @@ def flask_get_stations_selling_buying_commodity(system, commodity):
     reference_system = db.session.query(System).filter(System.name == system).first()
     # Else, try to get it from EDSM API
     if reference_system is None:
-        reference_system = get_system_from_edsm(system)
+        reference_system = get_system(system)
     if reference_system is None:
         return error_response(system + " system not found")
 
@@ -234,7 +234,7 @@ def flask_get_system_info(system):
         sys_json["information"] = {"factionState": None, "population": 0}
 
     # Then, get EDSM factions informations
-    factions_infos = get_factions_from_edsm(system)
+    factions_infos = get_factions(system)
 
     # Then, get db system
     db_system = db.session.query(System).filter(System.name == system).first()
@@ -316,7 +316,7 @@ def flask_get_system_stations(system):
 @system_bp.route("/<system>/history")
 def flask_get_system_history(system):
     # Get history from EDSM
-    edsm_factions = get_factions_from_edsm(system, include_history=True)
+    edsm_factions = get_factions(system, include_history=True)
 
     # For each faction, get history
     factions_history = []

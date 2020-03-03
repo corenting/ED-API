@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+import logging
 from datetime import datetime
 
 import arrow
@@ -12,10 +11,8 @@ from config import FCM_API_KEY, DEBUG_MODE, DB_URI
 # FCM config
 from models.database import get_session, CommunityGoalStatus
 
-api_key = FCM_API_KEY
-push_service = FCMNotification(api_key=api_key)
-
-# Database config
+logger = logging.getLogger(__name__)
+push_service = FCMNotification(api_key=FCM_API_KEY)
 db_engine = create_engine(DB_URI)
 
 
@@ -39,9 +36,9 @@ def handle_change(change_type, goal):
     data = {"goal": notif_goal, "date": str(datetime.utcnow())}
     fcm_ret = send_fcm_notification(change_type, data)
     if fcm_ret["failure"] != 0:
-        print(" Failed to send FCM message : " + str(fcm_ret))
+        logger.error("Failed to send FCM message", extra={"fcm_ret": str(fcm_ret)})
     else:
-        print(" FCM notification sent")
+        logger.info("FCM notification sent")
 
 
 def compare_data(previous, latest):
@@ -50,27 +47,21 @@ def compare_data(previous, latest):
 
         # New goal
         if previous_goal is None:
-            print(' Goal "' + goal.title + '" started')
+            logger.info(f"Goal {goal.title} started", extra={"community_goal": goal})
             handle_change("new_goal", goal)
             continue
 
         # Finished goal
         if goal.is_finished and not previous_goal.is_finished:
-            print(' Goal "' + goal.title + '" finished')
+            logger.info(f"Goal {goal.title} finished", extra={"community_goal": goal})
             handle_change("finished_goal", goal)
             continue
 
         # Check if new tier
         if goal.current_tier > previous_goal.current_tier and not goal.is_finished:
-            print(
-                " New tier ("
-                + str(goal.current_tier)
-                + " was "
-                + str(previous_goal.current_tier)
-                + ")"
-                + ' for goal "'
-                + goal.title
-                + '"'
+            logger.info(
+                f"Goal {goal.title} changed tier ({goal.current_tier} from {previous_goal.current_tier})",
+                extra={"community_goal": goal},
             )
             handle_change("new_tier", goal)
             continue
@@ -115,8 +106,8 @@ def store_updated_data(latest_data, previous_data):
             db_item.title = item.title
 
 
-def main():
-    print("Looking for CGs changes at " + str(arrow.utcnow()) + ":")
+def launch_cg_watch():
+    logger.info("Checking for CGs changes")
 
     # First get latest data
     api_data = get_community_goals()
@@ -163,7 +154,3 @@ def main():
 
         # Then replace previous
         store_updated_data(latest_data, previous_data)
-
-
-if __name__ == "__main__":
-    main()
