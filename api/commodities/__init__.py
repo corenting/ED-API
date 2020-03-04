@@ -57,6 +57,7 @@ def flask_get_commodities():
 
 @commodities_bp.route("/<name>")
 def flask_get_commodity(name):
+
     # Fetch the commodity from the db by name
     db_commodity = (
         db.session.query(Commodity)

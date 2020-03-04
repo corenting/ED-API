@@ -5,7 +5,7 @@ import arrow
 from pyfcm import FCMNotification
 from sqlalchemy import create_engine
 
-from api.community_goals.main import get_community_goals_v2 as get_community_goals
+from api.community_goals import get_community_goals
 from config import FCM_API_KEY, DEBUG_MODE, DB_URI
 
 # FCM config

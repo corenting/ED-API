@@ -2,10 +2,10 @@ import logging
 
 from flask import Flask
 
-from api.commodities.main import commodities_bp
-from api.community_goals.main import community_goals_bp
+from api.commodities import commodities_bp
+from api.community_goals import community_goals_bp
 from api.database import register_db, db
-from api.engineering.main import engineering_bp
+from api.engineering import engineering_bp
 from api.extensions.error_handler import handle_invalid_usage
 from api.galnet.main import galnet_bp
 from api.helpers.json_encoder import CustomJsonEncoder
@@ -15,7 +15,7 @@ from api.ships.main import ships_bp
 from api.system.main import system_bp
 from commands import import_cli, community_goals_cli, eddn_cli
 from config import DEBUG_MODE, DB_URI, LOG_LEVEL
-from models.exceptions.api_exception import ApiError
+from models.exceptions.api_exception import ApiException
 
 
 def create_app():
@@ -35,7 +35,7 @@ def create_app():
     app.register_blueprint(news_bp, url_prefix="/news")
     app.register_blueprint(misc_bp, url_prefix="/")
 
-    app.register_error_handler(ApiError.status_code, handle_invalid_usage)
+    app.register_error_handler(ApiException.status_code, handle_invalid_usage)
 
     # Commands
     app.cli.add_command(import_cli)

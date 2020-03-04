@@ -7,16 +7,10 @@ from flask import Blueprint, jsonify
 
 from api.helpers.request import get_requests_headers
 from config import APP_VERSION, DEBUG_MODE, INARA_API_KEY
-
-community_goals_bp = Blueprint("community_goals", __name__)
-
-
-@community_goals_bp.route("/v2/")
-def flask_get_community_goals_v2():
-    return jsonify(get_community_goals_v2())
+from api.helpers.response import error_response
 
 
-def get_community_goals_v2():
+def get_community_goals():
     request_body = {
         "header": {
             "appName": "EDCompanion",
@@ -39,7 +33,7 @@ def get_community_goals_v2():
     )
     # Check for errors
     if req.status_code != 200:
-        return {"success": 0}
+        return error_response("Cannot fetch content from Inara", 500)
 
     inara_api_response = json.loads(req.content.decode("utf-8"))
 
@@ -48,9 +42,9 @@ def get_community_goals_v2():
             inara_api_response["header"]["eventStatus"] != 200
             and inara_api_response["events"][0]["eventStatus"] != 200
         ):
-            return {"success": 0}
+            return error_response("Error parsing content from Inara", 500)
     except:
-        return {"success": 0}
+        return error_response("Error parsing content from Inara", 500)
 
     # Get page for rewards
     rewards_ok = False
@@ -67,11 +61,11 @@ def get_community_goals_v2():
         pass
 
     # Prepare response
-    api_response = {"success": 1, "goals": []}
+    api_response = []
 
     # Check if there is any ongoing community goals
     if "eventData" not in inara_api_response["events"][0]:
-        return api_response
+        return jsonify(api_response)
 
     idx = 0
     for event in inara_api_response["events"][0]["eventData"]:
@@ -115,6 +109,6 @@ def get_community_goals_v2():
 
         idx = idx + 1
 
-        api_response["goals"].append(goal)
+        api_response.append(goal)
 
-    return api_response
+    return jsonify(api_response)

@@ -2,13 +2,6 @@ import datetime
 import re
 
 
-def string_to_int(text_to_convert):
-    try:
-        return int(re.sub("[^0-9]", "", text_to_convert))
-    except ValueError:
-        return None
-
-
 def timestamp_to_date(input_str):
     date = int(input_str) if input_str is not None else None
 
