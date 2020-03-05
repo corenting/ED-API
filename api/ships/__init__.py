@@ -3,7 +3,7 @@ import json
 import requests
 from flask import Blueprint, request, redirect, jsonify
 
-from api.database import db
+from api.extensions.database import db
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response
 from models.database import Ship

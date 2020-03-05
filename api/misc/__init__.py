@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, jsonify
 
-from api.database import db
+from api.extensions.database import db
 from api.helpers.response import error_response
 from common.edsm import get_system
 from common.space import distance_between_systems

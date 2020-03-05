@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from api.database import db
+from api.extensions.database import db
 from models.database import Engineer, EngineerBlueprint
 
 engineering_bp = Blueprint("engineering", __name__)

@@ -2,7 +2,7 @@ import arrow
 from flask import Blueprint, request, jsonify
 from sqlalchemy import text, desc, asc, and_
 
-from api.database import db
+from api.extensions.database import db
 from api.helpers.response import error_response
 from common.market import price_difference
 from models.database import Commodity, CommodityPrice
@@ -12,8 +12,41 @@ commodities_bp = Blueprint("commodities", __name__)
 
 @commodities_bp.route("/")
 def flask_get_commodities():
+    """Return the list of all commodities
+    ---
+    tags:
+      - commodities
+    parameters:
+      - name: name
+        in: query
+        type: string
+        required: false
+        description: Filter the list by name
+      - name: live_prices
+        in: query
+        type: boolean
+        required: false
+        description: Include live prices statistics
+    definitions:
+      Palette:
+        type: object
+        properties:
+          palette_name:
+            type: array
+            items:
+              $ref: '#/definitions/Color'
+      Color:
+        type: string
+    responses:
+      200:
+        description: A list of commodities
+        schema:
+          $ref: '#/definitions/Palette'
+        examples:
+          rgb: ['red', 'green', 'blue']
+    """
     name_filter = request.args.get("name")
-    live_price = request.args.get("live_prices") == 1
+    live_price = request.args.get("live_prices") == 'true'
 
     # Get all commodities or only the ones corresponding to the filter
     if not name_filter:
