@@ -5,17 +5,16 @@ from api.helpers.response import error_response
 from common.edsm import get_system
 from common.space import distance_between_systems
 from models.database import System
+from requests.api import request
 
-misc_bp = Blueprint("misc", __name__)
+distance_calculator_bp = Blueprint("distance_calculator", __name__)
 
+@distance_calculator_bp.route("/")
+def flask_get_distance():
+    # Get params
+    first = request.args.get("first")
+    second = request.args.get("second")
 
-@misc_bp.route("/")
-def flask_hello():
-    return "ED-API is running."
-
-
-@misc_bp.route("/distance/<first>/<second>")
-def flask_get_distance(first, second):
     # First, try to get systems from local db
     first_system = db.session.query(System).filter(System.name == first).first()
     second_system = db.session.query(System).filter(System.name == second).first()

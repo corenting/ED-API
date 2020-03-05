@@ -9,10 +9,10 @@ from api.engineering import engineering_bp
 from api.extensions.error_handler import handle_invalid_usage, register_error_handler
 from api.galnet import galnet_bp
 from api.extensions.json_encoder import CustomJsonEncoder
-from api.misc import misc_bp
+from api.distance_calculator import distance_calculator_bp
 from api.news import news_bp
 from api.ships import ships_bp
-from api.system import system_bp
+from api.systems import systems_bp
 from commands import import_cli, community_goals_cli, eddn_cli
 from config import DEBUG_MODE, DB_URI, LOG_LEVEL
 from models.exceptions.api_exception import ApiException
@@ -33,10 +33,10 @@ def create_app():
     app.register_blueprint(commodities_bp, url_prefix="/commodities")
     app.register_blueprint(engineering_bp, url_prefix="/engineering")
     app.register_blueprint(ships_bp, url_prefix="/ships")
-    app.register_blueprint(system_bp, url_prefix="/system")
+    app.register_blueprint(systems_bp, url_prefix="/system")
     app.register_blueprint(galnet_bp, url_prefix="/galnet")
     app.register_blueprint(news_bp, url_prefix="/news")
-    app.register_blueprint(misc_bp, url_prefix="/")
+    app.register_blueprint(distance_calculator_bp, url_prefix="/distance_calculator")
 
     register_error_handler(app)
 

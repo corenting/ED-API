@@ -25,10 +25,10 @@ from models.database import (
     StationModuleLink,
 )
 
-system_bp = Blueprint("system", __name__)
+systems_bp = Blueprint("system", __name__)
 
 
-@system_bp.route("/<system>/stations/ships/<ship>")
+@systems_bp.route("/<system>/stations/ships/<ship>")
 def flask_get_stations_selling_ship(system, ship):
     # First, try to get ref system from local db
     reference_system = db.session.query(System).filter(System.name == system).first()
@@ -70,7 +70,7 @@ def flask_get_stations_selling_ship(system, ship):
     return jsonify(ret_list[:150])
 
 
-@system_bp.route("/<system>/stations/modules/<module_id>")
+@systems_bp.route("/<system>/stations/modules/<module_id>")
 def flask_get_stations_selling_module(system, module_id):
     # First, try to get ref system from local db
     reference_system = db.session.query(System).filter(System.name == system).first()
@@ -107,7 +107,7 @@ def flask_get_stations_selling_module(system, module_id):
     return jsonify(ret_list[:150])
 
 
-@system_bp.route("/<system>/stations/commodities/<commodity>")
+@systems_bp.route("/<system>/stations/commodities/<commodity>")
 def flask_get_stations_selling_buying_commodity(system, commodity):
     pad_size = request_param("pad", "S")
     min_stock = request_param("stock", 1)
@@ -208,7 +208,7 @@ def flask_get_stations_selling_buying_commodity(system, commodity):
     return jsonify(res[:150])
 
 
-@system_bp.route("/<system>")
+@systems_bp.route("/<system>")
 def flask_get_system_info(system):
     # First, get system details (bgs)
     sys_url = (
@@ -298,7 +298,7 @@ def flask_get_system_info(system):
     )
 
 
-@system_bp.route("/<system>/stations")
+@systems_bp.route("/<system>/stations")
 def flask_get_system_stations(system):
     reference_system = db.session.query(System).filter(System.name == system).first()
     if reference_system is None:
@@ -313,7 +313,7 @@ def flask_get_system_stations(system):
     return jsonify(db_stations)
 
 
-@system_bp.route("/<system>/history")
+@systems_bp.route("/<system>/history")
 def flask_get_system_history(system):
     # Get history from EDSM
     edsm_factions = get_factions(system, include_history=True)
@@ -331,7 +331,7 @@ def flask_get_system_history(system):
     return jsonify(factions_history)
 
 
-@system_bp.route("/<system>/<station>/details")
+@systems_bp.route("/<system>/<station>/details")
 def flask_get_station_details(system, station):
     reference_system = db.session.query(System).filter(System.name == system).first()
     if reference_system is None:
