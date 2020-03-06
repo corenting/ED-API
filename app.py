@@ -13,11 +13,12 @@ from api.extensions.error_handler import handle_invalid_usage, register_error_ha
 from api.extensions.json_encoder import CustomJsonEncoder
 from api.galnet import galnet_bp
 from api.module_finder import module_finder_bp
+from api.commodity_finder import commodity_finder_bp
 from api.news import news_bp
 from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
-from config import DB_URI, DEBUG_MODE, LOG_LEVEL
+from config import APP_VERSION, DB_URI, DEBUG_MODE, LOG_LEVEL
 from models.exceptions.api_exception import ApiException
 
 
@@ -29,6 +30,13 @@ def create_app():
     register_db(app)
 
     # Swagger
+    app.config['SWAGGER'] = {
+        'title': 'ED-API',
+        'description': 'An API for Elite Dangerous',
+        'uiversion': 3,
+        "termsOfService": None,
+        "version": APP_VERSION,
+    }
     Swagger(app)
 
     # Blueprints
@@ -42,6 +50,7 @@ def create_app():
     app.register_blueprint(distance_calculator_bp, url_prefix="/distance_calculator")
     app.register_blueprint(ship_finder_bp, url_prefix="/ship_finder")
     app.register_blueprint(module_finder_bp, url_prefix="/module_finder")
+    app.register_blueprint(commodity_finder_bp, url_prefix="/commodity_finder")
 
     register_error_handler(app)
 

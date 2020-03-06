@@ -12,10 +12,10 @@ from common.station import can_dock_at_station
 import arrow
 from common.market import price_difference
 
-ship_finder_bp = Blueprint("ship_finder", __name__)
+commodity_finder_bp = Blueprint("commodity_finder", __name__)
 
 
-@ship_finder_bp.route("/")
+@commodity_finder_bp.route("/")
 def flask_find_commodity():
     # Get params
     system_name = request.args.get("referenceSystem")

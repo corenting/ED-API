@@ -46,20 +46,6 @@ def get_community_goals():
     except:
         return error_response("Error parsing content from Inara", 500)
 
-    # Get page for rewards
-    rewards_ok = False
-    rewards = []
-    try:
-        req_page = requests.get(
-            "https://inara.cz/galaxy-communitygoals", headers=get_requests_headers()
-        )
-        if req_page.status_code == 200:
-            rewards_ok = True
-            soup = BeautifulSoup(req_page.content, "html5lib")
-            rewards = soup.select("table")
-    except:
-        pass
-
     # Prepare response
     api_response = []
 
@@ -70,21 +56,6 @@ def get_community_goals():
     idx = 0
     for event in inara_api_response["events"][0]["eventData"]:
         rewards_result = []
-        try:
-            # Get corresponding rewards array
-            if rewards_ok:
-                rewards_table = rewards[idx].select("tr")[
-                    1:
-                ]  # remove first line (table headers)
-                for reward_line in rewards_table:
-                    new_result = {
-                        "tier": reward_line.select("td")[0].text,
-                        "contributors": reward_line.select("td")[1].text,
-                        "reward": reward_line.select("td")[2].text,
-                    }
-                    rewards_result.append(new_result)
-        except:
-            pass
 
         # Build goal response
         goal = {
@@ -104,7 +75,6 @@ def get_community_goals():
             "contributors": event["contributorsNum"],
             "ongoing": not event["isCompleted"],
             "description": event["goalDescriptionText"],
-            "rewards": rewards_result,
         }
 
         idx = idx + 1

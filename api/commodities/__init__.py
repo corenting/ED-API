@@ -15,7 +15,7 @@ def flask_get_commodities():
     """Return the list of all commodities
     ---
     tags:
-      - commodities
+      - Commodities
     parameters:
       - name: name
         in: query
