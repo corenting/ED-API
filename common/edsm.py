@@ -5,6 +5,9 @@ import requests
 
 from api.helpers.request import get_requests_headers
 from models.database import System
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_factions(name, include_history=False):
@@ -16,7 +19,7 @@ def get_factions(name, include_history=False):
         req = requests.get(url, headers=get_requests_headers())
 
         if req.status_code != 200:
-            print("Request failure " + req.status_code)
+            logger.error(f"Error getting factions from EDSM (HTTP {req.status_code})")
             return None
 
         body = req.content
@@ -24,8 +27,8 @@ def get_factions(name, include_history=False):
         req.close()
 
         return j
-    except Exception as e:
-        print("Request exception " + str(e))
+    except:
+        logger.exception("Exception getting factions from EDSM", exc_info=True)
         return None
 
 
@@ -33,13 +36,13 @@ def get_system(name):
     try:
         # Download JSON
         url = (
-                "https://www.edsm.net/api-v1/systems?showPermit=1&showId=1&showCoordinates=1&systemName="
-                + quote(name)
+            "https://www.edsm.net/api-v1/systems?showPermit=1&showId=1&showCoordinates=1&systemName="
+            + quote(name)
         )
         req = requests.get(url, headers=get_requests_headers())
 
         if req.status_code != 200:
-            print("Request failure " + req.status_code)
+            logger.error(f"Error getting system from EDSM (HTTP {req.status_code})")
             return None
 
         body = req.content
@@ -53,6 +56,6 @@ def get_system(name):
             name=j["name"],
             permit_required=j["requirePermit"],
         )
-    except Exception as e:
-        print("Request exception " + str(e))
+    except:
+        logger.exception("Exception getting system from EDSM", exc_info=True)
         return None

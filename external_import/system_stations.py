@@ -17,6 +17,9 @@ from models.database import (
     ModuleGroup,
 )
 from models.exceptions.import_exception import ImportException
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def remove_existing_data(db_session):
@@ -37,7 +40,7 @@ def import_ships(ships_file, db_session):
     """
     ships_list = []
     with jsonlines.Reader(ships_file) as reader:
-        print("    Ships import started")
+        logger.info("Ships import started")
         for s in reader:
             for sh in s["selling_ships"]:
                 ship = Ship(name=sh)
@@ -46,12 +49,12 @@ def import_ships(ships_file, db_session):
             for ship_elt in ships_list:
                 db_session.add(ship_elt)
     db_session.flush()
-    print("    Ships import finished")
+    logger.info("Ships import finished")
     return ships_list
 
 
 def import_modules(db_session):
-    print("    Modules import started")
+    logger.info("Modules import started")
 
     # Download JSON
     req = requests.get(
@@ -95,7 +98,7 @@ def import_modules(db_session):
         )
     db_session.bulk_save_objects(modules_to_add)
     db_session.flush()
-    print("    Modules import finished")
+    logger.info("Modules import finished")
 
 
 def import_systems(db_session):
@@ -113,9 +116,7 @@ def import_systems(db_session):
         # Check errors
         if req.status_code != 200:
             raise ImportException(
-                "Error "
-                + str(req.status_code)
-                + " while downloading systems_populated.jsonl"
+                f"Error {req.status_code} while downloading systems_populated.jsonl"
             )
 
         file.write(req.content)
@@ -144,11 +145,11 @@ def import_systems(db_session):
                 )
                 db_session.add(system)
     db_session.flush()
-    print("Systems import finished")
+    logger.info("Systems import finished")
 
 
 def import_modules_sold(station_file, db_session):
-    print("    Sold modules import started")
+    logger.info("Sold modules import started")
 
     # First generate a CSV file for Postgres to ingest
     with jsonlines.Reader(station_file) as reader:
@@ -166,7 +167,7 @@ def import_modules_sold(station_file, db_session):
         "COPY station_module_link FROM '" + WORKING_DIR + "modules_sold.csv' CSV HEADER"
     )
 
-    print("    Sold modules import finished")
+    logger.info("Sold modules import finished")
 
 
 def import_systems_and_stations(db_session):
@@ -177,13 +178,13 @@ def import_systems_and_stations(db_session):
     :return: boolean if successful or not
     """
     try:
-        print("Systems/stations import started")
+        logger.info("Systems/stations import started")
         remove_existing_data(db_session)
 
         import_modules(db_session)
         import_systems(db_session)
 
-        print("Stations import started")
+        logger.info("Stations import started")
         with tempfile.TemporaryFile() as file:
             req = requests.get(
                 "https://eddb.io/archive/v6/stations.jsonl",
@@ -193,9 +194,7 @@ def import_systems_and_stations(db_session):
             # Check errors
             if req.status_code != 200:
                 raise ImportException(
-                    "Error "
-                    + str(req.status_code)
-                    + " while downloading stations.jsonl"
+                    f"Error {req.status_code} while downloading stations.jsonl"
                 )
 
             file.write(req.content)
@@ -250,10 +249,10 @@ def import_systems_and_stations(db_session):
             import_modules_sold(file, db_session)
 
         db_session.commit()
-        print("Systems/stations import finished")
+        logger.info("Systems/stations import finished")
 
         return True
-    except Exception as e:
-        print("Systems/stations import error (" + str(e) + ")")
+    except:
+        logger.exception("Systems/stations import error", exc_info=True)
         db_session.rollback()
         return False

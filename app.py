@@ -18,6 +18,7 @@ from config import DEBUG_MODE, DB_URI, LOG_LEVEL
 from models.exceptions.api_exception import ApiException
 from flasgger import Swagger
 
+
 def create_app():
     app = Flask(__name__)
     app.json_encoder = CustomJsonEncoder

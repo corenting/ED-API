@@ -9,11 +9,14 @@ from api.helpers.request import get_requests_headers
 from config import DB_URI
 from models.database import Commodity, CommodityCategory, get_session
 from models.exceptions.import_exception import ImportException
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def import_commodities(db_session):
     try:
-        print("Commodities import started")
+        logger.info("Commodities import started")
         # First remove existing data
         db_session.query(Commodity).delete()
         db_session.query(CommodityCategory).delete()
@@ -26,7 +29,7 @@ def import_commodities(db_session):
 
         if req.status_code != 200:
             raise ImportException(
-                "Error " + str(req.status_code) + " while downloading commodities.json"
+                f"Error {req.status_code} while downloading commodities.json"
             )
 
         body = req.content
@@ -41,7 +44,7 @@ def import_commodities(db_session):
 
         if req.status_code != 200:
             raise ImportException(
-                "Error " + str(req.status_code) + " while downloading commodity.csv"
+                f"Error {req.status_code} while downloading commodity.csv"
             )
 
         body = req.content
@@ -84,10 +87,10 @@ def import_commodities(db_session):
             )
             db_session.add(item)
         db_session.commit()
-        print("Commodities import finished")
+        logger.info("Commodities import finished")
         return True
-    except Exception as e:
-        print("Commodities import error (" + str(e) + ")")
+    except:
+        logger.exception("Commodities import error", exc_info=True)
         db_session.rollback()
         return False
 

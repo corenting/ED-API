@@ -11,11 +11,14 @@ from models.database import (
     BlueprintIngredient,
 )
 from models.exceptions.import_exception import ImportException
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def import_blueprints(db_session):
     try:
-        print("Blueprints imports started")
+        logger.info("Blueprints imports started")
 
         # First remove existing data
         db_session.query(BlueprintEngineerLink).delete()
@@ -33,7 +36,7 @@ def import_blueprints(db_session):
 
         if req.status_code != 200:
             raise ImportException(
-                "Error " + str(req.status_code) + " while downloading blueprints.json"
+                f"Error {req.status_code} while downloading blueprints.json"
             )
 
         body = req.content
@@ -96,9 +99,9 @@ def import_blueprints(db_session):
                 db_session.add(engineer_link)
 
         db_session.commit()
-        print("Blueprints import finished")
+        logger.info("Blueprints imports finished")
         return True
-    except Exception as e:
-        print("Blueprints import error (" + str(e) + ")")
+    except:
+        logger.exception("Blueprints import error", exc_info=True)
         db_session.rollback()
         return False

@@ -9,6 +9,7 @@ from requests.api import request
 
 distance_calculator_bp = Blueprint("distance_calculator", __name__)
 
+
 @distance_calculator_bp.route("/")
 def flask_get_distance():
     # Get params

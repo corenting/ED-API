@@ -8,13 +8,16 @@ from sqlalchemy import create_engine
 
 from config import WORKING_DIR, DB_URI
 from models.database import get_session
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def should_update():
     try:
         response = requests.head("https://eddb.io/archive/v6/listings.csv")
         if response.status_code != 200:
-            print("    Error while downloading listings update date")
+            logger.error("Error while downloading listings update date")
             return False, None
 
         # Get current date
@@ -27,13 +30,13 @@ def should_update():
             with open(WORKING_DIR + "previous_date", "r") as previous_data:
                 file_content = previous_data.read()
                 previous_last_modified = arrow.get(file_content)
-        except Exception as e:
-            print("    Cannot get previous date, error (" + str(e) + ")")
+        except:
+            logger.exception("Cannot get previous date", exc_info=True)
             return False, None
 
         return previous_last_modified < current_last_modified, current_last_modified
-    except Exception as e:
-        print("    Error checking update date (" + str(e) + ")")
+    except:
+        logger.exception("Error checking update date", exc_info=True)
         return False, None
 
 
@@ -42,14 +45,14 @@ def write_new_date(curr_last_modified_date):
         with open(WORKING_DIR + "previous_date", "w+") as text_file:
             print(curr_last_modified_date.isoformat(), file=text_file, end="")
     except Exception as e:
-        print("    Cannot write current date, error (" + str(e) + ")")
+        logger.exception("Cannot write current date", exc_info=True)
 
 
 def download_file():
     try:
         response = requests.get("https://eddb.io/archive/v6/listings.csv", stream=True)
         if response.status_code != 200:
-            print("    Error while downloading listings")
+            logger.error(f"Error {response.status_code} while downloading listings")
             return False
 
         handle = open(WORKING_DIR + "listings.csv", "wb+")
@@ -58,7 +61,7 @@ def download_file():
                 handle.write(chunk)
         return True
     except Exception as e:
-        print("    Listing import error (" + str(e) + ")")
+        logger.exception("Listing import error", exc_info=True)
         return False
 
 
@@ -74,7 +77,7 @@ def import_db():
             )
         return True
     except Exception as e:
-        print("    Db import error (" + str(e) + ")")
+        logger.exception("DB import error", exc_info=True)
         return False
 
 
@@ -90,24 +93,26 @@ def adapt_csv():
         return return_code == 0
 
     except Exception as e:
-        print("    Csv adapt error (" + str(e) + ")")
+        logger.exception("CSV modification error", exc_info=True)
         return False
 
 
 if __name__ == "__main__":
-    print("Checking for listings update at " + str(arrow.now()) + "...")
+    logger.info(f"Checking for listings update at {arrow.now()}...")
     should_update_listings, current_last_modified_date = should_update()
     if should_update_listings:
-        print("Downloading new listings from EDDB...")
+        logger.info("Downloading new listings from EDDB...")
         if download_file():
-            print("Download complete !")
-            print("Removing extra data from CSV...")
+            logger.info("Download complete !")
+            logger.info("Removing extra data from CSV...")
             if adapt_csv():
-                print("Importing in database...")
+                logger.info("Importing in database...")
                 if import_db():
                     write_new_date(current_last_modified_date)
-                print("Import complete !")
+                    logger.info("Importing complete !")
+                else:
+                    logger.error("Importing error")
         else:
-            print("Download error, abort !")
+            logger.error("Download error, abort !")
     else:
-        print("No listings update required !")
+        logger.info("No listings update required !")
