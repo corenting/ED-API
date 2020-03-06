@@ -13,8 +13,8 @@ distance_calculator_bp = Blueprint("distance_calculator", __name__)
 @distance_calculator_bp.route("/")
 def flask_get_distance():
     # Get params
-    first = request.args.get("first")
-    second = request.args.get("second")
+    first = request.args.get("firstSystem")
+    second = request.args.get("secondSystem")
 
     # First, try to get systems from local db
     first_system = db.session.query(System).filter(System.name == first).first()

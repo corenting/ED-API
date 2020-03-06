@@ -1,12 +1,12 @@
 import arrow
 from sqlalchemy import (
-    Column,
-    Integer,
-    Float,
-    Boolean,
     BigInteger,
+    Boolean,
+    Column,
     DateTime,
+    Float,
     ForeignKey,
+    Integer,
     MetaData,
     Text,
 )

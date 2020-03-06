@@ -22,7 +22,7 @@ def flask_get_commodities():
         type: string
         required: false
         description: Filter the list by name
-      - name: live_prices
+      - name: livePrices
         in: query
         type: boolean
         required: false
@@ -46,7 +46,7 @@ def flask_get_commodities():
           rgb: ['red', 'green', 'blue']
     """
     name_filter = request.args.get("name")
-    live_price = request.args.get("live_prices") == "true"
+    live_price = request.args.get("livePrices") == "true"
 
     # Get all commodities or only the ones corresponding to the filter
     if not name_filter:

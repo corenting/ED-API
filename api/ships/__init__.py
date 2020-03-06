@@ -25,15 +25,15 @@ def flask_get_ships():
     return jsonify(db_list)
 
 
-@ships_bp.route("/details")
-def flask_get_ships_details():
-    res = get_ships_details(request.args.get("name"))
+@ships_bp.route("<ship>/details")
+def flask_get_ships_details(ship):
+    res = get_ships_details(ship)
     if res is None:
         return error_response("Ship not found")
     return jsonify(res)
 
 
-@ships_bp.route("/picture/<ship>")
+@ships_bp.route("<ship>/picture")
 def flask_get_ship_picture(ship):
     res_item = get_ships_details(ship)
     if res_item is None:

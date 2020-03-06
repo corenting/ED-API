@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from community_goals.watcher import launch_cg_watch
 from config import DB_URI
 from eddn.main import listen_to_eddn
-from external_import import blueprints, system_stations, commodities
+from external_import import blueprints, commodities, system_stations
 from models.database import get_session
 
 import_cli = AppGroup("import", short_help="Run database imports.")

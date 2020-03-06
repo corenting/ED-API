@@ -6,7 +6,7 @@ import zlib
 import zmq
 from sqlalchemy import create_engine
 
-from config import EDDN_TIMEOUT, EDDN_RELAY, DB_URI
+from config import DB_URI, EDDN_RELAY, EDDN_TIMEOUT
 from eddn.handler import handle_eddn_message
 
 logger = logging.getLogger(__name__)

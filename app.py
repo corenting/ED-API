@@ -1,22 +1,24 @@
 import logging
+from commands import community_goals_cli, eddn_cli, import_cli
 
+from flasgger import Swagger
 from flask import Flask
 
 from api.commodities import commodities_bp
 from api.community_goals import community_goals_bp
-from api.extensions.database import register_db, db
-from api.engineering import engineering_bp
-from api.extensions.error_handler import handle_invalid_usage, register_error_handler
-from api.galnet import galnet_bp
-from api.extensions.json_encoder import CustomJsonEncoder
 from api.distance_calculator import distance_calculator_bp
+from api.engineering import engineering_bp
+from api.extensions.database import db, register_db
+from api.extensions.error_handler import handle_invalid_usage, register_error_handler
+from api.extensions.json_encoder import CustomJsonEncoder
+from api.galnet import galnet_bp
+from api.module_finder import module_finder_bp
 from api.news import news_bp
+from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
-from commands import import_cli, community_goals_cli, eddn_cli
-from config import DEBUG_MODE, DB_URI, LOG_LEVEL
+from config import DB_URI, DEBUG_MODE, LOG_LEVEL
 from models.exceptions.api_exception import ApiException
-from flasgger import Swagger
 
 
 def create_app():
@@ -38,6 +40,8 @@ def create_app():
     app.register_blueprint(galnet_bp, url_prefix="/galnet")
     app.register_blueprint(news_bp, url_prefix="/news")
     app.register_blueprint(distance_calculator_bp, url_prefix="/distance_calculator")
+    app.register_blueprint(ship_finder_bp, url_prefix="/ship_finder")
+    app.register_blueprint(module_finder_bp, url_prefix="/module_finder")
 
     register_error_handler(app)
 

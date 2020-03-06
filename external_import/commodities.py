@@ -1,5 +1,6 @@
 import csv
 import json
+import logging
 from io import StringIO
 
 import requests
@@ -9,7 +10,6 @@ from api.helpers.request import get_requests_headers
 from config import DB_URI
 from models.database import Commodity, CommodityCategory, get_session
 from models.exceptions.import_exception import ImportException
-import logging
 
 logger = logging.getLogger(__name__)
 

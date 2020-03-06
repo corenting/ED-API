@@ -1,17 +1,17 @@
 import json
+import logging
 
 import requests
 
 from api.helpers.request import get_requests_headers
 from models.database import (
     BlueprintEngineerLink,
-    BlueprintIngredientLink,
-    EngineerBlueprint,
-    Engineer,
     BlueprintIngredient,
+    BlueprintIngredientLink,
+    Engineer,
+    EngineerBlueprint,
 )
 from models.exceptions.import_exception import ImportException
-import logging
 
 logger = logging.getLogger(__name__)
 

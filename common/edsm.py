@@ -1,11 +1,11 @@
 import json
+import logging
 from urllib.parse import quote
 
 import requests
 
 from api.helpers.request import get_requests_headers
 from models.database import System
-import logging
 
 logger = logging.getLogger(__name__)
 

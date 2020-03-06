@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import requests
-import arrow
+import logging
 import os
 
+import arrow
+import requests
 from sqlalchemy import create_engine
 
-from config import WORKING_DIR, DB_URI
+from config import DB_URI, WORKING_DIR
 from models.database import get_session
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import logging
 
-from eddn.utils import get_station_by_names, get_price
+from eddn.utils import get_price, get_station_by_names
 from models.database import get_session
 
 SCHEMA_REF = "$schemaRef"

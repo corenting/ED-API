@@ -1,6 +1,11 @@
 PYTHON=poetry run
 
-.SILENT: lint
-.PHONY: lint
-lint:
+.SILENT: format
+.PHONY: format
+format:
 	$(PYTHON) black .
+
+.SILENT: isort
+.PHONY: isort
+isort:
+	$(PYTHON) isort **/*.py *.py

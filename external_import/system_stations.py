@@ -1,4 +1,5 @@
 import json
+import logging
 import tempfile
 
 import requests
@@ -8,16 +9,15 @@ from api.helpers.request import get_requests_headers
 from common.utils import timestamp_to_date
 from config import WORKING_DIR
 from models.database import (
-    StationModuleLink,
-    StationShipLink,
-    Station,
-    Ship,
-    System,
     Module,
     ModuleGroup,
+    Ship,
+    Station,
+    StationModuleLink,
+    StationShipLink,
+    System,
 )
 from models.exceptions.import_exception import ImportException
-import logging
 
 logger = logging.getLogger(__name__)
 

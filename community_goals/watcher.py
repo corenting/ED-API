@@ -6,10 +6,8 @@ from pyfcm import FCMNotification
 from sqlalchemy import create_engine
 
 from api.community_goals import get_community_goals
-from config import FCM_API_KEY, DEBUG_MODE, DB_URI
-
-# FCM config
-from models.database import get_session, CommunityGoalStatus
+from config import DB_URI, DEBUG_MODE, FCM_API_KEY
+from models.database import CommunityGoalStatus, get_session
 
 logger = logging.getLogger(__name__)
 push_service = FCMNotification(api_key=FCM_API_KEY)

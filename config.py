@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 APP_VERSION = "3.0"
