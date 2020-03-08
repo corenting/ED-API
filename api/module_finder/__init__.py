@@ -1,11 +1,11 @@
-from flask import Blueprint, redirect, jsonify
+from flask import Blueprint, jsonify
+from requests.api import request
 
 from api.extensions.database import db
 from api.helpers.response import error_response
 from common.edsm import get_system
 from common.space import distance_between_systems
 from models.database import StationModuleLink, System
-from requests.api import request
 
 module_finder_bp = Blueprint("module_finder", __name__)
 

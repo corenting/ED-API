@@ -81,6 +81,5 @@ class CustomJsonEncoder(JSONEncoder):
                 else "Unknown",
                 "type": obj.type,
                 "system": obj.system,
-                "ships_sold": [],  # TODO : remove after some apps updates
             }
         return super(CustomJsonEncoder, self).default(obj)

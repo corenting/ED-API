@@ -1,22 +1,75 @@
-from flask import Blueprint, redirect, jsonify
+import arrow
+from flask import Blueprint, jsonify
+from requests.api import request
+from sqlalchemy import and_
 
 from api.extensions.database import db
+from api.helpers.request import request_param
 from api.helpers.response import error_response
 from common.edsm import get_system
-from common.space import distance_between_systems
-from models.database import Commodity, CommodityPrice, Ship, StationShipLink, System
-from requests.api import request
-from api.helpers.request import request_param
-from sqlalchemy import and_
-from common.station import can_dock_at_station
-import arrow
 from common.market import price_difference
+from common.space import distance_between_systems
+from common.station import can_dock_at_station
+from models.database import Commodity, CommodityPrice, System
 
 commodity_finder_bp = Blueprint("commodity_finder", __name__)
 
 
 @commodity_finder_bp.route("/")
 def flask_find_commodity():
+    """Find a station to buy or sell a specific commodity
+    ---
+    tags:
+      - Commodity finder
+    definitions:
+      CommodityFinderError:
+        type: object
+        properties:
+          error:
+            type: string
+    parameters:
+      - name: referenceSystem
+        in: query
+        type: string
+        required: true
+        description: Reference system to search around
+      - name: commodityName
+        in: query
+        type: string
+        required: true
+        description: The commodity to search
+      - name: pad
+        in: query
+        type: string
+        required: false
+        default: S
+        enum: [S, M, L]
+        description: Minimum required landing pad size
+      - name: stock
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Minimum stock (if buying)
+      - name: selling
+        in: query
+        type: boolean
+        required: false
+        description: If true, search for a station selling a commodity, else for a station buying it
+      - name: demand
+        in: query
+        type: integer
+        required: false
+        default: 0
+        description: Minimum stock (if buying)
+    responses:
+      200:
+        description: A list of stations buying/selling this commodity
+      500:
+        description: Error while searching
+        schema:
+          $ref: '#/definitions/CommodityFinderError'
+    """
     # Get params
     system_name = request.args.get("referenceSystem")
     commodity_name = request.args.get("commodityName")

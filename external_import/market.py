@@ -44,7 +44,7 @@ def write_new_date(curr_last_modified_date):
     try:
         with open(WORKING_DIR + "previous_date", "w+") as text_file:
             print(curr_last_modified_date.isoformat(), file=text_file, end="")
-    except Exception as e:
+    except:
         logger.exception("Cannot write current date", exc_info=True)
 
 

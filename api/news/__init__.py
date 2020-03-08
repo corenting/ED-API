@@ -2,7 +2,7 @@ import json
 
 import arrow
 import requests
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify
 
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response

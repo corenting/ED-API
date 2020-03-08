@@ -1,12 +1,11 @@
-import datetime
-import re
+import arrow
 
 
 def timestamp_to_date(input_str):
     date = int(input_str) if input_str is not None else None
 
     if date is not None:
-        date = datetime.datetime.fromtimestamp(date)
+        date = arrow.Arrow.fromtimestamp(date).datetime
 
     return date
 

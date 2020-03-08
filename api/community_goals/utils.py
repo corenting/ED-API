@@ -2,12 +2,11 @@ import json
 
 import arrow
 import requests
-from bs4 import BeautifulSoup
-from flask import Blueprint, jsonify
+from flask import jsonify
 
 from api.helpers.request import get_requests_headers
-from config import APP_VERSION, DEBUG_MODE, INARA_API_KEY
 from api.helpers.response import error_response
+from config import APP_VERSION, DEBUG_MODE, INARA_API_KEY
 
 
 def get_community_goals():

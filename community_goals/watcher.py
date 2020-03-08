@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 import arrow
 from pyfcm import FCMNotification
@@ -31,7 +30,7 @@ def send_fcm_notification(topic, data):
 def handle_change(change_type, goal):
     notif_goal = {"title": goal.title, "tier_progress": {"current": goal.current_tier}}
 
-    data = {"goal": notif_goal, "date": str(datetime.utcnow())}
+    data = {"goal": notif_goal, "date": str(arrow.utcnow())}
     fcm_ret = send_fcm_notification(change_type, data)
     if fcm_ret["failure"] != 0:
         logger.error("Failed to send FCM message", extra={"fcm_ret": str(fcm_ret)})

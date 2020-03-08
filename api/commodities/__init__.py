@@ -27,23 +27,9 @@ def flask_get_commodities():
         type: boolean
         required: false
         description: Include live prices statistics
-    definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
     responses:
       200:
         description: A list of commodities
-        schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
     """
     name_filter = request.args.get("name")
     live_price = request.args.get("livePrices") == "true"
