@@ -1,25 +1,24 @@
 import logging
-from commands import community_goals_cli, eddn_cli, import_cli
 
 from flasgger import Swagger
 from flask import Flask
 
 from api.commodities import commodities_bp
+from api.commodity_finder import commodity_finder_bp
 from api.community_goals import community_goals_bp
 from api.distance_calculator import distance_calculator_bp
 from api.engineering import engineering_bp
 from api.extensions.database import db, register_db
-from api.extensions.error_handler import handle_invalid_usage, register_error_handler
+from api.extensions.error_handler import register_error_handler
 from api.extensions.json_encoder import CustomJsonEncoder
 from api.galnet import galnet_bp
 from api.module_finder import module_finder_bp
-from api.commodity_finder import commodity_finder_bp
 from api.news import news_bp
 from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
+from commands import community_goals_cli, eddn_cli, import_cli
 from config import APP_VERSION, DB_URI, DEBUG_MODE, LOG_LEVEL
-from models.exceptions.api_exception import ApiException
 
 
 def create_app():
@@ -30,10 +29,10 @@ def create_app():
     register_db(app)
 
     # Swagger
-    app.config['SWAGGER'] = {
-        'title': 'ED-API',
-        'description': 'An API for Elite Dangerous',
-        'uiversion': 3,
+    app.config["SWAGGER"] = {
+        "title": "ED-API",
+        "description": "An API for Elite Dangerous",
+        "uiversion": 3,
         "termsOfService": None,
         "version": APP_VERSION,
     }
@@ -60,7 +59,7 @@ def create_app():
     app.cli.add_command(eddn_cli)
 
     # Logging
-    logging.basicConfig(level=LOG_LEVEL)
+    logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s;%(levelname)s;%(message)s")
 
     return app
 
