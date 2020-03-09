@@ -71,7 +71,7 @@ def import_db():
         with get_session(engine) as session:
             session.execute("TRUNCATE commodities_prices")
             session.execute(
-                "COPY commodities_prices FROM '"
+                "COPY commodities_prices(id,station_id,commodity_id,supply,buy_price,sell_price,demand,collected_at) FROM '"
                 + WORKING_DIR
                 + "listings_new.csv' CSV HEADER"
             )
