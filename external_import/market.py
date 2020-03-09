@@ -97,7 +97,7 @@ def adapt_csv():
         return False
 
 
-if __name__ == "__main__":
+def market_import():
     logger.info(f"Checking for listings update at {arrow.now()}...")
     should_update_listings, current_last_modified_date = should_update()
     if should_update_listings:

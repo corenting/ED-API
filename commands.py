@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from community_goals.watcher import launch_cg_watch
 from config import DB_URI
 from eddn.main import listen_to_eddn
-from external_import import blueprints, commodities, system_stations
+from external_import import blueprints, commodities, market, system_stations
 from models.database import get_session
 
 import_cli = AppGroup("import", short_help="Run database imports.")
@@ -26,11 +26,25 @@ def import_all():
         system_stations.import_systems_and_stations(session)
 
 
+@import_cli.command("commodities_prices")
+def import_commodities_prices():
+    """
+    Import latest commodities prices on markets
+    """
+    market.market_import()
+
+
 @community_goals_cli.command("watch")
 def community_goals_watch():
+    """
+    Watch and send FCM notifications for community goals updates
+    """
     launch_cg_watch()
 
 
 @eddn_cli.command("listener")
 def eddn_listener():
+    """
+    Launch the EDDN listener to update market prices
+    """
     listen_to_eddn()
