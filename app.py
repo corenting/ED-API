@@ -1,4 +1,5 @@
 import logging
+from commands import community_goals_cli, eddn_cli, import_cli
 
 from flasgger import Swagger
 from flask import Flask
@@ -17,7 +18,6 @@ from api.news import news_bp
 from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
-from commands import community_goals_cli, eddn_cli, import_cli
 from config import APP_VERSION, DB_URI, DEBUG_MODE, LOG_LEVEL
 
 
@@ -59,7 +59,13 @@ def create_app():
     app.cli.add_command(eddn_cli)
 
     # Logging
-    logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s;%(levelname)s;%(message)s")
+
+    logging.basicConfig(
+        level=LOG_LEVEL, format="[%(levelname)s] - %(asctime)s - %(message)s"
+    )
+    if not DEBUG_MODE:
+        handler = logging.handlers.SysLogHandler(address="/dev/log")
+        logging.getLogger().addHandler(handler)
 
     return app
 
