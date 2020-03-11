@@ -62,7 +62,7 @@ def create_app():
     # Logging
 
     logging.basicConfig(
-        level=LOG_LEVEL, format="[%(levelname)s] - %(asctime)s - %(message)s"
+        level=LOG_LEVEL, format="[%(levelname)s] - %(asctime)s - ED-API %(message)s"
     )
     if not DEBUG_MODE:
         handler = SysLogHandler(address="/dev/log")
