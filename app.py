@@ -1,5 +1,6 @@
 import logging
 from commands import community_goals_cli, eddn_cli, import_cli
+from logging.handlers import SysLogHandler
 
 from flasgger import Swagger
 from flask import Flask
@@ -64,7 +65,7 @@ def create_app():
         level=LOG_LEVEL, format="[%(levelname)s] - %(asctime)s - %(message)s"
     )
     if not DEBUG_MODE:
-        handler = logging.handlers.SysLogHandler(address="/dev/log")
+        handler = SysLogHandler(address="/dev/log")
         logging.getLogger().addHandler(handler)
 
     return app
