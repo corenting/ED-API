@@ -5,6 +5,11 @@ PYTHON=poetry run
 format:
 	$(PYTHON) black .
 
+.SILENT: format-check
+.PHONY: format-check
+format-check:
+	$(PYTHON) black --check .
+
 .SILENT: isort
 .PHONY: isort
 isort:
