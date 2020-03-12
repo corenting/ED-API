@@ -1,15 +1,15 @@
 import logging
 from commands import community_goals_cli, eddn_cli, import_cli
+from logging import Formatter
 from logging.handlers import SysLogHandler
+from sys import platform
 
 from flasgger import Swagger
 from flask import Flask
 
-from sys import platform
 from api.commodities import commodities_bp
 from api.commodity_finder import commodity_finder_bp
 from api.community_goals import community_goals_bp
-from api.modules import modules_bp
 from api.distance_calculator import distance_calculator_bp
 from api.engineering import engineering_bp
 from api.extensions.database import db, register_db
@@ -17,12 +17,12 @@ from api.extensions.error_handler import register_error_handler
 from api.extensions.json_encoder import CustomJsonEncoder
 from api.galnet import galnet_bp
 from api.module_finder import module_finder_bp
+from api.modules import modules_bp
 from api.news import news_bp
 from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
 from config import APP_VERSION, DB_URI, DEBUG_MODE, LOG_LEVEL
-from logging import Formatter
 
 
 def create_app():
@@ -65,10 +65,8 @@ def create_app():
 
     # Logging
     log_format = "%(asctime)s;%(levelname)s;%(message)s"
-    logging.basicConfig(
-        level=LOG_LEVEL, format=log_format
-    )
-    if not DEBUG_MODE and platform == 'linux':
+    logging.basicConfig(level=LOG_LEVEL, format=log_format)
+    if not DEBUG_MODE and platform == "linux":
         handler = SysLogHandler(address="/dev/log")
         handler.setFormatter(Formatter(log_format))
         logging.getLogger().addHandler(handler)

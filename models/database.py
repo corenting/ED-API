@@ -85,9 +85,9 @@ class CommodityCategory(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
 
-
     def get_api_model(self):
         return {"id": self.id, "name": self.name}
+
 
 class Commodity(Base):
     __tablename__ = "commodities"
