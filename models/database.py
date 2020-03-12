@@ -86,6 +86,9 @@ class CommodityCategory(Base):
     name = Column(Text, nullable=False)
 
 
+    def get_api_model(self):
+        return {"id": self.id, "name": self.name}
+
 class Commodity(Base):
     __tablename__ = "commodities"
 
@@ -97,6 +100,15 @@ class Commodity(Base):
 
     category_id = Column(Integer, ForeignKey("commodities_categories.id"))
     category = relationship("CommodityCategory", lazy="joined")
+
+    def get_api_model(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "average_price": self.average_price,
+            "is_rare": self.is_rare,
+            "category": self.category.get_api_model(),
+        }
 
 
 class CommodityPrice(Base):
@@ -132,6 +144,16 @@ class CommodityPrice(Base):
             self.sell_price = data.get("sellPrice")
             self.supply = data.get("stock")
             self.collected_at = msg_time
+
+    def get_api_model(self):
+        return {
+            "commodity": self.commodity.get_api_model(),
+            "supply": self.supply,
+            "buy_price": self.buy_price,
+            "sell_price": self.sell_price,
+            "demand": self.demand,
+            "collected_at": arrow.get(self.collected_at).isoformat(),
+        }
 
 
 class Engineer(Base):
@@ -199,6 +221,14 @@ class ModuleGroup(Base):
     name = Column(Text, nullable=False)
     category = Column(Text, nullable=False)
 
+    def get_api_model(self):
+        return {
+            "id": self.id,
+            "category_id": self.category_id,
+            "name": self.name,
+            "category": self.category,
+        }
+
 
 class Module(Base):
     __tablename__ = "modules"
@@ -210,6 +240,15 @@ class Module(Base):
 
     group_id = Column(Integer, ForeignKey("modules_groups.id"))
     group = relationship("ModuleGroup", lazy="joined")
+
+    def get_api_model(self):
+        return {
+            "id": self.id,
+            "module_class": self.module_class,
+            "rating": self.module_class,
+            "price": self.price,
+            "group": self.group.get_api_model(),
+        }
 
 
 @contextmanager

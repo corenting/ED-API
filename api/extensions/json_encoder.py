@@ -18,25 +18,12 @@ from models.database import (
 
 class CustomJsonEncoder(JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Commodity):
-            return {
-                "id": obj.id,
-                "name": obj.name,
-                "average_price": obj.average_price,
-                "is_rare": obj.is_rare,
-                "category": obj.category,
-            }
-        if isinstance(obj, CommodityPrice):
-            return {
-                "commodity": obj.commodity,
-                "supply": obj.supply,
-                "buy_price": obj.buy_price,
-                "sell_price": obj.sell_price,
-                "demand": obj.demand,
-                "collected_at": arrow.get(obj.collected_at).isoformat(),
-            }
-        if isinstance(obj, CommodityCategory):
-            return {"id": obj.id, "name": obj.name}
+
+        # Try objet get_api_model method
+        object_get_api_model = getattr(obj, "get_api_model", None)
+        if callable(object_get_api_model):
+            return object_get_api_model()
+
         if isinstance(obj, EngineerBlueprint):
             return {
                 "name": obj.name,
