@@ -5,9 +5,11 @@ from logging.handlers import SysLogHandler
 from flasgger import Swagger
 from flask import Flask
 
+from sys import platform
 from api.commodities import commodities_bp
 from api.commodity_finder import commodity_finder_bp
 from api.community_goals import community_goals_bp
+from api.modules import modules_bp
 from api.distance_calculator import distance_calculator_bp
 from api.engineering import engineering_bp
 from api.extensions.database import db, register_db
@@ -20,6 +22,7 @@ from api.ship_finder import ship_finder_bp
 from api.ships import ships_bp
 from api.systems import systems_bp
 from config import APP_VERSION, DB_URI, DEBUG_MODE, LOG_LEVEL
+from logging import Formatter
 
 
 def create_app():
@@ -51,6 +54,7 @@ def create_app():
     app.register_blueprint(ship_finder_bp, url_prefix="/ship_finder")
     app.register_blueprint(module_finder_bp, url_prefix="/module_finder")
     app.register_blueprint(commodity_finder_bp, url_prefix="/commodity_finder")
+    app.register_blueprint(modules_bp, url_prefix="/modules")
 
     register_error_handler(app)
 
@@ -60,12 +64,13 @@ def create_app():
     app.cli.add_command(eddn_cli)
 
     # Logging
-
+    log_format = "%(asctime)s;%(levelname)s;%(message)s"
     logging.basicConfig(
-        level=LOG_LEVEL, format="%(asctime)s;%(levelname)s;%(message)s"
+        level=LOG_LEVEL, format=log_format
     )
-    if not DEBUG_MODE:
+    if not DEBUG_MODE and platform == 'linux':
         handler = SysLogHandler(address="/dev/log")
+        handler.setFormatter(Formatter(log_format))
         logging.getLogger().addHandler(handler)
 
     return app
