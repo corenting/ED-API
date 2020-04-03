@@ -1,6 +1,5 @@
 import arrow
-from flask import Blueprint, jsonify
-from requests.api import request
+from flask import Blueprint, jsonify, request
 from sqlalchemy import and_
 
 from api.extensions.database import db
