@@ -1,16 +1,14 @@
 PYTHON=poetry run
 
-.SILENT: format
 .PHONY: format
 format:
 	$(PYTHON) black .
+	$(PYTHON) isort **/*.py *.py
 
-.SILENT: format-check
 .PHONY: format-check
-format-check:
+style:
 	$(PYTHON) black --check .
 
-.SILENT: isort
-.PHONY: isort
-isort:
-	$(PYTHON) isort **/*.py *.py
+.PHONY: run
+run:
+	FLASK_ENV=development $(PYTHON) flask run
