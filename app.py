@@ -12,6 +12,7 @@ from api.commodity_finder import commodity_finder_bp
 from api.community_goals import community_goals_bp
 from api.distance_calculator import distance_calculator_bp
 from api.engineering import engineering_bp
+from api.extensions.cache import init_cache
 from api.extensions.database import db, register_db
 from api.extensions.error_handler import register_error_handler
 from api.extensions.json_encoder import CustomJsonEncoder
@@ -41,6 +42,9 @@ def create_app():
         "version": APP_VERSION,
     }
     Swagger(app)
+
+    # Cache
+    init_cache(app)
 
     # Blueprints
     app.register_blueprint(community_goals_bp, url_prefix="/community_goals")

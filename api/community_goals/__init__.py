@@ -1,10 +1,12 @@
 from api.community_goals.utils import get_community_goals
 from flask.blueprints import Blueprint
+from api.extensions.cache import cache
 
 community_goals_bp = Blueprint("community_goals", __name__)
 
 
 @community_goals_bp.route("/")
+@cache.cached(timeout=900)
 def flask_get_community_goals():
     """Return the latest community goals
     ---

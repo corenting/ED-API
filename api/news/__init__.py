@@ -6,11 +6,13 @@ from flask import Blueprint, jsonify
 
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response
+from api.extensions.cache import cache
 
 news_bp = Blueprint("news", __name__)
 
 
 @news_bp.route("/")
+@cache.cached(timeout=900)
 def flask_get_news():
     # Get articles
     url = "https://elitedangerous-website-backend-production.elitedangerous.com/api/news?_format=json"
