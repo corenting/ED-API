@@ -61,6 +61,7 @@ class CustomJsonEncoder(JSONEncoder):
                 "id": obj.id,
                 "name": obj.name,
                 "is_planetary": obj.is_planetary,
+                "is_fleet_carrier": obj.type == 'Fleet Carrier',
                 "last_shipyard_update": arrow.get(obj.last_shipyard_update).isoformat(),
                 "distance_to_star": obj.distance_to_star,
                 "max_landing_pad": obj.max_landing_pad
