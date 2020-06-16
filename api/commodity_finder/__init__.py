@@ -90,8 +90,8 @@ def flask_find_commodity():
     # Get commodity
     db_commodity = (
         db.session.query(Commodity)
-            .filter(Commodity.name.ilike(f"%{commodity_name}"))
-            .first()
+        .filter(Commodity.name.ilike(f"%{commodity_name}"))
+        .first()
     )
     if db_commodity is None:
         return error_response(f"Commodity {commodity_name} not found")
@@ -118,12 +118,17 @@ def flask_find_commodity():
     ).fetchall()
     ids_to_fetch = (i[0] for i in db_ids)
 
-    prices = db.session.query(CommodityPrice).join(CommodityPrice.station).filter(CommodityPrice.id.in_(ids_to_fetch)).all()
+    prices = (
+        db.session.query(CommodityPrice)
+        .join(CommodityPrice.station)
+        .filter(CommodityPrice.id.in_(ids_to_fetch))
+        .all()
+    )
 
     res = []
     for item in prices:
         if (selling and item.demand >= min_demand) or (
-                (not selling) and item.supply >= min_stock
+            (not selling) and item.supply >= min_stock
         ):
             res.append(
                 {
@@ -141,9 +146,7 @@ def flask_find_commodity():
                     "distance_to_star": item.station.distance_to_star,
                     "price_difference_percentage": price_difference(
                         db_commodity.average_price,
-                        item.buy_price
-                        if not selling
-                        else item.sell_price,
+                        item.buy_price if not selling else item.sell_price,
                         selling,
                     ),
                 }
