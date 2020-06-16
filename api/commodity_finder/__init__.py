@@ -1,6 +1,6 @@
 import arrow
 from flask import Blueprint, jsonify, request
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 from api.extensions.database import db
 from api.helpers.request import request_param
@@ -90,84 +90,64 @@ def flask_find_commodity():
     # Get commodity
     db_commodity = (
         db.session.query(Commodity)
-        .filter(Commodity.name.ilike(f"%{commodity_name}"))
-        .first()
+            .filter(Commodity.name.ilike(f"%{commodity_name}"))
+            .first()
     )
     if db_commodity is None:
         return error_response(f"Commodity {commodity_name} not found")
 
-    # Get nearby stations
-    systems = (
-        db.session.query(System)
-        .filter(
-            and_(
-                System.x >= reference_system.x - 25,
-                System.x <= reference_system.x + 25,
-                System.y >= reference_system.y - 25,
-                System.y <= reference_system.y + 25,
-                System.z >= reference_system.z - 25,
-                System.z <= reference_system.z + 25,
-            )
-        )
-        .all()
-    )
+    # Get prices
+    db_ids = db.engine.execute(
+        text(
+            "select cp.id from commodities_prices cp "
+            "join stations st on st.id = cp.station_id "
+            "join systems s on s.id = st.system_id "
+            "where commodity_id = :commodity_id "
+            "and s.x >= :ref_system_x - 25 "
+            "and s.x <= :ref_system_x + 25 "
+            "and s.y >= :ref_system_y - 25 "
+            "and s.y <= :ref_system_y + 25 "
+            "and s.z >= :ref_system_z - 25 "
+            "and s.z <= :ref_system_z + 25 "
+            f"and {'sell_price' if selling else 'buy_price'} != 0;"
+        ),
+        commodity_id=db_commodity.id,
+        ref_system_x=reference_system.x,
+        ref_system_y=reference_system.y,
+        ref_system_z=reference_system.z,
+    ).fetchall()
+    ids_to_fetch = (i[0] for i in db_ids)
 
-    # Build response
+    prices = db.session.query(CommodityPrice).join(CommodityPrice.station).filter(CommodityPrice.id.in_(ids_to_fetch)).all()
+
     res = []
-    for system in systems:
-        for station in system.stations:
-            if can_dock_at_station(station.max_landing_pad, pad_size):
-                if not selling:
-                    price = (
-                        db.session.query(CommodityPrice)
-                        .filter(
-                            and_(
-                                CommodityPrice.commodity_id == db_commodity.id,
-                                CommodityPrice.station_id == station.id,
-                                CommodityPrice.buy_price != 0,
-                            )
-                        )
-                        .first()
-                    )
-                else:
-                    price = (
-                        db.session.query(CommodityPrice)
-                        .filter(
-                            and_(
-                                CommodityPrice.commodity_id == db_commodity.id,
-                                CommodityPrice.station_id == station.id,
-                                CommodityPrice.sell_price != 0,
-                            )
-                        )
-                        .first()
-                    )
-                if price:
-                    if (selling and price.demand >= min_demand) or (
-                        (not selling) and price.supply >= min_stock
-                    ):
-                        res.append(
-                            {
-                                "station": station,
-                                "supply": price.supply,
-                                "demand": price.demand,
-                                "buy_price": price.buy_price,
-                                "sell_price": price.sell_price,
-                                "distance": distance_between_systems(
-                                    reference_system, station.system
-                                ),
-                                "last_price_update": arrow.Arrow.utcfromtimestamp(
-                                    price.collected_at
-                                ).isoformat(),
-                                "distance_to_star": station.distance_to_star,
-                                "price_difference_percentage": price_difference(
-                                    db_commodity.average_price,
-                                    price.buy_price
-                                    if not selling
-                                    else price.sell_price,
-                                    selling,
-                                ),
-                            }
-                        )
+    for item in prices:
+        if (selling and item.demand >= min_demand) or (
+                (not selling) and item.supply >= min_stock
+        ):
+            res.append(
+                {
+                    "station": item.station,
+                    "supply": item.supply,
+                    "demand": item.demand,
+                    "buy_price": item.buy_price,
+                    "sell_price": item.sell_price,
+                    "distance": distance_between_systems(
+                        reference_system, item.station.system
+                    ),
+                    "last_price_update": arrow.Arrow.utcfromtimestamp(
+                        item.collected_at
+                    ).isoformat(),
+                    "distance_to_star": item.station.distance_to_star,
+                    "price_difference_percentage": price_difference(
+                        db_commodity.average_price,
+                        item.buy_price
+                        if not selling
+                        else item.sell_price,
+                        selling,
+                    ),
+                }
+            )
 
     res.sort(key=lambda obj: (obj["distance"], obj["distance_to_star"]))
     return jsonify(res[:150])
