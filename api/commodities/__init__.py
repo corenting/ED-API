@@ -4,6 +4,7 @@ from sqlalchemy import text, desc, asc, and_
 
 from api.extensions.database import db
 from api.helpers.response import error_response
+from api.extensions.cache import cache
 from common.market import price_difference
 from models.database import Commodity, CommodityPrice
 
@@ -11,6 +12,7 @@ commodities_bp = Blueprint("commodities", __name__)
 
 
 @commodities_bp.route("/")
+@cache.cached(timeout=900, query_string=True)
 def flask_get_commodities():
     """Return the list of all commodities
     ---
@@ -75,6 +77,7 @@ def flask_get_commodities():
 
 
 @commodities_bp.route("/<name>")
+@cache.cached(timeout=900)
 def flask_get_commodity(name):
 
     # Fetch the commodity from the db by name

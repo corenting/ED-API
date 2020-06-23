@@ -4,6 +4,7 @@ import requests
 from flask import Blueprint, request, redirect, jsonify
 
 from api.extensions.database import db
+from api.extensions.cache import cache
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response
 from models.database import Ship
@@ -12,6 +13,7 @@ ships_bp = Blueprint("ships", __name__)
 
 
 @ships_bp.route("/")
+@cache.cached(timeout=900, query_string=True)
 def flask_get_ships():
     name_filter = request.args.get("name")
     if not name_filter:
@@ -26,6 +28,7 @@ def flask_get_ships():
 
 
 @ships_bp.route("<ship>/details")
+@cache.cached(timeout=900, query_string=True)
 def flask_get_ships_details(ship):
     res = get_ships_details(ship)
     if res is None:
@@ -34,6 +37,7 @@ def flask_get_ships_details(ship):
 
 
 @ships_bp.route("<ship>/picture")
+@cache.cached(timeout=900, query_string=True)
 def flask_get_ship_picture(ship):
     res_item = get_ships_details(ship)
     if res_item is None:
