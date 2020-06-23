@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/corenting/ed-api"
 
 [tool.poetry.dependencies]
+alembic = "^1.4.2"
 python = "^3.8"
 flask = "^1.1.1"
 requests = "^2.23"

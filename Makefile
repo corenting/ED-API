@@ -2,12 +2,13 @@ PYTHON=poetry run
 
 .PHONY: format
 format:
-	$(PYTHON) black .
+	$(PYTHON) black --exclude=workdir .
 	$(PYTHON) isort **/*.py *.py
 
-.PHONY: format-check
+.PHONY: style
 style:
-	$(PYTHON) black --check .
+	$(PYTHON) black --exclude=workdir --check .
+	$(PYTHON) isort --check-only **/*.py *.py
 
 .PHONY: run
 run:
