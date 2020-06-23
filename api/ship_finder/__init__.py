@@ -43,6 +43,7 @@ def flask_find_ship():
             and reference_system.z - 25
             <= StationShipLink.station.system.z
             <= reference_system.z + 25
+            and StationShipLink.station.type != "Fleet Carrier"
         )
         .all()
     )

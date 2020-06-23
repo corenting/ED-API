@@ -109,6 +109,7 @@ def flask_find_commodity():
             "and s.y <= :ref_system_y + 25 "
             "and s.z >= :ref_system_z - 25 "
             "and s.z <= :ref_system_z + 25 "
+            "and st.type != 'Fleet Carrier' "
             f"and {'sell_price' if selling else 'buy_price'} != 0;"
         ),
         commodity_id=db_commodity.id,
