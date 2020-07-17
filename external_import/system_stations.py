@@ -208,6 +208,11 @@ def import_systems_and_stations(db_session):
             file.seek(0)
             with jsonlines.Reader(file) as reader:
                 for item in reader:
+
+                    # Don't import fleet carriers (sometimes they don't have type set)
+                    if item["type"] is None or item.get("type") == "Fleet Carrier":
+                        continue
+
                     last_shipyard_update = timestamp_to_date(
                         item["shipyard_updated_at"]
                     )
