@@ -48,6 +48,7 @@ def import_ships(ships_file, db_session):
                     ships_list.append(ship)
             for ship_elt in ships_list:
                 db_session.add(ship_elt)
+
     db_session.flush()
     logger.info("Ships import finished")
     return ships_list
@@ -167,6 +168,10 @@ def import_modules_sold(station_file, db_session):
         "COPY station_module_link FROM '" + WORKING_DIR + "modules_sold.csv' CSV HEADER"
     )
 
+    db_session.execute(
+        "DELETE FROM station_module_link WHERE station_id NOT IN (SELECT id FROM stations)"
+    )
+
     logger.info("Sold modules import finished")
 
 
@@ -180,6 +185,9 @@ def import_systems_and_stations(db_session):
     try:
         logger.info("Systems/stations import started")
         remove_existing_data(db_session)
+
+        # Disable constraints for the import
+        db_session.execute("SET session_replication_role TO 'replica'")
 
         import_modules(db_session)
         import_systems(db_session)
@@ -252,6 +260,9 @@ def import_systems_and_stations(db_session):
             # Now import modules sold through a faster CSV import
             file.seek(0)
             import_modules_sold(file, db_session)
+
+        # Restore constraints
+        db_session.execute("SET session_replication_role TO 'origin'")
 
         db_session.commit()
         logger.info("Systems/stations import finished")
