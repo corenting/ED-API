@@ -152,6 +152,11 @@ def import_systems(db_session):
 def import_modules_sold(station_file, db_session):
     logger.info("Sold modules import started")
 
+    # Drop FK constraint temporarly for import
+    db_session.execute(
+        "ALTER TABLE station_module_link DROP CONSTRAINT  station_module_link_station_id_fkey"
+    )
+
     # First generate a CSV file for Postgres to ingest
     with jsonlines.Reader(station_file) as reader:
         with open(WORKING_DIR + "modules_sold.csv", "w+") as csv_file:
@@ -172,6 +177,11 @@ def import_modules_sold(station_file, db_session):
         "DELETE FROM station_module_link WHERE station_id NOT IN (SELECT id FROM stations)"
     )
 
+    # Re-add foreign key constraint
+    db_session.execute(
+        "ALTER TABLE station_module_link ADD CONSTRAINT station_module_link_station_id_fkey FOREIGN KEY (station_id) REFERENCES stations(id)"
+    )
+
     logger.info("Sold modules import finished")
 
 
@@ -185,9 +195,6 @@ def import_systems_and_stations(db_session):
     try:
         logger.info("Systems/stations import started")
         remove_existing_data(db_session)
-
-        # Disable constraints for the import
-        db_session.execute("SET session_replication_role TO 'replica'")
 
         import_modules(db_session)
         import_systems(db_session)
@@ -260,9 +267,6 @@ def import_systems_and_stations(db_session):
             # Now import modules sold through a faster CSV import
             file.seek(0)
             import_modules_sold(file, db_session)
-
-        # Restore constraints
-        db_session.execute("SET session_replication_role TO 'origin'")
 
         db_session.commit()
         logger.info("Systems/stations import finished")
