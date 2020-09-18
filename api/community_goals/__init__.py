@@ -1,4 +1,5 @@
 from api.community_goals.utils import get_community_goals
+from flask import jsonify
 from flask.blueprints import Blueprint
 from api.extensions.cache import cache
 
@@ -72,4 +73,4 @@ def flask_get_community_goals():
         schema:
           $ref: '#/definitions/CommunityGoalError'
     """
-    return get_community_goals()
+    return jsonify(get_community_goals())

@@ -4,7 +4,7 @@ import arrow
 from pyfcm import FCMNotification
 from sqlalchemy import create_engine
 
-from api.community_goals import get_community_goals
+from api.community_goals.utils import get_community_goals
 from config import DB_URI, DEBUG_MODE, FCM_API_KEY
 from models.database import CommunityGoalStatus, get_session
 
@@ -109,7 +109,7 @@ def launch_cg_watch():
     # First get latest data
     api_data = get_community_goals()
     latest_data = []
-    for goal in api_data["goals"]:
+    for goal in api_data:
 
         # Get date
         last_update_date = arrow.utcnow()

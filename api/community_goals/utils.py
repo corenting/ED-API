@@ -2,7 +2,6 @@ import json
 
 import arrow
 import requests
-from flask import jsonify
 
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response
@@ -80,4 +79,4 @@ def get_community_goals():
 
         api_response.append(goal)
 
-    return jsonify(api_response)
+    return api_response
