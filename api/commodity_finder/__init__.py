@@ -1,3 +1,4 @@
+import logging
 import arrow
 from flask import Blueprint, jsonify, request
 from sqlalchemy import and_, text
@@ -12,6 +13,8 @@ from common.station import can_dock_at_station
 from models.database import Commodity, CommodityPrice, System
 
 commodity_finder_bp = Blueprint("commodity_finder", __name__)
+
+logger = logging.getLogger(__name__)
 
 
 @commodity_finder_bp.route("/")
@@ -72,10 +75,14 @@ def flask_find_commodity():
     # Get params
     system_name = request.args.get("referenceSystem")
     commodity_name = request.args.get("commodityName")
-    pad_size = request_param("pad", "S")
+    min_pad_size = request_param("pad", "S")
     min_stock = request_param("stock", 1)
     selling = request_param("selling", False) == "true"
     min_demand = request_param("demand", 0)
+
+    # Check pad_size
+    if min_pad_size not in ["S", "M", "L"]:
+        return error_response("Invalid pad size")
 
     # First, try to get ref system from local db
     reference_system = (
@@ -127,9 +134,11 @@ def flask_find_commodity():
     )
 
     res = []
+    logger.warning(f"Request pad size is {min_pad_size}")
     for item in prices:
-        if (selling and item.demand >= min_demand) or (
-            (not selling) and item.supply >= min_stock
+        if can_dock_at_station(item.station.max_landing_pad, min_pad_size) and (
+            (selling and item.demand >= min_demand)
+            or ((not selling) and item.supply >= min_stock)
         ):
             res.append(
                 {
