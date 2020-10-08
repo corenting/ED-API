@@ -109,3 +109,4 @@ edapi.db
 
 # Test stuff
 *.json
+.tmp/

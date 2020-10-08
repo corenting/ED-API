@@ -54,11 +54,13 @@ def flask_get_galnet():
             (x for x in website_api_content if x["title"] == item["title"]), None
         )
         if website_item is not None:
-            new_item[
-                "picture"
-            ] = "http://hosting.zaonce.net/elite-dangerous/galnet/{}.png".format(
-                website_item["image"]
-            )
+
+            base_url = "http://hosting.zaonce.net/elite-dangerous/galnet/"
+            picture_name = website_item["image"]
+            if "," in picture_name:
+                picture_name = picture_name.split(",")[0]
+
+            new_item["picture"] = f"{base_url}{picture_name}.png"
 
         res.append(new_item)
     return jsonify(res)
