@@ -1,0 +1,2 @@
+class ContentFetchingException(Exception):
+    pass

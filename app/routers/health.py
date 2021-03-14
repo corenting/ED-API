@@ -7,5 +7,6 @@ router = APIRouter()
 
 
 @router.get("/health/version", tags=["Health"], response_model=Version)
-async def read_users() -> Version:
+async def get_version() -> Version:
+    """Get the current version of the app."""
     return Version(version=__version__)
