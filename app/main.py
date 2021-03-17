@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app import __version__
-from app.routers import galnet, health
+from app.routers import galnet, health, ships
 
 app = FastAPI(
     title="ED-API",
@@ -11,3 +11,4 @@ app = FastAPI(
 
 app.include_router(health.router)
 app.include_router(galnet.router)
+app.include_router(ships.router)

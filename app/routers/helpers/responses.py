@@ -2,6 +2,8 @@ from dataclasses import asdict
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
 
+from app.routers.responses.errors import HTTPError
+
 
 def dataclass_response(original_func: Callable) -> Callable:
     """Wrap a function returning a dataclass to return dicts.
@@ -26,3 +28,17 @@ def dataclass_response(original_func: Callable) -> Callable:
         return (asdict(x) for x in res) if iterable else asdict(res)
 
     return wrapped_func
+
+
+def get_error_response_doc(status_code: int, parent_exception: Any) -> Dict:
+    """Get the OpenAPI documentation for an error to use in FastAPI decorator."""
+    error_code = getattr(parent_exception, "error_code", "Unknown error")
+
+    return {
+        status_code: {
+            "description": error_code,
+            "content": {
+                "application/json": {"example": HTTPError(detail=error_code).json()}
+            },
+        }
+    }

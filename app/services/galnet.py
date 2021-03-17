@@ -1,12 +1,12 @@
 from typing import Any, Dict, List, Optional
 
-import httpx
 import pendulum
 
 from app.helpers.httpx import get_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.galnet import GalnetArticle
 from app.models.language import Language
+from app.services.constants import FRONTIER_WEBSITE_API
 
 
 class GalnetService:
@@ -37,8 +37,8 @@ class GalnetService:
         if language != Language.ENGLISH:
             url += f"&language={language.value}"
 
-        with get_httpx_client() as client:
-            rss_res = client.get(url)
+        async with get_httpx_client() as client:
+            rss_res = await client.get(url)
         if rss_res.status_code != 200:
             raise ContentFetchingException()
 
@@ -47,9 +47,9 @@ class GalnetService:
         # Get official website JSON for the pictures
         website_api_content: List[Dict[str, Any]] = []
 
-        with get_httpx_client() as client:
-            website_api_req = httpx.get(
-                "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json",
+        async with get_httpx_client() as client:
+            website_api_req = await client.get(
+                f"{FRONTIER_WEBSITE_API}/galnet?_format=json"
             )
         if website_api_req.status_code == 200:
             # only first 15 elements like other source used
