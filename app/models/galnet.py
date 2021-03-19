@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from typing import Optional
 
 from pendulum.date import Date
+from pydantic.dataclasses import dataclass
 
 
 @dataclass

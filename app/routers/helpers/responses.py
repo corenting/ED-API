@@ -2,7 +2,7 @@ from dataclasses import asdict
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, Union
 
-from app.routers.responses.errors import HTTPError
+from app.routers.error_responses import HTTPError
 
 
 def dataclass_response(original_func: Callable) -> Callable:

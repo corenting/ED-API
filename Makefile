@@ -9,7 +9,7 @@ format:
 style:
 	$(PYTHON) black --check app
 	$(PYTHON) isort --check-only app
-	$(PYTHON) mypy --ignore-missing-imports --disallow-untyped-defs -- app
+	$(PYTHON) mypy -- app
 	$(PYTHON) flakehell lint
 
 .PHONY: run

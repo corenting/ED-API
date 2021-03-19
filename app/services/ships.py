@@ -13,8 +13,8 @@ from app.services.constants import (
 class ShipsService:
     """Main class for the ships service."""
 
-    async def get_picture_uri(self, ship_model: str) -> str:
-        """Get picture URI for a specific ship model."""
+    async def get_ship_model_informations(self, ship_model: str) -> Ship:
+        """Get informations about a specific ship model."""
         ships_list = await self.get_all_ships()
 
         ship = next(
@@ -22,7 +22,7 @@ class ShipsService:
         )
         if ship is None:
             raise ShipModelNotFound()
-        return ship.picture_url
+        return ship
 
     async def get_all_ships(self) -> List[Ship]:
         """Get all ships."""

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app import __version__
-from app.routers.responses.health import Version
+from app.models.health import Version
 
 router = APIRouter()
 
