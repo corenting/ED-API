@@ -7,7 +7,7 @@ from pydantic.dataclasses import dataclass
 @dataclass
 class GalnetArticle:
     content: str
-    picture: Optional[str]
+    picture: str
     title: str
     uri: str
     published_date: Date

@@ -5,6 +5,10 @@ from fastapi.responses import JSONResponse
 
 from app import __version__
 from app.routers import community_goals, galnet, health, ships
+from app.database.database import Base, engine
+
+from app.database.community_goal_status import CommunityGoalStatus
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="ED-API",

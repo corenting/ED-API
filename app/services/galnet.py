@@ -12,16 +12,19 @@ from app.services.constants import FRONTIER_WEBSITE_API
 class GalnetService:
     """Main class for the Galnet service."""
 
+    DEFAULT_PICTURE_PATH = "NewsImageDiplomacyPressConference.png"
+
     def _get_picture_for_article(
-        self, article_title: str, website_api_content: List[Dict[str, Any]]
-    ) -> Optional[str]:
+        self, article_id: str, website_api_content: List[Dict[str, Any]]
+    ) -> str:
+        base_url = "http://hosting.zaonce.net/elite-dangerous/galnet/"
+
         website_item = next(
-            (x for x in website_api_content if x["title"] == article_title), None
+            (x for x in website_api_content if x["title"] == article_id), None
         )
         if website_item is None:
-            return None
+            return f"{base_url}{self.DEFAULT_PICTURE_PATH}"
 
-        base_url = "http://hosting.zaonce.net/elite-dangerous/galnet/"
         picture_name = website_item["image"]
         if "," in picture_name:
             picture_name = picture_name.split(",")[0]
@@ -66,7 +69,7 @@ class GalnetService:
                 uri=item["url"],
                 title=title,
                 published_date=pendulum.parse(item["date_modified"]),  # type: ignore
-                picture=self._get_picture_for_article(title, website_api_content),
+                picture=self._get_picture_for_article(item["id"], website_api_content),
             )
             response_list.append(new_item)
 
