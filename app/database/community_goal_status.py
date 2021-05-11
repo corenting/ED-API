@@ -1,11 +1,7 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Integer,
-    Text,
-)
+from sqlalchemy import Boolean, Column, DateTime, Integer, Text
+
 from app.database.database import Base
+
 
 class CommunityGoalStatus(Base):
     __tablename__ = "community_goal_status"

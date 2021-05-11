@@ -10,7 +10,7 @@ style:
 	$(PYTHON) black --check app
 	$(PYTHON) isort --check-only app
 	$(PYTHON) mypy -- app
-	$(PYTHON) flakehell lint
+	$(PYTHON) pflake8 app
 
 .PHONY: run
 run:
