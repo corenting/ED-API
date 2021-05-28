@@ -3,6 +3,7 @@ import json
 import arrow
 import requests
 from flask import Blueprint, request, jsonify
+from requests.exceptions import RequestException
 
 from api.helpers.request import get_requests_headers
 from api.helpers.response import error_response
@@ -27,15 +28,17 @@ def flask_get_galnet():
     articles = json.loads(req.content.decode("utf-8"))
 
     # Get official website JSON for the pictures
-    website_api_content = []
-    website_api_req = requests.get(
-        "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json",
-        headers=get_requests_headers(),
-        timeout=1,
-    )
-    if website_api_req.status_code == 200:
-        # only first 15 elements like other source used
-        website_api_content = json.loads(website_api_req.content.decode("utf-8"))[:15]
+    try:
+        website_api_req = requests.get(
+            "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json",
+            headers=get_requests_headers(),
+            timeout=1,
+        )
+        if website_api_req.status_code == 200:
+            # only first 15 elements like other source used
+            website_api_content = json.loads(website_api_req.content.decode("utf-8"))[:15]
+    except RequestException:
+        website_api_content = []
 
     # Build response
     res = []
@@ -54,7 +57,6 @@ def flask_get_galnet():
             (x for x in website_api_content if x["title"] == item["title"]), None
         )
         if website_item is not None:
-
             base_url = "http://hosting.zaonce.net/elite-dangerous/galnet/"
             picture_name = website_item["image"]
             if "," in picture_name:
