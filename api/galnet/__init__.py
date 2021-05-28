@@ -36,7 +36,9 @@ def flask_get_galnet():
         )
         if website_api_req.status_code == 200:
             # only first 15 elements like other source used
-            website_api_content = json.loads(website_api_req.content.decode("utf-8"))[:15]
+            website_api_content = json.loads(website_api_req.content.decode("utf-8"))[
+                :15
+            ]
     except RequestException:
         website_api_content = []
 
