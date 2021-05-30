@@ -1,75 +1,45 @@
-from typing import Any, Dict, List
+from typing import List
 
+import httpx
 import pendulum
 
-from app.helpers.httpx import get_httpx_client
+from app.helpers.frontier import get_frontier_api_url_for_language
+from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.galnet import GalnetArticle
 from app.models.language import Language
-from app.services.constants import FRONTIER_WEBSITE_API
 
 
 class GalnetService:
     """Main class for the Galnet service."""
 
-    DEFAULT_PICTURE_PATH = "NewsImageDiplomacyPressConference.png"
-
-    def _get_picture_for_article(
-        self, article_id: str, website_api_content: List[Dict[str, Any]]
-    ) -> str:
-        base_url = "http://hosting.zaonce.net/elite-dangerous/galnet/"
-
-        website_item = next(
-            (x for x in website_api_content if x["title"] == article_id), None
-        )
-        if website_item is None:
-            return f"{base_url}{self.DEFAULT_PICTURE_PATH}"
-
-        picture_name = website_item["image"]
-        if "," in picture_name:
-            picture_name = picture_name.split(",")[0]
-
-        return f"{base_url}{picture_name}.png"
+    BASE_PICTURE_PATH = "http://hosting.zaonce.net/elite-dangerous/galnet"
 
     async def get_articles(self, language: Language) -> List[GalnetArticle]:
         """Get the latest Galnet articles.
 
         :raises ContentFetchingException: Unable to retrieve the articles
         """
-        url = "https://rss-bridge.9cw.eu/?action=display&bridge=EliteDangerousGalnet&format=Json"
-        if language != Language.ENGLISH:
-            url += f"&language={language.value}"
+        url = f"{get_frontier_api_url_for_language(language)}/galnet_article?&sort=-published_at&page[offset]=0&page[limit]=12"
+        async with get_aynsc_httpx_client() as client:
+            try:
+                api_response = await client.get(url)
+                api_response.raise_for_status()
+            except httpx.HTTPError:  # type: ignore
+                raise ContentFetchingException()
 
-        async with get_httpx_client() as client:
-            rss_res = await client.get(url)
-        if rss_res.status_code != 200:
-            raise ContentFetchingException()
-
-        articles = rss_res.json()
-
-        # Get official website JSON for the pictures
-        website_api_content: List[Dict[str, Any]] = []
-
-        async with get_httpx_client() as client:
-            website_api_req = await client.get(
-                f"{FRONTIER_WEBSITE_API}/galnet?_format=json"
-            )
-        if website_api_req.status_code == 200:
-            # only first 15 elements like other source used
-            website_api_content = website_api_req.json()[:15]
+        articles = api_response.json()
 
         # Build response
         response_list: List[GalnetArticle] = []
-        for item in articles["items"]:
-            title = item["title"]
+
+        for item in articles["data"]:
             new_item = GalnetArticle(
-                content=item["content_html"]
-                if "content_html" in item
-                else "No description",
-                uri=item["url"],
-                title=title,
-                published_date=pendulum.parse(item["date_modified"]),  # type: ignore
-                picture=self._get_picture_for_article(item["id"], website_api_content),
+                content=item["attributes"]["body"]["value"],
+                uri=f"https://www.elitedangerous.com/news/galnet/{item['attributes']['field_slug']}",
+                title=item["attributes"]["title"],
+                published_date=pendulum.parse(item["attributes"]["published_at"]),  # type: ignore
+                picture=f"{self.BASE_PICTURE_PATH}/{item['attributes']['field_galnet_image']}.png",
             )
             response_list.append(new_item)
 

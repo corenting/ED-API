@@ -29,7 +29,7 @@ def _get_community_goals_from_inara() -> dict:
     }
 
     # Get API
-    with get_httpx_client(async_client=False) as client:
+    with get_httpx_client() as client:
         res = client.post("https://inara.cz/inapi/v1/", json=request_body)
 
     return res.json()

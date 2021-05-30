@@ -1,8 +1,3 @@
-FRONTIER_WEBSITE_BASE_URL = (
-    "https://elitedangerous-website-backend-production.elitedangerous.com"
-)
-FRONTIER_WEBSITE_API = f"{FRONTIER_WEBSITE_BASE_URL}/api"
-
 SHIPS_FRONTIER_API_MAPPING = {
     "adder": "Adder",
     "alliance-challenger": "Alliance Challenger",

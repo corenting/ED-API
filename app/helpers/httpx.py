@@ -1,11 +1,15 @@
-from typing import Union
-
 import httpx
 
 from app import __version__
 
+CLIENT_PARAMETERS = {"headers": {"User-Agent": f"ED-API/{__version__}"}, "timeout": 1}
 
-def get_httpx_client(async_client: bool = True) -> Union[httpx.AsyncClient, httpx.Client]:  # type: ignore
+
+def get_httpx_client() -> httpx.Client:
     """Get an httpx client with proper configuration."""
-    client_class = httpx.AsyncClient if async_client else httpx.Client  # type: ignore
-    return client_class(headers={"User-Agent": f"ED-API/{__version__}"}, timeout=1)  # type: ignore
+    return httpx.Client(**CLIENT_PARAMETERS)  # type: ignore
+
+
+def get_aynsc_httpx_client() -> httpx.AsyncClient:
+    """Get an httpx async client with proper configuration."""
+    return httpx.AsyncClient(**CLIENT_PARAMETERS)  # type: ignore
