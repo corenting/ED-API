@@ -10,7 +10,7 @@ from app.services.galnet import GalnetService
 router = APIRouter()
 
 
-@router.get("/galnet", tags=["Galnet"], response_model=List[GalnetArticle])
+@router.get("/galnet", tags=["News & Galnet"], response_model=List[GalnetArticle])
 @dataclass_response
 async def get_latest_articles(
     lang: Language = Language.ENGLISH,
