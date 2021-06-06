@@ -1,23 +1,25 @@
-from typing import Generator
-
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+from contextlib import contextmanager
 from app.config import DATABASE_URI
 
 engine = create_engine(DATABASE_URI, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 database_metadata = MetaData()
 Base = declarative_base(metadata=database_metadata)
 
 
-# Dependency
-def get_db() -> Generator[sessionmaker, None, None]:
-    """Get a database session."""
-    db = SessionLocal()
+@contextmanager
+def get_db_session():
+    """Provide a transactional scope around a series of operations."""
+    session = Session()
     try:
-        yield db
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
     finally:
-        db.close()
+        session.close()

@@ -12,13 +12,16 @@ python = "^3.9"
 aiofiles = "^0.7.0"
 alembic = "^1.6.5"
 cachier = "^1.5.0"
+click = "^8.0.1"
 environs = "^9.3.2"
 fastapi = "^0.65.1"
 httpx = "^0.18.1"
 pendulum = "^2.1.2"
 pydantic = "^1.8.2"
+pyfcm = "^1.5.1"
 SQLAlchemy = "^1.4.17"
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
+uvicorn = {extras = ["standard"], version = "^0.14.0"}
+click-loglevel = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b1"

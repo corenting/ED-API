@@ -1,13 +1,19 @@
-from typing import Generator
+import logging
+from typing import Generator, Optional
 
 import pendulum
 from cachier import cachier
 
 from app import __version__
 from app.config import DEBUG, INARA_API_KEY
+from app.database.community_goal_status import CommunityGoalStatus
+from app.database.database import get_db_session
+from app.helpers.fcm import send_fcm_notification
 from app.helpers.httpx import get_httpx_client
 from app.models.community_goals import CommunityGoal
 from app.models.exceptions import ContentFetchingException
+
+logger = logging.getLogger(__name__)
 
 
 @cachier(stale_after=pendulum.duration(minutes=10))
@@ -67,3 +73,129 @@ class CommunityGoalsService:
             )
             for event in inara_res["events"][0]["eventData"]
         )
+
+    def _send_notification_for_change(
+        self, change_type: str, goal: CommunityGoalStatus
+    ) -> None:
+        notif_goal = {
+            "title": goal.title,
+            "tier_progress": {"current": goal.current_tier},
+        }
+
+        data = {"goal": notif_goal, "date": pendulum.now().to_iso8601_string()}
+        fcm_ret = send_fcm_notification(change_type, goal.title, data)
+        if fcm_ret["failure"] != 0:
+            logger.error("Failed to send FCM message", extra={"fcm_ret": str(fcm_ret)})
+        else:
+            logger.info("FCM notification sent")
+
+    def _compare_data(
+        self, previous: list[CommunityGoalStatus], latest: list[CommunityGoalStatus]
+    ) -> None:
+        for goal in latest:
+            logger.info(f"Checking for updates for {goal.title}...")
+            previous_goal = next((x for x in previous if x.id == goal.id), None)
+
+            # New goal
+            if previous_goal is None:
+                logger.info(
+                    f"Goal {goal.title} started", extra={"community_goal": goal}
+                )
+                self._send_notification_for_change("new_goal", goal)
+                continue
+
+            # Finished goal
+            if goal.is_finished and not previous_goal.is_finished:
+                logger.info(
+                    f"Goal {goal.title} finished", extra={"community_goal": goal}
+                )
+                self._send_notification_for_change("finished_goal", goal)
+                continue
+
+            # Check if new tier
+            if goal.current_tier > previous_goal.current_tier and not goal.is_finished:
+                logger.info(
+                    f"Goal {goal.title} changed tier ({goal.current_tier} from {previous_goal.current_tier})",
+                    extra={"community_goal": goal},
+                )
+                self._send_notification_for_change("new_tier", goal)
+                continue
+
+            logger.info(f"No updates for {goal.title}")
+
+    def _store_updated_data(
+        self,
+        latest_data: list[CommunityGoalStatus],
+        previous_data: Optional[list[CommunityGoalStatus]],
+    ) -> None:
+        with get_db_session() as db:
+            # If no previous data, store all
+            if previous_data is None:
+                for item in latest_data:
+                    db.add(item)
+                return
+
+            # Else compare to not store bad data
+            for item in latest_data:
+                previous_item = next((x for x in previous_data if x.id == item.id), None)
+
+                # No previous item, store
+                if previous_item is None:
+                    db.add(item)
+                    continue
+
+                # If previous has bigger tier, don't save new one
+                if previous_item.current_tier > item.current_tier:
+                    continue
+
+                # If previous is finished but now is ongoing, ignore
+                if previous_item.is_finished and not item.is_finished:
+                    continue
+
+                # Else, update
+                db_item = (
+                    db.query(CommunityGoalStatus)
+                    .filter(CommunityGoalStatus.id == item.id)
+                    .first()
+                )
+                db_item.id = item.id
+                db_item.last_update = item.last_update
+                db_item.is_finished = item.is_finished
+                db_item.current_tier = item.current_tier
+                db_item.title = item.title
+
+    def send_notifications(self) -> None:
+        logger.info("Checking for CGs changes...")
+
+        # First get latest data
+        goals: list[CommunityGoal] = list(self.get_community_goals())
+        data_to_save = []
+        for goal in goals:
+            # Skip goals with empty title
+            if not goal.title:
+                continue
+
+            data_to_save.append(
+                CommunityGoalStatus(
+                    id=goal.id,
+                    last_update=goal.last_update,
+                    is_finished=not goal.ongoing,
+                    current_tier=goal.current_tier,
+                    title=goal.title,
+                )
+            )
+
+        # Get previous data from db
+        with get_db_session() as db:
+            previous_data = db.query(CommunityGoalStatus).all()
+
+            # If no previous data, write it and exit
+            if len(previous_data) == 0:
+                self._store_updated_data(data_to_save, None)
+                return
+
+            # Else compare
+            self._compare_data(previous_data, data_to_save)
+
+            # Then replace previous
+            self._store_updated_data(data_to_save, previous_data)
