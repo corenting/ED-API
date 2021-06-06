@@ -10,7 +10,7 @@ from app.models.community_goals import CommunityGoal
 from app.models.exceptions import ContentFetchingException
 
 
-@cachier(stale_after=pendulum.duration(minutes=5))
+@cachier(stale_after=pendulum.duration(minutes=10))
 def _get_community_goals_from_inara() -> dict:
     request_body = {
         "header": {
