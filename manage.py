@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from app.services.community_goals import CommunityGoalsService
 from click_loglevel import LogLevel
 import click

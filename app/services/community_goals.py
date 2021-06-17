@@ -1,3 +1,4 @@
+from app.database.database import Session
 import logging
 from typing import Generator, Optional
 
@@ -7,7 +8,6 @@ from cachier import cachier
 from app import __version__
 from app.config import DEBUG, INARA_API_KEY
 from app.database.community_goal_status import CommunityGoalStatus
-from app.database.database import get_db_session
 from app.helpers.fcm import send_fcm_notification
 from app.helpers.httpx import get_httpx_client
 from app.models.community_goals import CommunityGoal
@@ -128,20 +128,22 @@ class CommunityGoalsService:
         latest_data: list[CommunityGoalStatus],
         previous_data: Optional[list[CommunityGoalStatus]],
     ) -> None:
-        with get_db_session() as db:
+        with Session.begin() as session:
             # If no previous data, store all
             if previous_data is None:
                 for item in latest_data:
-                    db.add(item)
+                    session.add(item)
                 return
 
             # Else compare to not store bad data
             for item in latest_data:
-                previous_item = next((x for x in previous_data if x.id == item.id), None)
+                previous_item = next(
+                    (x for x in previous_data if x.id == item.id), None
+                )
 
                 # No previous item, store
                 if previous_item is None:
-                    db.add(item)
+                    session.add(item)
                     continue
 
                 # If previous has bigger tier, don't save new one
@@ -154,7 +156,7 @@ class CommunityGoalsService:
 
                 # Else, update
                 db_item = (
-                    db.query(CommunityGoalStatus)
+                    session.query(CommunityGoalStatus)
                     .filter(CommunityGoalStatus.id == item.id)
                     .first()
                 )
@@ -186,8 +188,8 @@ class CommunityGoalsService:
             )
 
         # Get previous data from db
-        with get_db_session() as db:
-            previous_data = db.query(CommunityGoalStatus).all()
+        with Session.begin() as session:
+            previous_data = session.query(CommunityGoalStatus).all()
 
             # If no previous data, write it and exit
             if len(previous_data) == 0:
