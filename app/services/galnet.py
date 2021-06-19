@@ -25,8 +25,8 @@ class GalnetService:
             try:
                 api_response = await client.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError:  # type: ignore
-                raise ContentFetchingException()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingException() from e
 
         articles = api_response.json()
 
