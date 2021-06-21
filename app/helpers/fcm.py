@@ -1,5 +1,3 @@
-from typing import Any
-
 from pyfcm import FCMNotification
 
 from app.config import DEBUG, FCM_API_KEY

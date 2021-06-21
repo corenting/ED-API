@@ -1,4 +1,3 @@
-from app.database.database import Session
 import logging
 from typing import Generator, Optional
 
@@ -8,6 +7,7 @@ from cachier import cachier
 from app import __version__
 from app.config import DEBUG, INARA_API_KEY
 from app.database.community_goal_status import CommunityGoalStatus
+from app.database.database import Session
 from app.helpers.fcm import send_fcm_notification
 from app.helpers.httpx import get_httpx_client
 from app.models.community_goals import CommunityGoal
@@ -167,6 +167,7 @@ class CommunityGoalsService:
                 db_item.title = item.title
 
     def send_notifications(self) -> None:
+        """Send a FCM notification with CGs changes."""
         logger.info("Checking for CGs changes...")
 
         # First get latest data

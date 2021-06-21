@@ -1,4 +1,5 @@
-from typing import List
+import logging
+from typing import Any, List, Optional
 
 import httpx
 import pendulum
@@ -8,6 +9,35 @@ from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.language import Language
 from app.models.news import NewsArticle
+
+logger = logging.getLogger(__name__)
+
+
+def _get_picture_url_for_article(api_response: Any, article_id: str) -> Optional[str]:
+    article = next((x for x in api_response["data"] if x["id"] == article_id), None)
+    if article is None:
+        return None
+
+    article_include_id = article["relationships"]["field_image_entity"]["data"]["id"]
+
+    # Get related include item to get picture ID
+    related_include = next(
+        (x for x in api_response["included"] if x["id"] == article_include_id), None
+    )
+    if related_include is None:
+        return None
+    article_picture_id = related_include["relationships"]["field_media_image"]["data"][
+        "id"
+    ]
+
+    # Get picture
+    picture = next(
+        (x for x in api_response["included"] if x["id"] == article_picture_id), None
+    )
+    if picture is None:
+        return None
+
+    return picture["attributes"]["uri"]["url"]
 
 
 class NewsService:
@@ -40,9 +70,17 @@ class NewsService:
         response_list: List[NewsArticle] = []
 
         for item in articles["data"]:
+
+            try:
+                picture = _get_picture_url_for_article(articles, item["id"])
+            except Exception:
+                logger.error(f"Couldn't get picture for article {item['id']}")
+                picture = None
+
             new_item = NewsArticle(
                 content=item["attributes"]["body"]["value"],
                 uri=f"https://www.elitedangerous.com/news/{item['attributes']['field_slug']}",
+                picture=picture,
                 title=item["attributes"]["title"],
                 published_date=pendulum.parse(item["attributes"]["published_at"]),  # type: ignore
             )

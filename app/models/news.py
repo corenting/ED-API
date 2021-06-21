@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pendulum.date import Date
 from pydantic.dataclasses import dataclass
 
@@ -8,3 +10,4 @@ class NewsArticle:
     title: str
     uri: str
     published_date: Date
+    picture: Optional[str] = None
