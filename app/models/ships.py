@@ -16,7 +16,7 @@ class ShipModel(Enum):
     EAGLE = "eagle"
     EMPIRE_COURIER = "empire_courier"
     EMPIRE_EAGLE = "empire_eagle"
-    EMPIRETRADER = "empiretrader"
+    EMPIRE_TRADER = "empire_trader"
     FEDDROPSHIP = "federation_dropship"
     FEDDROPSHIP_MKII = "federation_dropship_mkii"
     FEDERATION_CORVETTE = "federation_corvette"
