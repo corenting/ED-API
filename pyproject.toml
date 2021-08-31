@@ -14,18 +14,19 @@ alembic = "^1.6.5"
 cachier = "^1.5.0"
 click = "^8.0.1"
 click-loglevel = "^0.4.0"
-environs = "^9.3.2"
-fastapi = "^0.65.1"
+environs = "^9.3.3"
+fastapi = "^0.68.1"
 gunicorn = "^20.1.0"
-httpx = "^0.18.1"
+httpx = "^0.19.0"
 pendulum = "^2.1.2"
 pydantic = "^1.8.2"
 pyfcm = "^1.5.1"
-SQLAlchemy = "^1.4.17"
-uvicorn = {extras = ["standard"], version = "^0.14.0"}
+SQLAlchemy = "^1.4.23"
+uvicorn = {extras = ["standard"], version = "^0.15.0"}
+ijson = "^3.1.4"
 
 [tool.poetry.dev-dependencies]
-black = "^21.5b1"
+black = "^21.8b0"
 flake8 = "*"
 flake8-docstrings = "*"
 isort = "*"
@@ -40,6 +41,12 @@ multi_line_output = 3
 [tool.flake8]
 max_line_length = 88
 extend-ignore = "D100,D101,D104,E501,W503"
+per-file-ignores = "__init__.py:F401"
+
+[tool.mypy]
+plugins = "pydantic.mypy"
+ignore_missing_imports = true
+disallow_untyped_defs = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
