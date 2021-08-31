@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from app import __version__
 from app.constants import STATIC_PATH
 from app.database.database import Base, engine
-from app.routers import community_goals, galnet, health, news, ships
+from app.routers import community_goals, galnet, health, news, ships, systems
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,4 +29,5 @@ app.include_router(galnet.router)
 app.include_router(health.router)
 app.include_router(news.router)
 app.include_router(ships.router)
+app.include_router(systems.router)
 app.mount(f"/{STATIC_PATH}", StaticFiles(directory=STATIC_PATH), name=STATIC_PATH)

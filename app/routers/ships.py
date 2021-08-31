@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse, Response
 
-from app.models.exceptions import ShipModelNotFound
 from app.models.ships import ShipModel
-from app.routers.helpers.responses import get_error_response_doc
 from app.services.ships import ShipsService
 
 router = APIRouter()
@@ -14,7 +12,7 @@ router = APIRouter()
     tags=["Ships"],
     status_code=307,
     response_class=RedirectResponse,
-    responses={307: {}, **get_error_response_doc(404, ShipModelNotFound)},
+    responses={307: {}},
 )
 async def get_ship_picture(
     ship_model: ShipModel, ships_service: ShipsService = Depends()
