@@ -1,9 +1,11 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
 
+from app.models.exceptions import SystemNotFoundException
 from app.models.systems import SystemsDistance
-from app.routers.helpers.responses import dataclass_response
+from app.routers.helpers.responses import dataclass_response, get_error_response_doc
 from app.services.systems import SystemsService
 
 router = APIRouter()
@@ -19,7 +21,10 @@ async def get_systems_typeahead(
 
 
 @router.get(
-    "/systems/distance_calculator", tags=["Systems"], response_model=SystemsDistance
+    "/systems/distance_calculator",
+    tags=["Systems"],
+    response_model=SystemsDistance,
+    responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
 @dataclass_response
 async def get_systems_distance_calculator(
@@ -28,6 +33,9 @@ async def get_systems_distance_calculator(
     systems_service: SystemsService = Depends(),
 ) -> SystemsDistance:
     """Get distance between two specified systems."""
-    return await systems_service.get_systems_distance_calculator(
-        first_system, second_system
-    )
+    try:
+        return await systems_service.get_systems_distance_calculator(
+            first_system, second_system
+        )
+    except SystemNotFoundException as e:
+        raise HTTPException(status_code=400, detail=e.error_code)
