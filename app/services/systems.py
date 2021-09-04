@@ -68,7 +68,7 @@ class SystemsService:
         )
 
         return SystemsDistance(
-            ly_distance=round(distance, 2),
-            permit_required_for_first_system=first_system.permit_required,
-            permit_required_for_second_system=second_system.permit_required,
+            distance_in_ly=round(distance, 2),
+            first_system=first_system,
+            second_system=second_system,
         )
