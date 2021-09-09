@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
 from app.models.exceptions import SystemNotFoundException
-from app.models.systems import SystemsDistance
+from app.models.systems import SystemDetails, SystemsDistance
 from app.routers.helpers.responses import dataclass_response, get_error_response_doc
 from app.services.systems import SystemsService
 
@@ -37,5 +37,23 @@ async def get_systems_distance_calculator(
         return await systems_service.get_systems_distance_calculator(
             first_system, second_system
         )
+    except SystemNotFoundException as e:
+        raise HTTPException(status_code=400, detail=e.error_code)
+
+
+@router.get(
+    "/systems/{system_name}",
+    tags=["Systems"],
+    response_model=SystemDetails,
+    responses={**get_error_response_doc(400, SystemNotFoundException)},
+)
+@dataclass_response
+async def get_systems_distance_calculator(
+    system_name: str,
+    systems_service: SystemsService = Depends(),
+) -> SystemDetails:
+    """Get details of a specified system."""
+    try:
+        return await systems_service.get_system_details(system_name)
     except SystemNotFoundException as e:
         raise HTTPException(status_code=400, detail=e.error_code)
