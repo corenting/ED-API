@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import httpx
 import pendulum
@@ -43,7 +43,7 @@ def _get_picture_url_for_article(api_response: Any, article_id: str) -> Optional
 class NewsService:
     """Main class for the news service."""
 
-    async def get_articles(self, language: Language) -> List[NewsArticle]:
+    async def get_articles(self, language: Language) -> list[NewsArticle]:
         """Get the latest news articles.
 
         :raises ContentFetchingException: Unable to retrieve the articles
@@ -67,7 +67,7 @@ class NewsService:
         articles = api_response.json()
 
         # Build response
-        response_list: List[NewsArticle] = []
+        response_list: list[NewsArticle] = []
 
         for item in articles["data"]:
 

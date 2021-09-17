@@ -1,5 +1,3 @@
-from typing import List
-
 import httpx
 import pendulum
 
@@ -15,7 +13,7 @@ class GalnetService:
 
     BASE_PICTURE_PATH = "http://hosting.zaonce.net/elite-dangerous/galnet"
 
-    async def get_articles(self, language: Language) -> List[GalnetArticle]:
+    async def get_articles(self, language: Language) -> list[GalnetArticle]:
         """Get the latest Galnet articles.
 
         :raises ContentFetchingException: Unable to retrieve the articles
@@ -31,7 +29,7 @@ class GalnetService:
         articles = api_response.json()
 
         # Build response
-        response_list: List[GalnetArticle] = []
+        response_list: list[GalnetArticle] = []
 
         for item in articles["data"]:
             new_item = GalnetArticle(

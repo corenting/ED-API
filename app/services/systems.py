@@ -1,10 +1,11 @@
 import math
-from typing import List
 
 import httpx
+import pendulum
 
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException, SystemNotFoundException
+from app.models.stations import Station, StationLandingPadSize
 from app.models.systems import System, SystemDetails, SystemsDistance
 
 
@@ -13,7 +14,7 @@ class SystemsService:
 
     TYPEAHEAD_SERVICE_URL = "https://system.api.fuelrats.com/typeahead"
 
-    async def get_systems_typeahead(self, input_text: str) -> List[str]:
+    async def get_systems_typeahead(self, input_text: str) -> list[str]:
         """Get systems names for autocomplete.
 
         :raises ContentFetchingException: Unable to retrieve the data
@@ -108,3 +109,57 @@ class SystemsService:
             security=details.get("security"),
             economy=details.get("economy"),
         )
+
+    async def get_system_stations(self, system_name: str) -> list[Station]:
+        """Get system stations.
+
+        :raises ContentFetchingException: Unable to retrieve the data
+        :raises SystemNotFoundException: Unable to retrieve the system
+        """
+        async with get_aynsc_httpx_client() as client:
+            try:
+                api_response = await client.get(
+                    f"https://eddbapi.kodeblox.com/api/v4/stations?systemname={system_name}"
+                )
+                api_response.raise_for_status()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingException() from e
+
+        json_content = api_response.json()
+
+        if json_content is None or len(json_content["docs"]) == 0:
+            raise SystemNotFoundException(system_name)
+
+        stations = []
+        for item in json_content["docs"]:
+
+            landing_pad_size = None
+            if (
+                item.get("max_landing_pad_size") is not None
+                and item.get("max_landing_pad_size") != "none"
+            ):
+                landing_pad_size = StationLandingPadSize(
+                    str.upper(item["max_landing_pad_size"])
+                )
+
+            stations.append(
+                Station(
+                    distance_to_star=item["distance_to_star"],
+                    has_blackmarket=item["has_blackmarket"],
+                    has_docking=item["has_docking"],
+                    has_market=item["has_market"],
+                    has_outfitting=item["has_outfitting"],
+                    has_rearm=item["has_rearm"],
+                    has_refuel=item["has_refuel"],
+                    has_repair=item["has_repair"],
+                    has_shipyard=item["has_shipyard"],
+                    is_planetary=item["is_planetary"],
+                    last_market_update=pendulum.parse(item["market_updated_at"]) if item["market_updated_at"] else None,  # type: ignore
+                    last_outfitting_update=pendulum.parse(item["outfitting_updated_at"]) if item.get("outfitting_updated_at") else None,  # type: ignore
+                    last_shipyard_update=pendulum.parse(item["shipyard_updated_at"]) if item.get("shipyard_updated_at") else None,  # type: ignore
+                    max_landing_pad_size=landing_pad_size,
+                    name=item["name"],
+                    type=str.capitalize(item["type"]),
+                )
+            )
+        return stations

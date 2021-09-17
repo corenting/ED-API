@@ -1,9 +1,8 @@
-from typing import Generator, List
+from typing import Generator
 
 from fastapi import APIRouter, Depends
 
 from app.models.community_goals import CommunityGoal
-from app.routers.helpers.responses import dataclass_response
 from app.services.community_goals import CommunityGoalsService
 
 router = APIRouter()
@@ -12,9 +11,8 @@ router = APIRouter()
 @router.get(
     "/community_goals",
     tags=["Community Goals"],
-    response_model=List[CommunityGoal],
+    response_model=list[CommunityGoal],
 )
-@dataclass_response
 async def get_community_goals(
     community_goals_service: CommunityGoalsService = Depends(),
 ) -> Generator[CommunityGoal, None, None]:
