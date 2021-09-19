@@ -7,10 +7,10 @@ from app.models.systems import SystemDetails, SystemsDistance
 from app.routers.helpers.responses import get_error_response_doc
 from app.services.systems import SystemsService
 
-router = APIRouter()
+router = APIRouter(prefix="/systems", tags=["Systems"])
 
 
-@router.get("/systems/typeahead", tags=["Systems"], response_model=list[str])
+@router.get("/typeahead", response_model=list[str])
 async def get_systems_typeahead(
     input_text: str,
     systems_service: SystemsService = Depends(),
@@ -20,8 +20,7 @@ async def get_systems_typeahead(
 
 
 @router.get(
-    "/systems/distance_calculator",
-    tags=["Systems"],
+    "/distance_calculator",
     response_model=SystemsDistance,
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
@@ -40,8 +39,7 @@ async def get_systems_distance_calculator(
 
 
 @router.get(
-    "/systems/{system_name}",
-    tags=["Systems"],
+    "/{system_name}",
     response_model=SystemDetails,
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
@@ -57,8 +55,7 @@ async def get_systems_details(
 
 
 @router.get(
-    "/systems/{system_name}/stations",
-    tags=["Systems"],
+    "/{system_name}/stations",
     response_model=list[Station],
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )

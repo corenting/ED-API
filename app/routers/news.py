@@ -4,10 +4,10 @@ from app.models.language import Language
 from app.models.news import NewsArticle
 from app.services.news import NewsService
 
-router = APIRouter()
+router = APIRouter(prefix="/news", tags=["News & Galnet"])
 
 
-@router.get("/news", tags=["News & Galnet"], response_model=list[NewsArticle])
+@router.get("/", response_model=list[NewsArticle])
 async def get_latest_articles(
     lang: Language = Language.ENGLISH,
     news_service: NewsService = Depends(),

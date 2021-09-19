@@ -4,12 +4,11 @@ from fastapi.responses import RedirectResponse, Response
 from app.models.ships import ShipModel
 from app.services.ships import ShipsService
 
-router = APIRouter()
+router = APIRouter(prefix="/ships", tags=["Ships"])
 
 
 @router.get(
-    "/ships/{ship_model}/picture",
-    tags=["Ships"],
+    "/{ship_model}/picture",
     status_code=307,
     response_class=RedirectResponse,
     responses={307: {}},
@@ -22,7 +21,7 @@ async def get_ship_picture(
     return RedirectResponse(img_path)
 
 
-@router.get("/ships/typeahead", tags=["Ships"], response_model=list[str])
+@router.get("/typeahead", response_model=list[str])
 async def get_ships_typeahead(
     input_text: str,
     ships_service: ShipsService = Depends(),
