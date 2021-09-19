@@ -20,3 +20,12 @@ async def get_ship_picture(
     """Redirect to a picture corresponding the ship model."""
     img_path = await ships_service.get_ship_picture_static_path(ship_model)
     return RedirectResponse(img_path)
+
+
+@router.get("/ships/typeahead", tags=["Ships"], response_model=list[str])
+async def get_ships_typeahead(
+    input_text: str,
+    ships_service: ShipsService = Depends(),
+) -> list[str]:
+    """Get ships names for autocomplete."""
+    return await ships_service.get_ships_typeahead(input_text)

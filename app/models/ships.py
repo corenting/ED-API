@@ -1,5 +1,46 @@
 from enum import Enum
 
+SHIP_NAMES = [
+    "Adder",
+    "Alliance Challenger",
+    "Alliance Chieftain",
+    "Alliance Crusader",
+    "Anaconda",
+    "Asp Explorer",
+    "Asp Scout",
+    "Beluga",
+    "Cobra Mk. III",
+    "Cobra Mk. IV",
+    "Diamondback Explorer",
+    "Diamondback Scout",
+    "Dolphin",
+    "Eagle",
+    "Federal Assault Ship",
+    "Federal Corvette",
+    "Federal Dropship",
+    "Federal Gunship",
+    "Fer-de-Lance",
+    "Hauler",
+    "Imperial Clipper",
+    "Imperial Courier",
+    "Imperial Cutter",
+    "Imperial Eagle",
+    "Keelback",
+    "Krait Mk. II",
+    "Krait Phantom",
+    "Mamba",
+    "Orca",
+    "Python",
+    "Sidewinder",
+    "Type-10 Defender",
+    "Type-6 Transporter",
+    "Type-7 Transporter",
+    "Type-9 Heavy",
+    "Viper Mk. III",
+    "Viper Mk. IV",
+    "Vulture",
+]
+
 
 class ShipModel(Enum):
     ADDER = "adder"
