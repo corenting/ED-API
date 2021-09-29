@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 
 from app.models.exceptions import SystemNotFoundException
 from app.models.stations import Station
-from app.models.systems import SystemDetails, SystemsDistance
+from app.models.systems import SystemDetails, SystemFactionHistory, SystemsDistance
 from app.routers.helpers.responses import get_error_response_doc
 from app.services.systems import SystemsService
 
@@ -43,7 +43,7 @@ async def get_systems_distance_calculator(
     response_model=SystemDetails,
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
-async def get_systems_details(
+async def get_system_details(
     system_name: str,
     systems_service: SystemsService = Depends(),
 ) -> SystemDetails:
@@ -59,12 +59,28 @@ async def get_systems_details(
     response_model=list[Station],
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
-async def get_systems_stations(
+async def get_system_stations(
     system_name: str,
     systems_service: SystemsService = Depends(),
 ) -> list[Station]:
     """Get details of a specified system."""
     try:
         return await systems_service.get_system_stations(system_name)
+    except SystemNotFoundException as e:
+        raise HTTPException(status_code=400, detail=e.error_code)
+
+
+@router.get(
+    "/{system_name}/factions_history",
+    response_model=list[Station],
+    responses={**get_error_response_doc(400, SystemNotFoundException)},
+)
+async def get_system_factions_history(
+    system_name: str,
+    systems_service: SystemsService = Depends(),
+) -> list[SystemFactionHistory]:
+    """Get factions history for a specified system."""
+    try:
+        return await systems_service.get_system_factions_history(system_name)
     except SystemNotFoundException as e:
         raise HTTPException(status_code=400, detail=e.error_code)

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 
@@ -33,3 +34,17 @@ class SystemsDistance:
     distance_in_ly: float
     first_system: System
     second_system: System
+
+
+@dataclass
+class SystemFactionHistoryDetails:
+    influence: float
+    state: str
+    system: str
+    updated_at: DateTime
+
+
+@dataclass
+class SystemFactionHistory:
+    faction_name: str
+    history: SystemFactionHistoryDetails

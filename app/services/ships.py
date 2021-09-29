@@ -1,5 +1,3 @@
-import difflib
-
 from app.constants import STATIC_PATH
 from app.models.ships import SHIP_NAMES, ShipModel
 
@@ -13,4 +11,6 @@ class ShipsService:
 
     async def get_ships_typeahead(self, input_text: str) -> list[str]:
         """Get ships names for autocomplete."""
-        return [item for item in SHIP_NAMES if item.lower().startswith(input_text.lower())]
+        return [
+            item for item in SHIP_NAMES if item.lower().startswith(input_text.lower())
+        ]

@@ -6,7 +6,12 @@ import pendulum
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException, SystemNotFoundException
 from app.models.stations import Station, StationLandingPadSize
-from app.models.systems import System, SystemDetails, SystemsDistance
+from app.models.systems import (
+    System,
+    SystemDetails,
+    SystemFactionHistory,
+    SystemsDistance,
+)
 
 
 class SystemsService:
@@ -163,3 +168,13 @@ class SystemsService:
                 )
             )
         return stations
+
+    async def get_system_factions_history(
+        self, system_name: str
+    ) -> list[SystemFactionHistory]:
+        """Get factions history for a specified system.
+
+        :raises ContentFetchingException: Unable to retrieve the data
+        :raises SystemNotFoundException: Unable to retrieve the system
+        """
+        ...  # TODO: implement this
