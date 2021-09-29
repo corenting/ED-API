@@ -16,8 +16,10 @@ The project is divided in 2 parts :
 
 ## Credits
 
-- [EDSM](https://www.edsm.net/) : [ships pictures](https://github.com/EDSM-NET/ED-Ships-ScreenShots)
-- [Inara](https://inara.cz/) : API used to get community goals data
+- [EDDB API](https://elitebgs.app/eddb/): API used for stations informations
+- [EDSM](https://www.edsm.net/): provides the [ships pictures](https://github.com/EDSM-NET/ED-Ships-ScreenShots) and the API used for systems informations
+- [FuelRats](https://fuelrats.com): provides the endpoint used for the systems typeahead function
+- [Inara](https://inara.cz/): API used to get community goals data
 
 ## Contact
 
