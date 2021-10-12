@@ -72,7 +72,7 @@ async def get_system_stations(
 
 @router.get(
     "/{system_name}/factions_history",
-    response_model=list[Station],
+    response_model=list[SystemFactionHistory],
     responses={**get_error_response_doc(400, SystemNotFoundException)},
 )
 async def get_system_factions_history(

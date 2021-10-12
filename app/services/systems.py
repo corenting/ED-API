@@ -1,4 +1,5 @@
 import math
+from typing import Any
 
 import httpx
 import pendulum
@@ -10,6 +11,7 @@ from app.models.systems import (
     System,
     SystemDetails,
     SystemFactionHistory,
+    SystemFactionHistoryDetails,
     SystemsDistance,
 )
 
@@ -169,6 +171,43 @@ class SystemsService:
             )
         return stations
 
+    def _get_system_faction_history(
+        self, faction: dict[str, Any]
+    ) -> list[SystemFactionHistoryDetails]:
+        ret_items = []
+
+        # Add history
+        for attribute, value in faction["influenceHistory"].items():
+            # State history
+            state_history_value = None
+            if type(faction["stateHistory"]) != list:
+                state_history_value = next(
+                    (y for x, y in faction["stateHistory"].items() if x == attribute),
+                    None,
+                )
+
+            if state_history_value is None:
+                continue
+
+            ret_items.append(
+                SystemFactionHistoryDetails(
+                    influence=value,
+                    state=state_history_value,
+                    updated_at=pendulum.from_timestamp(int(attribute)),
+                )
+            )
+        ret_items.sort(key=lambda o: o.updated_at)
+
+        # Add current state
+        ret_items.append(
+            SystemFactionHistoryDetails(
+                influence=faction["influence"],
+                state=faction["state"],
+                updated_at=pendulum.from_timestamp(int(faction["lastUpdate"])),
+            )
+        )
+        return ret_items
+
     async def get_system_factions_history(
         self, system_name: str
     ) -> list[SystemFactionHistory]:
@@ -177,4 +216,27 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        ...  # TODO: implement this
+        async with get_aynsc_httpx_client() as client:
+            try:
+                api_response = await client.get(
+                    f"https://www.edsm.net/api-system-v1/factions?systemName={system_name}&showHistory=1"
+                )
+                api_response.raise_for_status()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingException() from e
+
+        json_content = api_response.json()
+
+        if json_content is None or len(json_content) == 0:
+            raise SystemNotFoundException(system_name)
+
+        response = []
+        for faction in json_content["factions"]:
+            response.append(
+                SystemFactionHistory(
+                    faction_name=faction["name"],
+                    history=self._get_system_faction_history(faction),
+                )
+            )
+
+        return response

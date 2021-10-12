@@ -40,11 +40,10 @@ class SystemsDistance:
 class SystemFactionHistoryDetails:
     influence: float
     state: str
-    system: str
     updated_at: DateTime
 
 
 @dataclass
 class SystemFactionHistory:
     faction_name: str
-    history: SystemFactionHistoryDetails
+    history: list[SystemFactionHistoryDetails]
