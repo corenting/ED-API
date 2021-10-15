@@ -7,7 +7,6 @@ from app.services.news import NewsService
 router = APIRouter(prefix="/news", tags=["News & Galnet"])
 
 
-@router.get("/", response_model=list[NewsArticle])
 @router.get("", response_model=list[NewsArticle])
 async def get_latest_articles(
     lang: Language = Language.ENGLISH,

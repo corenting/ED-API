@@ -8,10 +8,7 @@ from app.services.community_goals import CommunityGoalsService
 router = APIRouter(prefix="/community_goals", tags=["Community Goals"])
 
 
-@router.get(
-    "/",
-    response_model=list[CommunityGoal],
-)
+@router.get("", response_model=list[CommunityGoal])
 async def get_community_goals(
     community_goals_service: CommunityGoalsService = Depends(),
 ) -> Generator[CommunityGoal, None, None]:
