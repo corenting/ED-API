@@ -8,6 +8,7 @@ router = APIRouter(prefix="/galnet", tags=["News & Galnet"])
 
 
 @router.get("/", response_model=list[GalnetArticle])
+@router.get("", response_model=list[GalnetArticle])
 async def get_latest_articles(
     lang: Language = Language.ENGLISH,
     galnet_service: GalnetService = Depends(),
