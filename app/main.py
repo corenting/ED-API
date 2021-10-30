@@ -7,7 +7,15 @@ from fastapi.staticfiles import StaticFiles
 from app import __version__
 from app.constants import STATIC_PATH
 from app.database.database import Base, engine
-from app.routers import community_goals, galnet, health, news, ships, systems
+from app.routers import (
+    commodities,
+    community_goals,
+    galnet,
+    health,
+    news,
+    ships,
+    systems,
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,6 +32,7 @@ def exception_callback(*args: Any, **kwargs: Any) -> JSONResponse:
     return JSONResponse({"detail": "Unhandled error"}, status_code=500)
 
 
+app.include_router(commodities.router)
 app.include_router(community_goals.router)
 app.include_router(galnet.router)
 app.include_router(health.router)
