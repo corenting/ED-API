@@ -23,6 +23,7 @@ class Station:
     has_repair: bool
     has_shipyard: bool
     is_planetary: bool
+    is_fleet_carrier: bool
     last_market_update: Optional[DateTime]
     last_outfitting_update: Optional[DateTime]
     last_shipyard_update: Optional[DateTime]
