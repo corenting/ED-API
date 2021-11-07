@@ -151,7 +151,7 @@ class SystemsService:
 
             stations.append(
                 Station(
-                    distance_to_star=item["distance_to_star"],
+                    distance_to_arrival=item["distance_to_star"],
                     has_blackmarket=item["has_blackmarket"],
                     has_docking=item["has_docking"],
                     has_market=item["has_market"],

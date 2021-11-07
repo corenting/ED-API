@@ -1,83 +1,70 @@
-from enum import Enum
+from datetime import datetime
+from typing import Iterable, Optional
 
-SHIP_NAMES = [
-    "Adder",
-    "Alliance Challenger",
-    "Alliance Chieftain",
-    "Alliance Crusader",
-    "Anaconda",
-    "Asp Explorer",
-    "Asp Scout",
-    "Beluga",
-    "Cobra Mk. III",
-    "Cobra Mk. IV",
-    "Diamondback Explorer",
-    "Diamondback Scout",
-    "Dolphin",
-    "Eagle",
-    "Federal Assault Ship",
-    "Federal Corvette",
-    "Federal Dropship",
-    "Federal Gunship",
-    "Fer-de-Lance",
-    "Hauler",
-    "Imperial Clipper",
-    "Imperial Courier",
-    "Imperial Cutter",
-    "Imperial Eagle",
-    "Keelback",
-    "Krait Mk. II",
-    "Krait Phantom",
-    "Mamba",
-    "Orca",
-    "Python",
-    "Sidewinder",
-    "Type-10 Defender",
-    "Type-6 Transporter",
-    "Type-7 Transporter",
-    "Type-9 Heavy",
-    "Viper Mk. III",
-    "Viper Mk. IV",
-    "Vulture",
-]
+from aenum import MultiValueEnum
+from pydantic.dataclasses import dataclass
+
+from app.models.stations import StationLandingPadSize
 
 
-class ShipModel(Enum):
-    ADDER = "adder"
-    ANACONDA = "anaconda"
-    ASP = "asp"
-    ASP_SCOUT = "asp_scout"
-    BELUGALINER = "belugaliner"
-    COBRAMKIII = "cobramkiii"
-    COBRAMKIV = "cobramkiv"
-    CUTTER = "cutter"
-    DIAMONDBACK = "diamondback"
-    DIAMONDBACKXL = "diamondbackxl"
-    DOLPHIN = "dolphin"
-    EAGLE = "eagle"
-    EMPIRE_COURIER = "empire_courier"
-    EMPIRE_EAGLE = "empire_eagle"
-    EMPIRE_TRADER = "empire_trader"
-    FEDDROPSHIP = "federation_dropship"
-    FEDDROPSHIP_MKII = "federation_dropship_mkii"
-    FEDERATION_CORVETTE = "federation_corvette"
-    FEDERATION_GUNSHIP = "federation_gunship"
-    FERDELANCE = "ferdelance"
-    HAULER = "hauler"
-    INDEPENDANT_TRADER = "independant_trader"
-    KRAIT_LIGHT = "krait_light"
-    KRAIT_MKII = "krait_mkii"
-    MAMBA = "mamba"
-    ORCA = "orca"
-    PYTHON = "python"
-    SIDEWINDER = "sidewinder"
-    TYPE6 = "type6"
-    TYPE7 = "type7"
-    TYPE9 = "type9"
-    TYPE9_MILITARY = "type9_military"
-    TYPEX = "typex"
-    TYPEX_2 = "typex_2"
-    TYPEX_3 = "typex_3"
-    VIPER = "viper"
-    VIPER_MKIV = "viper_mkiv"
-    VULTURE = "vulture"
+class ShipModel(MultiValueEnum):
+    ADDER = "Adder", "adder"
+    ANACONDA = "Alliance Challenger", "anaconda"
+    ASP = "Alliance Chieftain", "asp"
+    ASP_SCOUT = "Alliance Crusader", "asp_scout"
+    BELUGALINER = "Anaconda", "belugaliner"
+    COBRAMKIII = "Asp Explorer", "cobramkiii"
+    COBRAMKIV = "Asp Scout", "cobramkiv"
+    CUTTER = "Beluga", "cutter"
+    DIAMONDBACK = "Cobra Mk. III", "diamondback"
+    DIAMONDBACKXL = "Cobra Mk. IV", "diamondbackxl"
+    DOLPHIN = "Diamondback Explorer", "dolphin"
+    EAGLE = "Diamondback Scout", "eagle"
+    EMPIRE_COURIER = "Dolphin", "empire_courier"
+    EMPIRE_EAGLE = "Eagle", "empire_eagle"
+    EMPIRE_TRADER = "Federal Assault Ship", "empire_trader"
+    FEDDROPSHIP = "Federal Corvette", "federation_dropship"
+    FEDDROPSHIP_MKII = "Federal Dropship", "federation_dropship_mkii"
+    FEDERATION_CORVETTE = "Federal Gunship", "federation_corvette"
+    FEDERATION_GUNSHIP = "Fer-de-Lance", "federation_gunship"
+    FERDELANCE = "Hauler", "ferdelance"
+    HAULER = "Imperial Clipper", "hauler"
+    INDEPENDANT_TRADER = "Imperial Courier", "independant_trader"
+    KRAIT_LIGHT = "Imperial Cutter", "krait_light"
+    KRAIT_MKII = "Imperial Eagle", "krait_mkii"
+    MAMBA = "Keelback", "mamba"
+    ORCA = "Krait Mk. II", "orca"
+    PYTHON = "Krait Phantom", "python"
+    SIDEWINDER = "Mamba", "sidewinder"
+    TYPE6 = "Orca", "type6"
+    TYPE7 = "Python", "type7"
+    TYPE9 = "Sidewinder", "type9"
+    TYPE9_MILITARY = "Type-10 Defender", "type9_military"
+    TYPEX = "Type-6 Transporter", "typex"
+    TYPEX_2 = "Type-7 Transporter", "typex_2"
+    TYPEX_3 = "Type-9 Heavy", "typex_3"
+    VIPER = "Viper Mk. III", "viper"
+    VIPER_MKIV = "Viper Mk. IV", "viper_mkiv"
+    VULTURE = "Vulture", "vulture"
+
+    @staticmethod
+    def get_internal_names() -> Iterable[str]:
+        """Get a list of ships internal names."""
+        return (item.values[1] for item in ShipModel)  # type: ignore
+
+    @staticmethod
+    def get_display_names() -> Iterable[str]:
+        """Get a list of ships display names."""
+        return (item.values[0] for item in ShipModel)  # type: ignore
+
+
+@dataclass
+class StationSellingShip:
+    distance_from_reference_system: float
+    distance_to_arrival: float
+    is_fleet_carrier: bool
+    is_planetary: bool
+    max_landing_pad_size: Optional[StationLandingPadSize]
+    name: str
+    shipyard_updated_at: datetime
+    system_name: str

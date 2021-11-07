@@ -13,7 +13,7 @@ class StationLandingPadSize(Enum):
 
 @dataclass
 class Station:
-    distance_to_star: float
+    distance_to_arrival: float
     has_blackmarket: bool
     has_docking: bool
     has_market: bool

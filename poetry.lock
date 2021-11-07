@@ -1,4 +1,12 @@
 [[package]]
+name = "aenum"
+version = "3.1.3"
+description = "Advanced Enumerations (compatible with Python's stdlib Enum), NamedTuples, and NamedConstants"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "aiofiles"
 version = "0.7.0"
 description = "File support for asyncio."
@@ -851,9 +859,14 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4840ee8c7cfa7b58b69df4dfdef04a6c11f8ef0cc65bb5afbdce6ab00f2aa62f"
+content-hash = "2f94d89019cede7fa096658428029b3bea47e0abc5c25fd4dadf4a395c64157b"
 
 [metadata.files]
+aenum = [
+    {file = "aenum-3.1.3-py2-none-any.whl", hash = "sha256:a3e86312ca58611236900b77e863d2b9034dfe8956a089a2935b55974eb33f1f"},
+    {file = "aenum-3.1.3-py3-none-any.whl", hash = "sha256:c3dba3d5482d09ea371651d8da08cb21e0b8a826970bb08a3b30789b4a7b91a9"},
+    {file = "aenum-3.1.3.tar.gz", hash = "sha256:1d494e4d3b3e3e95389aee420203d945776d2430ee9a3d4f162e267b3a7ec3a6"},
+]
 aiofiles = [
     {file = "aiofiles-0.7.0-py3-none-any.whl", hash = "sha256:c67a6823b5f23fcab0a2595a289cec7d8c863ffcb4322fb8cd6b90400aedfdbc"},
     {file = "aiofiles-0.7.0.tar.gz", hash = "sha256:a1c4fc9b2ff81568c83e21392a82f344ea9d23da906e4f6a52662764545e19d4"},
