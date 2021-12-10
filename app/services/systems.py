@@ -143,6 +143,11 @@ class SystemsService:
         stations = []
         for item in json_content["docs"]:
 
+            # Filter out fleet carriers as the info may be outdated anyway
+            station_type = item["type"]
+            if station_type == "fleet carrier":
+                continue
+
             landing_pad_size = None
             if (
                 item.get("max_landing_pad_size") is not None
@@ -170,7 +175,7 @@ class SystemsService:
                     last_shipyard_update=pendulum.parse(item["shipyard_updated_at"]) if item.get("shipyard_updated_at") else None,  # type: ignore
                     max_landing_pad_size=landing_pad_size,
                     name=item["name"],
-                    type=str.capitalize(item["type"]),
+                    type=station_type.title(),
                     system_name=system_name,
                     system_permit_required=system.permit_required,
                 )
