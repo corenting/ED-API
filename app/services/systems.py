@@ -132,10 +132,13 @@ class SystemsService:
             except httpx.HTTPError as e:  # type: ignore
                 raise ContentFetchingException() from e
 
-        json_content = api_response.json()
+        # We need the system too
+        system = await self.get_system_details(system_name)
 
+        # Check that the system has stations
+        json_content = api_response.json()
         if json_content is None or len(json_content["docs"]) == 0:
-            raise SystemNotFoundException(system_name)
+            return []
 
         stations = []
         for item in json_content["docs"]:
@@ -168,6 +171,8 @@ class SystemsService:
                     max_landing_pad_size=landing_pad_size,
                     name=item["name"],
                     type=str.capitalize(item["type"]),
+                    system_name=system_name,
+                    system_permit_required=system.permit_required,
                 )
             )
         return stations

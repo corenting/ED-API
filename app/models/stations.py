@@ -30,3 +30,5 @@ class Station:
     max_landing_pad_size: Optional[StationLandingPadSize]
     name: str
     type: str
+    system_name: str
+    system_permit_required: bool
