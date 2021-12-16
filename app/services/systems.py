@@ -169,7 +169,6 @@ class SystemsService:
                     has_repair=item["has_repair"],
                     has_shipyard=item["has_shipyard"],
                     is_planetary=item["is_planetary"],
-                    is_fleet_carrier=item["government"] == "private ownership",
                     last_market_update=pendulum.parse(item["market_updated_at"]) if item["market_updated_at"] else None,  # type: ignore
                     last_outfitting_update=pendulum.parse(item["outfitting_updated_at"]) if item.get("outfitting_updated_at") else None,  # type: ignore
                     last_shipyard_update=pendulum.parse(item["shipyard_updated_at"]) if item.get("shipyard_updated_at") else None,  # type: ignore
