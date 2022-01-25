@@ -8,7 +8,7 @@ from cachier import cachier
 from app.helpers.httpx import get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import Commodity, CommodityPrice
-from app.models.exceptions import ContentFetchingException
+from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
 
 TYPEAHEAD_SERVICE_URL = "https://spansh.co.uk/api/stations/field_values/market"
 EDDB_COMMODITIES = "https://eddb.io/archive/v6/commodities.json"
@@ -112,3 +112,23 @@ class CommoditiesService:
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingException() from e
         return res
+
+    def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
+        """Get prices for a specific commodity."""
+        try:
+            res = _get_commodities_prices_from_inara()
+        except httpx.HTTPError as e:  # type: ignore
+            raise ContentFetchingException() from e
+
+        matching_commodity = next(
+            (
+                price
+                for price in res
+                if price.commodity.name.lower() == commodity_name.lower()
+            ),
+            None,
+        )
+        if matching_commodity is None:
+            raise CommodityNotFoundException(commodity_name)
+
+        return matching_commodity
