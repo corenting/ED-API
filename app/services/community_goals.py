@@ -1,5 +1,5 @@
 import logging
-from typing import Generator, Optional
+from typing import Optional
 
 import pendulum
 from cachier import cachier
@@ -42,7 +42,7 @@ def _get_community_goals_from_inara() -> dict:
 
 
 class CommunityGoalsService:
-    def get_community_goals(self) -> Generator[CommunityGoal, None, None]:
+    def get_community_goals(self) -> list[CommunityGoal]:
         """Get latest community goals informations."""
         inara_res = _get_community_goals_from_inara()
         if (
@@ -53,9 +53,9 @@ class CommunityGoalsService:
 
         # Return empty if no CGs running
         if "eventData" not in inara_res["events"][0]:
-            return (_ for _ in ())
+            return []
 
-        return (
+        return [
             CommunityGoal(
                 contributors=event["contributorsNum"],
                 current_tier=event["tierReached"],
@@ -72,7 +72,7 @@ class CommunityGoalsService:
                 id=event["communitygoalGameID"],
             )
             for event in inara_res["events"][0]["eventData"]
-        )
+        ]
 
     def _send_notification_for_change(
         self, change_type: str, goal: CommunityGoalStatus
