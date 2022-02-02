@@ -11,8 +11,8 @@ from app.helpers.string import string_to_int
 from app.models.commodities import (
     Commodity,
     CommodityPrice,
-    CommodityStationDetails,
     FindCommodityMode,
+    StationCommodityDetails,
 )
 from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
 from app.models.stations import StationLandingPadSize
@@ -204,7 +204,7 @@ class CommoditiesService:
         commodity: str,
         min_landing_pad_size: StationLandingPadSize,
         min_quantity: int,
-    ) -> list[CommodityStationDetails]:
+    ) -> list[StationCommodityDetails]:
         """Get stations buying or selling a specific commodity near a reference system.
 
         Only works for non-rare commodities.
@@ -236,7 +236,7 @@ class CommoditiesService:
             except httpx.HTTPError as e:  # type: ignore
                 raise ContentFetchingException() from e
 
-        res: list[CommodityStationDetails] = []
+        res: list[StationCommodityDetails] = []
         for item in api_response.json()["results"]:
             commodity_in_market = next(
                 market_item
@@ -263,7 +263,7 @@ class CommoditiesService:
                 continue
 
             res.append(
-                CommodityStationDetails(
+                StationCommodityDetails(
                     distance_from_reference_system=item["distance"],
                     distance_to_arrival=item["distance_to_arrival"],
                     is_planetary=item["is_planetary"],
@@ -279,6 +279,8 @@ class CommoditiesService:
                     system_name=item["system_name"],
                     type=item["type"],
                     price_percentage_difference=price_percentage_difference,
+                    is_fleet_carrier=item["controlling_minor_faction"]
+                    == "FleetCarrier",
                 )
             )
 

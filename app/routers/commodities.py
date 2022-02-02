@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 from app.models.commodities import (
     Commodity,
     CommodityPrice,
-    CommodityStationDetails,
     FindCommodityMode,
+    StationCommodityDetails,
 )
 from app.models.exceptions import CommodityNotFoundException
 from app.models.stations import StationLandingPadSize
@@ -52,7 +52,7 @@ def get_commodities_prices(
     return commodities_service.get_commodities_prices()
 
 
-@router.get("/find", response_model=list[CommodityStationDetails])
+@router.get("/find", response_model=list[StationCommodityDetails])
 async def find_commodity(
     mode: FindCommodityMode,
     reference_system: str,
@@ -60,7 +60,7 @@ async def find_commodity(
     min_landing_pad_size: StationLandingPadSize,
     min_quantity: int,
     commodities_service: CommoditiesService = Depends(),
-) -> list[CommodityStationDetails]:
+) -> list[StationCommodityDetails]:
     """Get stations buying or selling a specific commodity near a reference system.
 
     Only works for non-rare commodities.

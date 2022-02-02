@@ -31,9 +31,10 @@ class FindCommodityMode(Enum):
 
 
 @dataclass
-class CommodityStationDetails:
+class StationCommodityDetails:
     distance_from_reference_system: int
     distance_to_arrival: float
+    is_fleet_carrier: bool
     is_planetary: bool
     last_market_update: Optional[DateTime]
     max_landing_pad_size: Optional[StationLandingPadSize]
