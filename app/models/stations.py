@@ -1,14 +1,22 @@
 from enum import Enum
-from typing import Optional
+from functools import total_ordering
+from typing import Any, Optional
 
 from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 
+@total_ordering
 class StationLandingPadSize(Enum):
     SMALL = "S"
     MEDIUM = "M"
     LARGE = "L"
+
+    def __lt__(self, other: Any) -> Any:
+        """Compare two landing pad sizes."""
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
 
 
 @dataclass

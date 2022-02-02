@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends
 
-from app.models.commodities import Commodity, CommodityPrice
+from app.models.commodities import (
+    Commodity,
+    CommodityPrice,
+    CommodityStationDetails,
+    FindCommodityMode,
+)
 from app.models.exceptions import CommodityNotFoundException
+from app.models.stations import StationLandingPadSize
 from app.routers.helpers.responses import get_error_response_doc
 from app.services.commodities import CommoditiesService
 
@@ -44,3 +50,21 @@ def get_commodities_prices(
 ) -> list[CommodityPrice]:
     """Get all commodities prices."""
     return commodities_service.get_commodities_prices()
+
+
+@router.get("/find", response_model=list[CommodityStationDetails])
+async def find_commodity(
+    mode: FindCommodityMode,
+    reference_system: str,
+    commodity: str,
+    min_landing_pad_size: StationLandingPadSize,
+    min_quantity: int,
+    commodities_service: CommoditiesService = Depends(),
+) -> list[CommodityStationDetails]:
+    """Get stations buying or selling a specific commodity near a reference system.
+
+    Only works for non-rare commodities.
+    """
+    return await commodities_service.find_commodity(
+        mode, reference_system, commodity, min_landing_pad_size, min_quantity
+    )

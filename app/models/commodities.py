@@ -1,4 +1,10 @@
+from enum import Enum
+from typing import Optional
+
+from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
+
+from app.models.stations import StationLandingPadSize
 
 
 @dataclass
@@ -17,3 +23,23 @@ class CommodityPrice:
     average_sell_price: int
     minimum_buy_price: int
     maximum_sell_price: int
+
+
+class FindCommodityMode(Enum):
+    BUY = "buy"
+    SELL = "sell"
+
+
+@dataclass
+class CommodityStationDetails:
+    distance_from_reference_system: int
+    distance_to_arrival: float
+    is_planetary: bool
+    last_market_update: Optional[DateTime]
+    max_landing_pad_size: Optional[StationLandingPadSize]
+    name: str
+    price_percentage_difference: int
+    price: int
+    quantity: int
+    system_name: str
+    type: str
