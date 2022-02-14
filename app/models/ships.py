@@ -64,6 +64,7 @@ class StationSellingShip:
     distance_to_arrival: float
     is_fleet_carrier: bool
     is_planetary: bool
+    is_settlement: bool
     max_landing_pad_size: Optional[StationLandingPadSize]
     name: str
     shipyard_updated_at: datetime

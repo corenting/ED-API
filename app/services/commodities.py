@@ -16,6 +16,7 @@ from app.models.commodities import (
 )
 from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
 from app.models.stations import StationLandingPadSize
+from app.services.helpers.fleet_carriers import is_fleet_carrier
 
 TYPEAHEAD_SERVICE_URL = "https://spansh.co.uk/api/stations/field_values/market"
 EDDB_COMMODITIES = "https://eddb.io/archive/v6/commodities.json"
@@ -279,8 +280,9 @@ class CommoditiesService:
                     system_name=item["system_name"],
                     type=item["type"],
                     price_percentage_difference=price_percentage_difference,
-                    is_fleet_carrier=item["controlling_minor_faction"]
-                    == "FleetCarrier",
+                    is_fleet_carrier=is_fleet_carrier(
+                        item["controlling_minor_faction"]
+                    ),
                 )
             )
 

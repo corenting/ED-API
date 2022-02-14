@@ -6,6 +6,8 @@ from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.ships import ShipModel, StationSellingShip
 from app.models.stations import StationLandingPadSize
+from app.services.helpers.fleet_carriers import is_fleet_carrier
+from app.services.helpers.settlements import is_settlement
 
 
 class ShipsService:
@@ -63,7 +65,8 @@ class ShipsService:
                 shipyard_updated_at=pendulum.parse(item["shipyard_updated_at"]),  # type: ignore
                 system_name=item["system_name"],
                 is_planetary=item["is_planetary"],
-                is_fleet_carrier=item["controlling_minor_faction"] == "FleetCarrier",
+                is_fleet_carrier=is_fleet_carrier(item["controlling_minor_faction"]),
+                is_settlement=is_settlement(item["type"]),
             )
             for item in stations
         ]
