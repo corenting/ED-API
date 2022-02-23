@@ -1,5 +1,3 @@
-from typing import Generator
-
 from fastapi import APIRouter, Depends
 
 from app.models.community_goals import CommunityGoal

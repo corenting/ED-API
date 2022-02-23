@@ -44,6 +44,20 @@ def get_commodity_price(
     return commodities_service.get_commodity_prices(commodity)
 
 
+@router.get(
+    "/{commodity}/best_prices",
+    response_model=list[StationCommodityDetails],
+    responses={**get_error_response_doc(400, CommodityNotFoundException)},
+)
+async def get_where_to_sell_commodity(
+    mode: FindCommodityMode,
+    commodity: str,
+    commodities_service: CommoditiesService = Depends(),
+) -> list[StationCommodityDetails]:
+    """Get the best stations to buy or sell a specific commodity."""
+    return await commodities_service.get_best_prices_for_commodity(mode, commodity)
+
+
 @router.get("/prices", response_model=list[CommodityPrice])
 def get_commodities_prices(
     commodities_service: CommoditiesService = Depends(),

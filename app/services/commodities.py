@@ -18,10 +18,12 @@ from app.models.exceptions import CommodityNotFoundException, ContentFetchingExc
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 
-TYPEAHEAD_SERVICE_URL = "https://spansh.co.uk/api/stations/field_values/market"
+SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
+    "https://spansh.co.uk/api/stations/field_values/market"
+)
 EDDB_COMMODITIES = "https://eddb.io/archive/v6/commodities.json"
 INARA_COMMODITIES = "https://inara.cz/commodities/"
-FIND_COMMODITY_URL = "https://spansh.co.uk/api/stations/search"
+SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 
 def _get_commodity_from_name(name: str, commodities: list[Commodity]) -> Commodity:
@@ -34,7 +36,7 @@ def _get_commodity_from_name(name: str, commodities: list[Commodity]) -> Commodi
 @cachier(stale_after=pendulum.duration(minutes=60))
 def _get_commodities_names_from_spansh() -> dict:
     with get_httpx_client() as client:
-        res = client.get(TYPEAHEAD_SERVICE_URL)
+        res = client.get(SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL)
         res.raise_for_status()
 
     return res.json()["values"]
@@ -142,61 +144,28 @@ class CommoditiesService:
 
         return matching_commodity
 
-    def _find_commodity_generate_request_body(
-        self,
-        mode: FindCommodityMode,
-        reference_system: str,
-        commodity: str,
-        min_quantity: int,
-    ) -> dict[str, Any]:
-        body: dict = {
-            "filters": {
-                "market": [
-                    {
-                        "name": commodity,
-                    }
-                ]
-            },
-            "sort": [
-                {"distance": {"direction": "asc"}},
-                {"distance_to_arrival": {"direction": "asc"}},
-            ],
-            "size": 50,
-            "page": 0,
-            "reference_system": reference_system,
-        }
+    async def get_best_prices_for_commodity(
+        self, mode: FindCommodityMode, commodity_name: str
+    ) -> list[StationCommodityDetails]:
+        """Get the best stations to buy or sell a specific commodity."""
+        # First get commodity price
+        current_commodity_price = self.get_commodity_prices(commodity_name)
 
-        if mode == FindCommodityMode.BUY:
-            body["filters"]["market"][0]["supply"] = {
-                "value": [min_quantity, 1000000000],
-                "comparison": "<=>",
-            }
-        else:
-            body["filters"]["market"][0]["demand"] = {
-                "value": [min_quantity, 1000000000],
-                "comparison": "<=>",
-            }
+        async with get_aynsc_httpx_client() as client:
+            try:
+                api_response = await client.post(
+                    SPANSH_STATIONS_SEARCH_URL,
+                    json=self._find_commodity_best_prices_generate_request_body(
+                        mode, commodity_name
+                    ),
+                )
+                api_response.raise_for_status()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingException() from e
 
-        return body
-
-    def _get_price_difference(
-        self,
-        commodity_price: CommodityPrice,
-        station_price: int,
-        mode: FindCommodityMode,
-    ) -> int:
-        average_price = (
-            commodity_price.average_buy_price
-            if mode == FindCommodityMode.BUY
-            else commodity_price.average_sell_price
+        return self._map_spansh_stations_to_model(
+            api_response, current_commodity_price, mode, StationLandingPadSize.SMALL
         )
-        if station_price == 0:
-            return 0
-        difference = station_price - average_price
-        if mode.SELL:
-            return round((difference / station_price) * 100.0)
-        else:
-            return round((difference / average_price) * 100.0)
 
     async def find_commodity(
         self,
@@ -210,25 +179,13 @@ class CommoditiesService:
 
         Only works for non-rare commodities.
         """
-        # First get commodities and their prices
-        commodities_prices = self.get_commodities_prices()
-
-        # Check that the commodity exist
-        current_commodity_price = next(
-            (
-                commodity_price
-                for commodity_price in commodities_prices
-                if commodity_price.commodity.name.lower() == commodity.lower()
-            ),
-            None,
-        )
-        if current_commodity_price is None:
-            raise CommodityNotFoundException(commodity)
+        # First get commodity price
+        current_commodity_price = self.get_commodity_prices(commodity)
 
         async with get_aynsc_httpx_client() as client:
             try:
                 api_response = await client.post(
-                    FIND_COMMODITY_URL,
+                    SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_generate_request_body(
                         mode, reference_system, commodity, min_quantity
                     ),
@@ -237,12 +194,23 @@ class CommoditiesService:
             except httpx.HTTPError as e:  # type: ignore
                 raise ContentFetchingException() from e
 
+        return self._map_spansh_stations_to_model(
+            api_response, current_commodity_price, mode, min_landing_pad_size
+        )
+
+    def _map_spansh_stations_to_model(
+        self,
+        api_response: httpx.Response,
+        current_commodity_price: CommodityPrice,
+        mode: FindCommodityMode,
+        min_landing_pad_size: StationLandingPadSize,
+    ) -> list[StationCommodityDetails]:
         res: list[StationCommodityDetails] = []
         for item in api_response.json()["results"]:
             commodity_in_market = next(
                 market_item
                 for market_item in item["market"]
-                if market_item["commodity"] == commodity
+                if market_item["commodity"] == current_commodity_price.commodity.name
             )
             price = (
                 commodity_in_market["buy_price"]
@@ -256,7 +224,7 @@ class CommoditiesService:
                 StationLandingPadSize.LARGE
                 if item["has_large_pad"]
                 else StationLandingPadSize.MEDIUM
-                if item["medium_pads"] > 0
+                if item.get("medium_pads", 0) > 0
                 else StationLandingPadSize.SMALL
             )
 
@@ -287,3 +255,86 @@ class CommoditiesService:
             )
 
         return res
+
+    def _find_commodity_best_prices_generate_request_body(
+        self, mode: FindCommodityMode, commodity: str
+    ) -> dict:
+        body = {
+            "filters": {"market": [{"name": commodity}]},
+            "size": 25,
+            "page": 0,
+        }
+        if mode == FindCommodityMode.SELL:
+            body["sort"] = [
+                {"market_sell_price": [{"name": commodity, "direction": "desc"}]}
+            ]
+            body["filters"]["market"][0]["demand"] = {  # type: ignore
+                "value": [1, 1000000000],
+                "comparison": "<=>",
+            }
+        elif mode == FindCommodityMode.BUY:
+            body["sort"] = [
+                {"market_buy_price": [{"name": commodity, "direction": "asc"}]}
+            ]
+            body["filters"]["market"][0]["supply"] = {  # type: ignore
+                "value": [1, 1000000000],
+                "comparison": "<=>",
+            }
+
+        return body
+
+    def _find_commodity_generate_request_body(
+        self,
+        mode: FindCommodityMode,
+        reference_system: str,
+        commodity: str,
+        min_quantity: int,
+    ) -> dict[str, Any]:
+        body = {
+            "filters": {
+                "market": [
+                    {
+                        "name": commodity,
+                    }
+                ]
+            },
+            "sort": [
+                {"distance": {"direction": "asc"}},
+                {"distance_to_arrival": {"direction": "asc"}},
+            ],
+            "size": 50,
+            "page": 0,
+            "reference_system": reference_system,
+        }
+
+        if mode == FindCommodityMode.BUY:
+            body["filters"]["market"][0]["supply"] = {  # type: ignore
+                "value": [min_quantity, 1000000000],
+                "comparison": "<=>",
+            }
+        else:
+            body["filters"]["market"][0]["demand"] = {  # type: ignore
+                "value": [min_quantity, 1000000000],
+                "comparison": "<=>",
+            }
+
+        return body
+
+    def _get_price_difference(
+        self,
+        commodity_price: CommodityPrice,
+        station_price: int,
+        mode: FindCommodityMode,
+    ) -> int:
+        average_price = (
+            commodity_price.average_buy_price
+            if mode == FindCommodityMode.BUY
+            else commodity_price.average_sell_price
+        )
+        if station_price == 0:
+            return 0
+        difference = station_price - average_price
+        if mode.SELL:
+            return round((difference / station_price) * 100.0)
+        else:
+            return round((difference / average_price) * 100.0)
