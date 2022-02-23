@@ -25,17 +25,21 @@ class Station:
     has_blackmarket: bool
     has_docking: bool
     has_market: bool
+    has_missions: bool
     has_outfitting: bool
-    has_rearm: bool
     has_refuel: bool
     has_repair: bool
+    has_restock: bool
     has_shipyard: bool
+    has_universal_cartographics: bool
+    is_fleet_carrier: bool
     is_planetary: bool
+    is_settlement: bool
     last_market_update: Optional[DateTime]
     last_outfitting_update: Optional[DateTime]
     last_shipyard_update: Optional[DateTime]
     max_landing_pad_size: Optional[StationLandingPadSize]
     name: str
-    type: str
     system_name: str
     system_permit_required: bool
+    type: str

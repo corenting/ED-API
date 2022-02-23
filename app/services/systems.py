@@ -6,7 +6,7 @@ import pendulum
 
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException, SystemNotFoundException
-from app.models.stations import Station, StationLandingPadSize
+from app.models.stations import Station
 from app.models.systems import (
     System,
     SystemDetails,
@@ -14,19 +14,27 @@ from app.models.systems import (
     SystemFactionHistoryDetails,
     SystemsDistance,
 )
+from app.services.helpers.fleet_carriers import is_fleet_carrier
+from app.services.helpers.settlements import is_settlement
+from app.services.helpers.spansh import (
+    SpanshStationService,
+    get_station_max_landing_pad_size,
+    station_has_service,
+)
 
 
 class SystemsService:
     """Main class for the systems service."""
 
-    TYPEAHEAD_SERVICE_URL = "https://system.api.fuelrats.com/typeahead"
+    FUELRATS_TYPEAHEAD_URL = "https://system.api.fuelrats.com/typeahead"
+    SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
     async def get_systems_typeahead(self, input_text: str) -> list[str]:
         """Get systems names for autocomplete.
 
         :raises ContentFetchingException: Unable to retrieve the data
         """
-        url = f"{self.TYPEAHEAD_SERVICE_URL}?term={input_text}"
+        url = f"{self.FUELRATS_TYPEAHEAD_URL}?term={input_text}"
         async with get_aynsc_httpx_client() as client:
             try:
                 api_response = await client.get(url)
@@ -125,8 +133,15 @@ class SystemsService:
         """
         async with get_aynsc_httpx_client() as client:
             try:
-                api_response = await client.get(
-                    f"https://eddbapi.kodeblox.com/api/v4/stations?systemname={system_name}"
+                print("Got request")
+                api_response = await client.post(
+                    self.SPANSH_STATIONS_SEARCH_URL,
+                    json={
+                        "filters": {"system_name": {"value": system_name}},
+                        "sort": [{"distance": {"direction": "asc"}}],
+                        "size": 200,
+                        "page": 0,
+                    },
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
@@ -137,48 +152,48 @@ class SystemsService:
 
         # Check that the system has stations
         json_content = api_response.json()
-        if json_content is None or len(json_content["docs"]) == 0:
+        if json_content is None or len(json_content["results"]) == 0:
             return []
 
-        stations = []
-        for item in json_content["docs"]:
-
-            # Filter out fleet carriers as the info may be outdated anyway
-            station_type = item["type"]
-            if station_type == "fleet carrier":
-                continue
-
-            landing_pad_size = None
-            if (
-                item.get("max_landing_pad_size") is not None
-                and item.get("max_landing_pad_size") != "none"
-            ):
-                landing_pad_size = StationLandingPadSize(
-                    str.upper(item["max_landing_pad_size"])
-                )
+        stations: list[Station] = []
+        for item in json_content["results"]:
+            station_landing_pad_size = get_station_max_landing_pad_size(item)
 
             stations.append(
                 Station(
-                    distance_to_arrival=item["distance_to_star"],
-                    has_blackmarket=item["has_blackmarket"],
-                    has_docking=item["has_docking"],
-                    has_market=item["has_market"],
-                    has_outfitting=item["has_outfitting"],
-                    has_rearm=item["has_rearm"],
-                    has_refuel=item["has_refuel"],
-                    has_repair=item["has_repair"],
-                    has_shipyard=item["has_shipyard"],
+                    distance_to_arrival=item["distance_to_arrival"],
+                    has_blackmarket=station_has_service(
+                        item, SpanshStationService.BLACK_MARKET
+                    ),
+                    has_docking=station_has_service(item, SpanshStationService.DOCK),
+                    has_market=item.get("has_market", False),
+                    has_missions=station_has_service(
+                        item, SpanshStationService.MISSIONS
+                    ),
+                    has_outfitting=item.get("has_outfitting", False),
+                    has_restock=station_has_service(item, SpanshStationService.RESTOCK),
+                    has_refuel=station_has_service(item, SpanshStationService.REFUEL),
+                    has_repair=station_has_service(item, SpanshStationService.REPAIR),
+                    has_shipyard=item.get("has_shipyard", False),
+                    has_universal_cartographics=station_has_service(
+                        item, SpanshStationService.UNIVERSAL_CARTOGRAPHICS
+                    ),
+                    is_fleet_carrier=is_fleet_carrier(
+                        item["controlling_minor_faction"]
+                    ),
                     is_planetary=item["is_planetary"],
-                    last_market_update=pendulum.parse(item["market_updated_at"]) if item["market_updated_at"] else None,  # type: ignore
+                    is_settlement=is_settlement(item["type"]),
+                    last_market_update=pendulum.parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
                     last_outfitting_update=pendulum.parse(item["outfitting_updated_at"]) if item.get("outfitting_updated_at") else None,  # type: ignore
                     last_shipyard_update=pendulum.parse(item["shipyard_updated_at"]) if item.get("shipyard_updated_at") else None,  # type: ignore
-                    max_landing_pad_size=landing_pad_size,
+                    max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
-                    type=station_type.title(),
-                    system_name=system_name,
+                    system_name=item["system_name"],
                     system_permit_required=system.permit_required,
+                    type=item["type"],
                 )
             )
+
         return stations
 
     def _get_system_faction_history(

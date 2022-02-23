@@ -17,6 +17,7 @@ from app.models.commodities import (
 from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
+from app.services.helpers.spansh import get_station_max_landing_pad_size
 
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
@@ -220,13 +221,7 @@ class CommoditiesService:
             price_percentage_difference = self._get_price_difference(
                 current_commodity_price, price, mode
             )
-            station_landing_pad_size = (
-                StationLandingPadSize.LARGE
-                if item["has_large_pad"]
-                else StationLandingPadSize.MEDIUM
-                if item.get("medium_pads", 0) > 0
-                else StationLandingPadSize.SMALL
-            )
+            station_landing_pad_size = get_station_max_landing_pad_size(item)
 
             if station_landing_pad_size > min_landing_pad_size:
                 continue
@@ -236,7 +231,7 @@ class CommoditiesService:
                     distance_from_reference_system=item["distance"],
                     distance_to_arrival=item["distance_to_arrival"],
                     is_planetary=item["is_planetary"],
-                    last_market_update=pendulum.parse(item["market_updated_at"]) if item["market_updated_at"] else None,  # type: ignore
+                    last_market_update=pendulum.parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
                     max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
                     price=commodity_in_market["buy_price"]
