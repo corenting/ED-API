@@ -10,6 +10,7 @@ from app.models.stations import Station
 from app.models.systems import (
     System,
     SystemDetails,
+    SystemDetailsFaction,
     SystemFactionHistory,
     SystemFactionHistoryDetails,
     SystemsDistance,
@@ -29,6 +30,7 @@ class SystemsService:
     FUELRATS_TYPEAHEAD_URL = "https://system.api.fuelrats.com/typeahead"
     SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
     SPANSH_SYSTEMS_SEARCH_URL = "https://spansh.co.uk/api/systems/search"
+    EDSM_SYSTEM_FACTIONS_URL = "https://www.edsm.net/api-system-v1/factions"
 
     async def get_systems_typeahead(self, input_text: str) -> list[str]:
         """Get systems names for autocomplete.
@@ -117,6 +119,12 @@ class SystemsService:
             raise SystemNotFoundException(system_name)
 
         result = json_content["results"][0]
+
+        try:
+            factions = await self.__get_systems_factions_details(system_name)
+        except ContentFetchingException:
+            factions = []
+
         return SystemDetails(
             allegiance=result.get("allegiance"),
             controlling_faction_state=result.get("controlling_minor_faction_state"),
@@ -134,6 +142,7 @@ class SystemsService:
             x=result["x"],
             y=result["y"],
             z=result["z"],
+            factions=factions,
         )
 
     async def get_system_stations(self, system_name: str) -> list[Station]:
@@ -144,7 +153,6 @@ class SystemsService:
         """
         async with get_aynsc_httpx_client() as client:
             try:
-                print("Got request")
                 api_response = await client.post(
                     self.SPANSH_STATIONS_SEARCH_URL,
                     json={
@@ -206,6 +214,40 @@ class SystemsService:
             )
 
         return stations
+
+    async def __get_systems_factions_details(
+        self, system_name: str
+    ) -> list[SystemDetailsFaction]:
+        """Get system factions details."""
+        async with get_aynsc_httpx_client() as client:
+            try:
+                api_response = await client.get(
+                    f"{self.EDSM_SYSTEM_FACTIONS_URL}?systemName={system_name}"
+                )
+                api_response.raise_for_status()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingException() from e
+
+        json_content = api_response.json()
+
+        # Check result is not empty
+        if json_content is None or len(json_content["factions"]) == 0:
+            return []
+
+        factions = []
+        for item in json_content["factions"]:
+            new_faction = SystemDetailsFaction(
+                allegiance=item["allegiance"],
+                happiness=item["happiness"],
+                influence=item["influence"],
+                name=item["name"],
+                state=item["state"],
+                government=item["government"],
+                is_player_faction=item["isPlayer"],
+                updated_at=pendulum.from_timestamp(item["lastUpdate"]),
+            )
+            factions.append(new_faction)
+        return factions
 
     def _get_system_faction_history(
         self, faction: dict[str, Any]

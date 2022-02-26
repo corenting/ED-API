@@ -1,7 +1,7 @@
-from datetime import datetime
 from typing import Iterable, Optional
 
 from aenum import MultiValueEnum
+from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 from app.models.stations import StationLandingPadSize
@@ -67,5 +67,5 @@ class StationSellingShip:
     is_settlement: bool
     max_landing_pad_size: Optional[StationLandingPadSize]
     name: str
-    shipyard_updated_at: datetime
+    shipyard_updated_at: DateTime
     system_name: str

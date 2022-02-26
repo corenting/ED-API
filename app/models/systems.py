@@ -14,6 +14,18 @@ class System:
 
 
 @dataclass
+class SystemDetailsFaction:
+    allegiance: str
+    government: str
+    happiness: str
+    influence: float
+    is_player_faction: bool
+    name: str
+    state: str
+    updated_at: DateTime
+
+
+@dataclass
 class SystemDetails:
     allegiance: Optional[str]
     controlling_faction_state: Optional[str]
@@ -31,6 +43,7 @@ class SystemDetails:
     x: float
     y: float
     z: float
+    factions: list[SystemDetailsFaction]
 
 
 @dataclass
