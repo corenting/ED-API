@@ -1,5 +1,5 @@
 import difflib
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 import pendulum
@@ -27,10 +27,13 @@ INARA_COMMODITIES = "https://inara.cz/commodities/"
 SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 
-def _get_commodity_from_name(name: str, commodities: list[Commodity]) -> Commodity:
+def _get_commodity_from_name(name: str, commodities: list[Commodity]) -> Optional[Commodity]:
     """Get the commodity with the specified name using difflib for handling small differences."""
-    valid_name = difflib.get_close_matches(name, [x.name for x in commodities])[0]
+    match = difflib.get_close_matches(name, [x.name for x in commodities])
+    if match is None or len(match) == 0:
+        return None
 
+    valid_name = match[0]
     return next(x for x in commodities if x.name == valid_name)
 
 
@@ -117,13 +120,19 @@ class CommoditiesService:
             raise ContentFetchingException() from e
         return res
 
-    def get_commodities_prices(self) -> list[CommodityPrice]:
-        """Get all commodities prices."""
+    def get_commodities_prices(self, filter: Optional[str]) -> list[CommodityPrice]:
+        """Get all commodities prices (with an optional filter) ."""
         try:
             res = _get_commodities_prices_from_inara()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingException() from e
-        return res
+
+        if not filter:
+            return res
+
+        if filter:
+            return [item for item in res if item.commodity.name.lower().startswith(filter.lower())]
+
 
     def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
         """Get prices for a specific commodity."""

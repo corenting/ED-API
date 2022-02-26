@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends
 
 from app.models.commodities import (
@@ -61,9 +62,10 @@ async def get_where_to_sell_commodity(
 @router.get("/prices", response_model=list[CommodityPrice])
 def get_commodities_prices(
     commodities_service: CommoditiesService = Depends(),
+    filter: Optional[str] = None,
 ) -> list[CommodityPrice]:
-    """Get all commodities prices."""
-    return commodities_service.get_commodities_prices()
+    """Get all commodities prices (with an optional filter) ."""
+    return commodities_service.get_commodities_prices(filter)
 
 
 @router.get("/find", response_model=list[StationCommodityDetails])
