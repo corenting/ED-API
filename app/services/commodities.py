@@ -27,7 +27,9 @@ INARA_COMMODITIES = "https://inara.cz/commodities/"
 SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 
-def _get_commodity_from_name(name: str, commodities: list[Commodity]) -> Optional[Commodity]:
+def _get_commodity_from_name(
+    name: str, commodities: list[Commodity]
+) -> Optional[Commodity]:
     """Get the commodity with the specified name using difflib for handling small differences."""
     match = difflib.get_close_matches(name, [x.name for x in commodities])
     if match is None or len(match) == 0:
@@ -84,9 +86,13 @@ def _get_commodities_prices_from_inara() -> list[CommodityPrice]:
 
         for entry in table_items:
             columns = [x.text.strip() for x in entry.select("td")]
+
+            commodity = _get_commodity_from_name(columns[0], commodities)
+            if commodity is None:
+                continue
             prices.append(
                 CommodityPrice(
-                    commodity=_get_commodity_from_name(columns[0], commodities),
+                    commodity=commodity,
                     inara_id=string_to_int(entry.select("a")[0]["href"]),
                     average_buy_price=string_to_int(columns[2]),
                     average_sell_price=string_to_int(columns[1]),
@@ -126,13 +132,14 @@ class CommoditiesService:
             res = _get_commodities_prices_from_inara()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingException() from e
-
-        if not filter:
+        else:
+            if filter:
+                return [
+                    item
+                    for item in res
+                    if item.commodity.name.lower().startswith(filter.lower())
+                ]
             return res
-
-        if filter:
-            return [item for item in res if item.commodity.name.lower().startswith(filter.lower())]
-
 
     def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
         """Get prices for a specific commodity."""

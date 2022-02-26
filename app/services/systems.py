@@ -231,7 +231,7 @@ class SystemsService:
         json_content = api_response.json()
 
         # Check result is not empty
-        if json_content is None or len(json_content["factions"]) == 0:
+        if json_content is None or len(json_content.get("factions", [])) == 0:
             return []
 
         factions = []

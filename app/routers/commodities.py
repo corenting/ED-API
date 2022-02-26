@@ -1,5 +1,7 @@
 from typing import Optional
+
 from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
 
 from app.models.commodities import (
     Commodity,
@@ -42,7 +44,10 @@ def get_commodity_price(
     commodities_service: CommoditiesService = Depends(),
 ) -> CommodityPrice:
     """Get prices for a specific commodity."""
-    return commodities_service.get_commodity_prices(commodity)
+    try:
+        return commodities_service.get_commodity_prices(commodity)
+    except CommodityNotFoundException as e:
+        raise HTTPException(status_code=400, detail=e.error_code)
 
 
 @router.get(
@@ -56,10 +61,17 @@ async def get_where_to_sell_commodity(
     commodities_service: CommoditiesService = Depends(),
 ) -> list[StationCommodityDetails]:
     """Get the best stations to buy or sell a specific commodity."""
-    return await commodities_service.get_best_prices_for_commodity(mode, commodity)
+    try:
+        return await commodities_service.get_best_prices_for_commodity(mode, commodity)
+    except CommodityNotFoundException as e:
+        raise HTTPException(status_code=400, detail=e.error_code)
 
 
-@router.get("/prices", response_model=list[CommodityPrice])
+@router.get(
+    "/prices",
+    response_model=list[CommodityPrice],
+    responses={**get_error_response_doc(400, CommodityNotFoundException)},
+)
 def get_commodities_prices(
     commodities_service: CommoditiesService = Depends(),
     filter: Optional[str] = None,
