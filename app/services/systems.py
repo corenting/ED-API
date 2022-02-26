@@ -28,6 +28,7 @@ class SystemsService:
 
     FUELRATS_TYPEAHEAD_URL = "https://system.api.fuelrats.com/typeahead"
     SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
+    SPANSH_SYSTEMS_SEARCH_URL = "https://spansh.co.uk/api/systems/search"
 
     async def get_systems_typeahead(self, input_text: str) -> list[str]:
         """Get systems names for autocomplete.
@@ -97,8 +98,14 @@ class SystemsService:
         """
         async with get_aynsc_httpx_client() as client:
             try:
-                api_response = await client.get(
-                    f"https://www.edsm.net/api-v1/system?systemName={system_name}&showCoordinates=1&showPermit=1&showInformation=1"
+                api_response = await client.post(
+                    self.SPANSH_SYSTEMS_SEARCH_URL,
+                    json={
+                        "filters": {"name": {"value": system_name}},
+                        "sort": [{"distance": {"direction": "asc"}}],
+                        "size": 1,
+                        "page": 0,
+                    },
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
@@ -106,23 +113,27 @@ class SystemsService:
 
         json_content = api_response.json()
 
-        if json_content is None or len(json_content) == 0:
+        if json_content is None or len(json_content["results"]) == 0:
             raise SystemNotFoundException(system_name)
 
-        details = json_content.get("information")
+        result = json_content["results"][0]
         return SystemDetails(
-            name=json_content["name"],
-            x=json_content["coords"]["x"],
-            y=json_content["coords"]["y"],
-            z=json_content["coords"]["z"],
-            permit_required=json_content["requirePermit"],
-            allegiance=details.get("allegiance"),
-            government=details.get("government"),
-            controlling_faction=details.get("faction"),
-            state=details.get("factionState"),
-            population=details.get("population"),
-            security=details.get("security"),
-            economy=details.get("economy"),
+            allegiance=result.get("allegiance"),
+            controlling_faction_state=result.get("controlling_minor_faction_state"),
+            controlling_faction=result.get("controlling_minor_faction"),
+            government=result.get("government"),
+            name=result["name"],
+            permit_required=result["needs_permit"],
+            population=result.get("population"),
+            power_state=result.get("power_state"),
+            power=result["power"][0] if len(result.get("power", [])) > 0 else None,
+            primary_economy=result.get("primary_economy"),
+            secondary_economy=result.get("secondary_economy"),
+            security=result.get("security"),
+            state=result.get("state"),
+            x=result["x"],
+            y=result["y"],
+            z=result["z"],
         )
 
     async def get_system_stations(self, system_name: str) -> list[Station]:

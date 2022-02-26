@@ -15,18 +15,22 @@ class System:
 
 @dataclass
 class SystemDetails:
+    allegiance: Optional[str]
+    controlling_faction_state: Optional[str]
+    controlling_faction: Optional[str]
+    government: Optional[str]
     name: str
+    permit_required: bool
+    population: Optional[int]
+    power_state: Optional[str]
+    power: Optional[str]
+    primary_economy: Optional[str]
+    secondary_economy: Optional[str]
+    security: Optional[str]
+    state: Optional[str]
     x: float
     y: float
     z: float
-    permit_required: bool
-    allegiance: Optional[str]
-    government: Optional[str]
-    controlling_faction: Optional[str]
-    state: Optional[str]
-    population: Optional[int]
-    security: Optional[str]
-    economy: Optional[str]
 
 
 @dataclass
