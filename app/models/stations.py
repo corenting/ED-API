@@ -38,7 +38,7 @@ class Station:
     last_market_update: Optional[DateTime]
     last_outfitting_update: Optional[DateTime]
     last_shipyard_update: Optional[DateTime]
-    max_landing_pad_size: Optional[StationLandingPadSize]
+    max_landing_pad_size: StationLandingPadSize
     name: str
     system_name: str
     system_permit_required: bool

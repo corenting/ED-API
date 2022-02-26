@@ -16,15 +16,13 @@ class SpanshStationService(Enum):
 
 def get_station_max_landing_pad_size(
     station: dict[str, Any]
-) -> Optional[StationLandingPadSize]:
+) -> StationLandingPadSize:
     """Get max landing pad size of a station."""
     if station["has_large_pad"]:
         return StationLandingPadSize.LARGE
     if station.get("medium_pads", 0) > 0:
         return StationLandingPadSize.MEDIUM
-    if station.get("small_pads", 0) > 0:
-        return StationLandingPadSize.SMALL
-    return None
+    return StationLandingPadSize.SMALL
 
 
 def station_has_service(

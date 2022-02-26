@@ -18,6 +18,7 @@ from app.models.exceptions import CommodityNotFoundException, ContentFetchingExc
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.spansh import get_station_max_landing_pad_size
+from app.services.helpers.settlements import is_settlement
 
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
@@ -262,6 +263,7 @@ class CommoditiesService:
                     is_fleet_carrier=is_fleet_carrier(
                         item["controlling_minor_faction"]
                     ),
+                    is_settlement=is_settlement(item["type"]),
                 )
             )
 

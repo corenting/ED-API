@@ -65,7 +65,7 @@ class StationSellingShip:
     is_fleet_carrier: bool
     is_planetary: bool
     is_settlement: bool
-    max_landing_pad_size: Optional[StationLandingPadSize]
+    max_landing_pad_size: StationLandingPadSize
     name: str
     shipyard_updated_at: DateTime
     system_name: str
