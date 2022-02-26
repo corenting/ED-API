@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from app.models.stations import StationLandingPadSize
 
@@ -14,9 +14,7 @@ class SpanshStationService(Enum):
     UNIVERSAL_CARTOGRAPHICS = "universal cartographics"
 
 
-def get_station_max_landing_pad_size(
-    station: dict[str, Any]
-) -> StationLandingPadSize:
+def get_station_max_landing_pad_size(station: dict[str, Any]) -> StationLandingPadSize:
     """Get max landing pad size of a station."""
     if station["has_large_pad"]:
         return StationLandingPadSize.LARGE

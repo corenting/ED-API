@@ -45,3 +45,9 @@ class StationCommodityDetails:
     quantity: int
     system_name: str
     type: str
+
+
+@dataclass
+class BestPricesStations:
+    best_stations_to_buy: list[StationCommodityDetails]
+    best_stations_to_sell: list[StationCommodityDetails]

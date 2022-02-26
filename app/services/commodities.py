@@ -9,6 +9,7 @@ from cachier import cachier
 from app.helpers.httpx import get_aynsc_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import (
+    BestPricesStations,
     Commodity,
     CommodityPrice,
     FindCommodityMode,
@@ -17,8 +18,8 @@ from app.models.commodities import (
 from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
-from app.services.helpers.spansh import get_station_max_landing_pad_size
 from app.services.helpers.settlements import is_settlement
+from app.services.helpers.spansh import get_station_max_landing_pad_size
 
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
@@ -163,18 +164,32 @@ class CommoditiesService:
         return matching_commodity
 
     async def get_best_prices_for_commodity(
-        self, mode: FindCommodityMode, commodity_name: str
-    ) -> list[StationCommodityDetails]:
-        """Get the best stations to buy or sell a specific commodity."""
+        self, commodity_name: str
+    ) -> BestPricesStations:
+        """Get the best stations to buy and sell a specific commodity."""
         # First get commodity price
         current_commodity_price = self.get_commodity_prices(commodity_name)
 
+        return BestPricesStations(
+            best_stations_to_buy=await self._get_best_prices_for_commodity_and_mode(
+                current_commodity_price, FindCommodityMode.BUY
+            ),
+            best_stations_to_sell=await self._get_best_prices_for_commodity_and_mode(
+                current_commodity_price, FindCommodityMode.SELL
+            ),
+        )
+
+    async def _get_best_prices_for_commodity_and_mode(
+        self,
+        commodity: CommodityPrice,
+        mode: FindCommodityMode,
+    ) -> list[StationCommodityDetails]:
         async with get_aynsc_httpx_client() as client:
             try:
                 api_response = await client.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_best_prices_generate_request_body(
-                        mode, commodity_name
+                        mode, commodity.commodity.name
                     ),
                 )
                 api_response.raise_for_status()
@@ -182,7 +197,7 @@ class CommoditiesService:
                 raise ContentFetchingException() from e
 
         return self._map_spansh_stations_to_model(
-            api_response, current_commodity_price, mode, StationLandingPadSize.SMALL
+            api_response, commodity, mode, StationLandingPadSize.SMALL
         )
 
     async def find_commodity(

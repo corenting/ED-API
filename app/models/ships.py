@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Iterable
 
 from aenum import MultiValueEnum
 from pendulum.datetime import DateTime
