@@ -37,6 +37,11 @@ class SystemsService:
 
         :raises ContentFetchingException: Unable to retrieve the data
         """
+
+        # If less than 3 chars return nothing
+        if len(input_text) < 3:
+            return []
+
         url = f"{self.FUELRATS_TYPEAHEAD_URL}?term={input_text}"
         async with get_aynsc_httpx_client() as client:
             try:
