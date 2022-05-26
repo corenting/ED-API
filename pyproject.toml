@@ -9,7 +9,7 @@ repository = "https://github.com/corenting/ed-api"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-aenum = "^3.1.8"
+aenum = "^3.1.11"
 aiofiles = "^0.8.0"
 alembic = "^1.7.5"
 beautifulsoup4 = "^4.11.0"
