@@ -83,11 +83,11 @@ class CommunityGoalsService:
         }
 
         data = {"goal": notif_goal, "date": pendulum.now().to_iso8601_string()}
-        fcm_ret = send_fcm_notification(change_type, goal.title, data)
-        if fcm_ret["failure"] != 0:
-            logger.error("Failed to send FCM message", extra={"fcm_ret": str(fcm_ret)})
-        else:
+        fcm_response = send_fcm_notification(change_type, goal.title, data)
+        if fcm_response:
             logger.info("FCM notification sent")
+        else:
+            logger.error("Failed to send FCM message")
 
     def _compare_data(
         self, previous: list[CommunityGoalStatus], latest: list[CommunityGoalStatus]

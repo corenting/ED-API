@@ -1,19 +1,29 @@
-from pyfcm import FCMNotification
+import logging
 
-from app.config import DEBUG, FCM_API_KEY
+from firebase_admin import exceptions, initialize_app, messaging
 
-push_service = FCMNotification(api_key=FCM_API_KEY)
+from app.config import DEBUG
+
+default_app = initialize_app()
+logger = logging.getLogger(__name__)
 
 
-def send_fcm_notification(topic: str, collapse_key: str, data_message: dict) -> dict:
+def send_fcm_notification(topic: str, collapse_key: str, data_message: dict) -> bool:
     """Send a FCM notification."""
     if DEBUG:
         topic += "_test"
 
-    return push_service.notify_topic_subscribers(
-        topic_name=topic,
-        data_message=data_message,
-        extra_kwargs={"priority": "high"},
-        collapse_key=collapse_key,
-        time_to_live=86400,
+    message = messaging.Message(
+        data=data_message,
+        topic=topic,
+        android=messaging.AndroidConfig(
+            ttl=86400, priority="high", collapse_key=collapse_key
+        ),
     )
+
+    try:
+        messaging.send(message)
+        return True
+    except exceptions.FirebaseError:
+        logger.error("Error while sending FCM message", exc_info=True)
+        return False
