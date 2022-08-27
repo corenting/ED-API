@@ -37,7 +37,6 @@ class SystemsService:
 
         :raises ContentFetchingException: Unable to retrieve the data
         """
-
         # If less than 3 chars return nothing
         if len(input_text) < 3:
             return []

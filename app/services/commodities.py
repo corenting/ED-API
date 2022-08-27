@@ -25,7 +25,7 @@ SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
 )
 EDDB_COMMODITIES = "https://eddb.io/archive/v6/commodities.json"
-INARA_COMMODITIES = "https://inara.cz/commodities/"
+INARA_COMMODITIES = "https://inara.cz/elite/commodities-list/"
 SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 
