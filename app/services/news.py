@@ -50,11 +50,7 @@ class NewsService:
         """
         url = (
             f"{get_frontier_api_url_for_language(language)}/news_article"
-            "?include=field_image_entity.field_media_image,field_site"
-            "&filter[site][condition][path]=field_site.field_slug"
-            "&filter[site][condition][operator]=CONTAINS"
-            "&filter[site][condition][value]=elite-dangerous&sort[sort-published][path]=published_at"
-            "&sort[sort-published][direction]=DESC&page[offset]=0&page[limit]=12"
+            "?include=field_image_entity.field_media_image,field_site&filter[hide_listing][condition][path]=field_hide_from_website_listings&filter[hide_listing][condition][operator]=%3D&filter[hide_listing][condition][value]=0&filter[field_featured_bool]=1&sort[sort-published][path]=published_at&sort[sort-published][direction]=DESC&filter[site][condition][path]=field_site.id&filter[site][condition][value]=79c77f84-e711-4897-bc3d-008af069ddbd"
         )
 
         async with get_aynsc_httpx_client() as client:
