@@ -180,8 +180,13 @@ class SystemsService:
 
         stations: list[Station] = []
         for item in json_content["results"]:
-            station_landing_pad_size = get_station_max_landing_pad_size(item)
 
+            # Skip station if unknown type
+            # This allows to skip settlements with low informations
+            if "type" not in item:
+                continue
+
+            station_landing_pad_size = get_station_max_landing_pad_size(item)
             stations.append(
                 Station(
                     distance_to_arrival=item["distance_to_arrival"],
