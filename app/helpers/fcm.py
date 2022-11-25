@@ -1,11 +1,9 @@
-import logging
-
 from firebase_admin import exceptions, initialize_app, messaging
 
 from app.config import DEBUG
+from loguru import logger
 
 default_app = initialize_app()
-logger = logging.getLogger(__name__)
 
 
 def send_fcm_notification(topic: str, collapse_key: str, data_message: dict) -> bool:
