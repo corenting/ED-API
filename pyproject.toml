@@ -24,7 +24,7 @@ pydantic = "^1.10.2"
 python = "^3.10"
 SQLAlchemy = "^1.4.44"
 typer = "^0.7.0"
-uvicorn = {extras = ["standard"], version = "^0.18.3"}
+uvicorn = {extras = ["standard"], version = "^0.20.0"}
 
 [tool.poetry.dev-dependencies]
 black = "*"
