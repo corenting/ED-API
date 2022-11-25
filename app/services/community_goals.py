@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 import pendulum
@@ -12,8 +11,7 @@ from app.helpers.fcm import send_fcm_notification
 from app.helpers.httpx import get_httpx_client
 from app.models.community_goals import CommunityGoal
 from app.models.exceptions import ContentFetchingException
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 @cachier(stale_after=pendulum.duration(minutes=10))

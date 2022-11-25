@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Optional
 
 import httpx
@@ -10,7 +9,7 @@ from app.models.exceptions import ContentFetchingException
 from app.models.language import Language
 from app.models.news import NewsArticle
 
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def _get_picture_url_for_article(api_response: Any, article_id: str) -> Optional[str]:
@@ -34,10 +33,7 @@ def _get_picture_url_for_article(api_response: Any, article_id: str) -> Optional
     picture = next(
         (x for x in api_response["included"] if x["id"] == article_picture_id), None
     )
-    if picture is None:
-        return None
-
-    return picture["attributes"]["uri"]["url"]
+    return None if picture is None else picture["attributes"]["uri"]["url"]
 
 
 class NewsService:
