@@ -108,7 +108,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cachier"
-version = "1.5.4"
+version = "2.0.0"
 description = "Persistent, stale-free, local and cross-machine caching for Python functions."
 category = "main"
 optional = false
@@ -1093,7 +1093,7 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "2e3a0c9034a0ceeb212f4121129d00f02af7286a42366f6a25da53d3cb055e52"
+content-hash = "291c5f229653874849fd5966f4d36ad0c9f426117f70431f93212703c574c4d9"
 
 [metadata.files]
 aenum = [
@@ -1149,8 +1149,8 @@ cachetools = [
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
 cachier = [
-    {file = "cachier-1.5.4-py2.py3-none-any.whl", hash = "sha256:0465a451fd7845afb4dc31d6d4b4c1391ff78b83172a6d3057f6ba98c0f682eb"},
-    {file = "cachier-1.5.4.tar.gz", hash = "sha256:368ef452605e1d96e9909f2c51816f30ca4c91ffb0cdfef38610af8da7359296"},
+    {file = "cachier-2.0.0-py2.py3-none-any.whl", hash = "sha256:383564e514b5fcf6aa1a714afb73cf6cca71552d442f2c699246ca97a7aef343"},
+    {file = "cachier-2.0.0.tar.gz", hash = "sha256:b24eb049d8871a191fe3096cacc9ec7aa4d5aac7fe16fd6c41cff4ad7d1e2d32"},
 ]
 certifi = [
     {file = "certifi-2022.9.24-py3-none-any.whl", hash = "sha256:90c1a32f1d68f940488354e36370f6cca89f0f106db09518524c88d6ed83f382"},
