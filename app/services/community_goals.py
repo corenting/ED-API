@@ -75,14 +75,13 @@ class CommunityGoalsService:
     def _send_notification_for_change(
         self, change_type: str, goal: CommunityGoalStatus
     ) -> None:
-        notif_goal = {
+        notification = {
             "title": goal.title,
-            "tier_progress": {"current": goal.current_tier},
+            "current_tier": str(goal.current_tier),
+            "date": pendulum.now().to_iso8601_string(),
         }
 
-        data = {"goal": notif_goal, "date": pendulum.now().to_iso8601_string()}
-        fcm_response = send_fcm_notification(change_type, goal.title, data)
-        if fcm_response:
+        if send_fcm_notification(change_type, goal.title, notification):
             logger.info("FCM notification sent")
         else:
             logger.error("Failed to send FCM message")
@@ -156,7 +155,7 @@ class CommunityGoalsService:
                 db_item = (
                     session.query(CommunityGoalStatus)
                     .filter(CommunityGoalStatus.id == item.id)
-                    .first()
+                    .one()
                 )
                 db_item.id = item.id
                 db_item.last_update = item.last_update
@@ -169,22 +168,18 @@ class CommunityGoalsService:
         logger.info("Checking for CGs changes...")
 
         # First get latest data
-        goals: list[CommunityGoal] = list(self.get_community_goals())
-        data_to_save = []
-        for goal in goals:
-            # Skip goals with empty title
-            if not goal.title:
-                continue
-
-            data_to_save.append(
-                CommunityGoalStatus(
-                    id=goal.id,
-                    last_update=goal.last_update,
-                    is_finished=not goal.ongoing,
-                    current_tier=goal.current_tier,
-                    title=goal.title,
-                )
+        goals: list[CommunityGoal] = self.get_community_goals()
+        data_to_save = [
+            CommunityGoalStatus(
+                id=goal.id,
+                last_update=goal.last_update,
+                is_finished=not goal.ongoing,
+                current_tier=goal.current_tier,
+                title=goal.title,
             )
+            for goal in goals
+            if goal.title
+        ]
 
         # Get previous data from db
         with Session.begin() as session:

@@ -62,7 +62,6 @@ class NewsService:
         response_list: list[NewsArticle] = []
 
         for item in articles["data"]:
-
             try:
                 picture = _get_picture_url_for_article(articles, item["id"])
             except Exception:

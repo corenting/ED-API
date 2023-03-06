@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, Text
+from datetime import datetime
+from sqlalchemy import Integer
+from sqlalchemy.orm import mapped_column, Mapped
 
 from app.database.database import Base
 
@@ -6,8 +8,8 @@ from app.database.database import Base
 class CommunityGoalStatus(Base):
     __tablename__ = "community_goal_status"
 
-    id = Column(Integer, primary_key=True)
-    last_update = Column(DateTime, nullable=False)
-    is_finished = Column(Boolean, nullable=False)
-    current_tier = Column(Integer, nullable=False)
-    title = Column(Text, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    last_update: Mapped[datetime]
+    is_finished: Mapped[bool]
+    current_tier: Mapped[int]
+    title: Mapped[str]

@@ -180,7 +180,6 @@ class SystemsService:
 
         stations: list[Station] = []
         for item in json_content["results"]:
-
             # Skip station if unknown type
             # This allows to skip settlements with low informations
             if "type" not in item:
