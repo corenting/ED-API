@@ -1,3 +1,4 @@
+import csv
 import difflib
 from typing import Any, Optional
 
@@ -5,6 +6,7 @@ import httpx
 import pendulum
 from bs4 import BeautifulSoup
 from cachier import cachier
+from app.constants import STATIC_PATH
 
 from app.helpers.httpx import get_aynsc_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
@@ -24,7 +26,6 @@ from app.services.helpers.spansh import get_station_max_landing_pad_size
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
 )
-EDDB_COMMODITIES = "https://eddb.io/archive/v6/commodities.json"
 INARA_COMMODITIES = "https://inara.cz/elite/commodities-list/"
 SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
@@ -42,7 +43,7 @@ def _get_commodity_from_name(
 
 
 @cachier(stale_after=pendulum.duration(minutes=60))
-def _get_commodities_names_from_spansh() -> dict:
+def _get_commodities_names_from_spansh() -> list[str]:
     with get_httpx_client() as client:
         res = client.get(SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL)
         res.raise_for_status()
@@ -50,29 +51,35 @@ def _get_commodities_names_from_spansh() -> dict:
     return res.json()["values"]
 
 
-@cachier(stale_after=pendulum.duration(days=1))
-def _get_commodities_from_eddb() -> list[Commodity]:
-    with get_httpx_client() as client:
-        res = client.get(EDDB_COMMODITIES)
-        res.raise_for_status()
-
-    json_content = res.json()
-
-    return [
-        Commodity(
-            id=item["id"],
-            name=item["name"],
-            category=item["category"]["name"],
-            is_rare=bool(item["is_rare"]),
+def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
+    """Read a given CSV file and returned the parsed commodities."""
+    items: list[Commodity] = []
+    with open(path) as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        items.extend(
+            Commodity(
+                id=int(row["id"]),
+                name=row["name"],
+                category=row["category"],
+                is_rare=is_rare,
+            )
+            for row in csv_reader
         )
-        for item in json_content
-    ]
+    return items
+
+
+@cachier(stale_after=pendulum.duration(days=1))
+def _get_commodities() -> list[Commodity]:
+    data_path = f"{STATIC_PATH}/data"
+    return _read_commodities_csv_file(
+        f"{data_path}/commodities.csv", False
+    ) + _read_commodities_csv_file(f"{data_path}/rare_commodities.csv", True)
 
 
 @cachier(stale_after=pendulum.duration(days=1))
 def _get_commodities_prices_from_inara() -> list[CommodityPrice]:
     prices = []
-    commodities = _get_commodities_from_eddb()
+    commodities = _get_commodities()
 
     with get_httpx_client() as client:
         inara_res = client.get(INARA_COMMODITIES)
@@ -123,7 +130,7 @@ class CommoditiesService:
     def get_commodities(self) -> list[Commodity]:
         """Get all commodities."""
         try:
-            res = _get_commodities_from_eddb()
+            res = _get_commodities()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingException() from e
         return res
