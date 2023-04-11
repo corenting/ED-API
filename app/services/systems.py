@@ -49,7 +49,10 @@ class SystemsService:
             except httpx.HTTPError as e:  # type: ignore
                 raise ContentFetchingException() from e
 
-        return api_response.json()
+        data = api_response.json()
+        if data is None:
+            data = []
+        return data
 
     async def _get_system(self, system_name: str) -> System:
         async with get_aynsc_httpx_client() as client:
