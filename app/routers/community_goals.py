@@ -11,5 +11,4 @@ async def get_community_goals(
     community_goals_service: CommunityGoalsService = Depends(),
 ) -> list[CommunityGoal]:
     """Get latest community goals informations."""
-    ret = community_goals_service.get_community_goals()
-    return ret
+    return community_goals_service.get_community_goals()
