@@ -9,22 +9,22 @@ repository = "https://github.com/corenting/ed-api"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-aenum = "^3.1.11"
+aenum = "^3.1.15"
 aiofiles = "^23.1.0"
-alembic = "^1.10.0"
-beautifulsoup4 = "^4.12.0"
-cachier = "^2.1.0"
+alembic = "^1.11.1"
+beautifulsoup4 = "^4.12.2"
+cachier = "^2.1.1,!=2.2.0" # see https://github.com/python-cachier/cachier/issues/125
 environs = "^9.5.0"
-fastapi = "^0.95.0"
-firebase-admin = "^6.1.0"
+fastapi = "^0.99.0"
+firebase-admin = "^6.2.0"
 gunicorn = "^20.1.0"
-httpx = "^0.23.3"
-loguru = "^0.6.0"
+httpx = "^0.24.1"
+loguru = "^0.7.0"
 pendulum = "^2.1.2"
-pydantic = "^1.10.5"
-SQLAlchemy = "^2.0.8"
-typer = "^0.7.0"
-uvicorn = {extras = ["standard"], version = "^0.21.1"}
+pydantic = "^1.10.10"
+SQLAlchemy = "^2.0.17"
+typer = "^0.9.0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
 
 [tool.poetry.dev-dependencies]
 black = "*"
