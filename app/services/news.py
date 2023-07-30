@@ -1,13 +1,13 @@
 from typing import Any, Optional
 
 import httpx
-import pendulum
 
 from app.helpers.frontier import get_frontier_api_url_for_language
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.language import Language
 from app.models.news import NewsArticle
+from dateutil.parser import parse
 
 from loguru import logger
 
@@ -73,7 +73,7 @@ class NewsService:
                 uri=f"https://www.elitedangerous.com/news/{item['attributes']['field_slug']}",
                 picture=picture,
                 title=item["attributes"]["title"],
-                published_date=pendulum.parse(item["attributes"]["published_at"]),  # type: ignore
+                published_date=parse(item["attributes"]["published_at"]).date(),
             )
             response_list.append(new_item)
 

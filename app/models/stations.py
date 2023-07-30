@@ -1,8 +1,8 @@
+from datetime import datetime
 from enum import Enum
 from functools import total_ordering
 from typing import Any, Optional
 
-from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 
@@ -35,9 +35,9 @@ class Station:
     is_fleet_carrier: bool
     is_planetary: bool
     is_settlement: bool
-    last_market_update: Optional[DateTime]
-    last_outfitting_update: Optional[DateTime]
-    last_shipyard_update: Optional[DateTime]
+    last_market_update: Optional[datetime]
+    last_outfitting_update: Optional[datetime]
+    last_shipyard_update: Optional[datetime]
     max_landing_pad_size: StationLandingPadSize
     name: str
     system_name: str

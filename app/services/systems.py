@@ -1,8 +1,8 @@
+from datetime import datetime
 import math
 from typing import Any
 
 import httpx
-import pendulum
 
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException, SystemNotFoundException
@@ -22,6 +22,8 @@ from app.services.helpers.spansh import (
     get_station_max_landing_pad_size,
     station_has_service,
 )
+
+from dateutil.parser import parse
 
 
 class SystemsService:
@@ -213,9 +215,15 @@ class SystemsService:
                     ),
                     is_planetary=item["is_planetary"],
                     is_settlement=is_settlement(item["type"]),
-                    last_market_update=pendulum.parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
-                    last_outfitting_update=pendulum.parse(item["outfitting_updated_at"]) if item.get("outfitting_updated_at") else None,  # type: ignore
-                    last_shipyard_update=pendulum.parse(item["shipyard_updated_at"]) if item.get("shipyard_updated_at") else None,  # type: ignore
+                    last_market_update=parse(item["market_updated_at"])
+                    if item.get("market_updated_at")
+                    else None,
+                    last_outfitting_update=parse(item["outfitting_updated_at"])
+                    if item.get("outfitting_updated_at")
+                    else None,
+                    last_shipyard_update=parse(item["shipyard_updated_at"])
+                    if item.get("shipyard_updated_at")
+                    else None,
                     max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
                     system_name=item["system_name"],
@@ -255,7 +263,7 @@ class SystemsService:
                 state=item["state"],
                 government=item["government"],
                 is_player_faction=item["isPlayer"],
-                updated_at=pendulum.from_timestamp(item["lastUpdate"]),
+                updated_at=datetime.fromtimestamp(item["lastUpdate"]),
             )
             factions.append(new_faction)
         return factions
@@ -282,7 +290,7 @@ class SystemsService:
                 SystemFactionHistoryDetails(
                     influence=value,
                     state=state_history_value,
-                    updated_at=pendulum.from_timestamp(int(attribute)),
+                    updated_at=datetime.fromtimestamp(int(attribute)),
                 )
             )
         ret_items.sort(key=lambda o: o.updated_at)
@@ -292,7 +300,7 @@ class SystemsService:
             SystemFactionHistoryDetails(
                 influence=faction["influence"],
                 state=faction["state"],
-                updated_at=pendulum.from_timestamp(int(faction["lastUpdate"])),
+                updated_at=datetime.fromtimestamp(int(faction["lastUpdate"])),
             )
         )
         return ret_items

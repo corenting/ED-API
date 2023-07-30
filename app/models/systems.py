@@ -1,6 +1,6 @@
+from datetime import datetime
 from typing import Optional
 
-from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 
@@ -22,7 +22,7 @@ class SystemDetailsFaction:
     is_player_faction: bool
     name: str
     state: str
-    updated_at: DateTime
+    updated_at: datetime
 
 
 @dataclass
@@ -57,7 +57,7 @@ class SystemsDistance:
 class SystemFactionHistoryDetails:
     influence: float
     state: str
-    updated_at: DateTime
+    updated_at: datetime
 
 
 @dataclass

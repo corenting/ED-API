@@ -1,5 +1,5 @@
-from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -7,9 +7,9 @@ class CommunityGoal:
     contributors: int
     current_tier: int
     description: str
-    end_date: DateTime
+    end_date: datetime
     id: int
-    last_update: DateTime
+    last_update: datetime
     objective: str
     ongoing: bool
     reward: str

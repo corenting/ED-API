@@ -1,7 +1,7 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pendulum.datetime import DateTime
 from pydantic.dataclasses import dataclass
 
 from app.models.stations import StationLandingPadSize
@@ -37,7 +37,7 @@ class StationCommodityDetails:
     is_fleet_carrier: bool
     is_planetary: bool
     is_settlement: bool
-    last_market_update: Optional[DateTime]
+    last_market_update: Optional[datetime]
     max_landing_pad_size: StationLandingPadSize
     name: str
     price_percentage_difference: int

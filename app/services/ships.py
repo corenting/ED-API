@@ -1,5 +1,4 @@
 import httpx
-import pendulum
 
 from app.constants import STATIC_PATH
 from app.helpers.httpx import get_aynsc_httpx_client
@@ -8,6 +7,8 @@ from app.models.ships import ShipModel, StationSellingShip
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
+
+from dateutil.parser import parse
 
 
 class ShipsService:
@@ -62,7 +63,7 @@ class ShipsService:
                 if item["medium_pads"] > 0
                 else StationLandingPadSize.SMALL,
                 name=item["name"],
-                shipyard_updated_at=pendulum.parse(item["shipyard_updated_at"]),  # type: ignore
+                shipyard_updated_at=parse(item["shipyard_updated_at"]),
                 system_name=item["system_name"],
                 is_planetary=item["is_planetary"],
                 is_fleet_carrier=is_fleet_carrier(item["controlling_minor_faction"]),
