@@ -1,6 +1,6 @@
+import datetime
 from typing import Optional
 
-import pendulum
 from cachier import cachier
 
 from app import __version__
@@ -13,8 +13,10 @@ from app.models.community_goals import CommunityGoal
 from app.models.exceptions import ContentFetchingException
 from loguru import logger
 
+from dateutil.parser import parse
 
-@cachier(stale_after=pendulum.duration(minutes=10))
+
+@cachier(stale_after=datetime.timedelta(minutes=10))
 def _get_community_goals_from_inara() -> dict:
     request_body = {
         "header": {
@@ -26,7 +28,9 @@ def _get_community_goals_from_inara() -> dict:
         "events": [
             {
                 "eventName": "getCommunityGoalsRecent",
-                "eventTimestamp": pendulum.now("UTC").to_iso8601_string(),
+                "eventTimestamp": datetime.datetime.now(
+                    tz=datetime.timezone.utc
+                ).isoformat(),
                 "eventData": [],
             }
         ],
@@ -58,8 +62,8 @@ class CommunityGoalsService:
                 contributors=event["contributorsNum"],
                 current_tier=event["tierReached"],
                 description=event["goalDescriptionText"],
-                end_date=pendulum.parse(event["goalExpiry"]),  # type: ignore
-                last_update=pendulum.parse(event["lastUpdate"]),  # type: ignore
+                end_date=parse(event["goalExpiry"]),
+                last_update=parse(event["lastUpdate"]),
                 objective=event["goalObjectiveText"],
                 ongoing=not event["isCompleted"],
                 reward=event["goalRewardText"],
@@ -78,7 +82,7 @@ class CommunityGoalsService:
         notification = {
             "title": goal.title,
             "current_tier": str(goal.current_tier),
-            "date": pendulum.now().to_iso8601_string(),
+            "date": datetime.datetime.now(tz=datetime.timezone.utc).isoformat(),
         }
 
         if send_fcm_notification(change_type, goal.title, notification):

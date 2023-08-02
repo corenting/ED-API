@@ -1,9 +1,10 @@
 import csv
+import datetime
 import difflib
 from typing import Any, Optional
 
 import httpx
-import pendulum
+from dateutil.parser import parse
 from bs4 import BeautifulSoup
 from cachier import cachier
 from app.constants import STATIC_PATH
@@ -42,7 +43,7 @@ def _get_commodity_from_name(
     return next(x for x in commodities if x.name == valid_name)
 
 
-@cachier(stale_after=pendulum.duration(minutes=60))
+@cachier(stale_after=datetime.timedelta(minutes=60))
 def _get_commodities_names_from_spansh() -> list[str]:
     with get_httpx_client() as client:
         res = client.get(SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL)
@@ -68,7 +69,7 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
     return items
 
 
-@cachier(stale_after=pendulum.duration(days=1))
+@cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities() -> list[Commodity]:
     data_path = f"{STATIC_PATH}/data"
     return _read_commodities_csv_file(
@@ -76,7 +77,7 @@ def _get_commodities() -> list[Commodity]:
     ) + _read_commodities_csv_file(f"{data_path}/rare_commodities.csv", True)
 
 
-@cachier(stale_after=pendulum.duration(days=1))
+@cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_inara() -> list[CommodityPrice]:
     prices = []
     commodities = _get_commodities()
@@ -265,12 +266,14 @@ class CommoditiesService:
             if station_landing_pad_size > min_landing_pad_size:
                 continue
 
+            if "controlling_minor_faction" in item:
+                print("its here")
             res.append(
                 StationCommodityDetails(
                     distance_from_reference_system=item["distance"],
                     distance_to_arrival=item["distance_to_arrival"],
                     is_planetary=item["is_planetary"],
-                    last_market_update=pendulum.parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
+                    last_market_update=parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
                     max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
                     price=commodity_in_market["buy_price"]
@@ -283,7 +286,7 @@ class CommoditiesService:
                     type=item["type"],
                     price_percentage_difference=price_percentage_difference,
                     is_fleet_carrier=is_fleet_carrier(
-                        item["controlling_minor_faction"]
+                        item.get("controlling_minor_faction")
                     ),
                     is_settlement=is_settlement(item["type"]),
                 )

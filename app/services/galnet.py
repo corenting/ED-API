@@ -1,11 +1,11 @@
 import httpx
-import pendulum
 
 from app.helpers.frontier import get_frontier_api_url_for_language
 from app.helpers.httpx import get_aynsc_httpx_client
 from app.models.exceptions import ContentFetchingException
 from app.models.galnet import GalnetArticle
 from app.models.language import Language
+from dateutil.parser import parse
 
 
 class GalnetService:
@@ -19,6 +19,7 @@ class GalnetService:
         :raises ContentFetchingException: Unable to retrieve the articles
         """
         url = f"{get_frontier_api_url_for_language(language)}/galnet_article?&sort=-published_at&page[offset]=0&page[limit]=12"
+        print(url)
         async with get_aynsc_httpx_client() as client:
             try:
                 api_response = await client.get(url)
@@ -31,13 +32,19 @@ class GalnetService:
         # Build response
         response_list: list[GalnetArticle] = []
 
+        # Get picture, if null default to neutral one
+
         for item in articles["data"]:
+            picture_name = (
+                item["attributes"]["field_galnet_image"]
+                or "NewsImageDiplomacyPressConference"
+            )
             new_item = GalnetArticle(
                 content=item["attributes"]["body"]["value"],
                 uri=f"https://www.elitedangerous.com/news/galnet/{item['attributes']['field_slug']}",
                 title=item["attributes"]["title"],
-                published_date=pendulum.parse(item["attributes"]["published_at"]),  # type: ignore
-                picture=f"{self.BASE_PICTURE_PATH}/{item['attributes']['field_galnet_image']}.png",
+                published_date=parse(item["attributes"]["published_at"]).date(),  # type: ignore
+                picture=f"{self.BASE_PICTURE_PATH}/{picture_name}.png",
             )
             response_list.append(new_item)
 

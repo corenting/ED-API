@@ -1,4 +1,4 @@
-from pendulum.date import Date
+from datetime import date
 from pydantic.dataclasses import dataclass
 
 
@@ -8,4 +8,4 @@ class GalnetArticle:
     picture: str
     title: str
     uri: str
-    published_date: Date
+    published_date: date
