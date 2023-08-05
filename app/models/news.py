@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -10,4 +9,4 @@ class NewsArticle:
     title: str
     uri: str
     published_date: date
-    picture: Optional[str] = None
+    picture: str | None = None

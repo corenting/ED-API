@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable
+from collections.abc import Iterable
 
 from aenum import MultiValueEnum
 from pydantic.dataclasses import dataclass

@@ -1,7 +1,7 @@
 import csv
 import datetime
 import difflib
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from dateutil.parser import parse
@@ -33,7 +33,7 @@ SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 def _get_commodity_from_name(
     name: str, commodities: list[Commodity]
-) -> Optional[Commodity]:
+) -> Commodity | None:
     """Get the commodity with the specified name using difflib for handling small differences."""
     match = difflib.get_close_matches(name, [x.name for x in commodities])
     if match is None or len(match) == 0:
@@ -136,7 +136,7 @@ class CommoditiesService:
             raise ContentFetchingException() from e
         return res
 
-    def get_commodities_prices(self, filter: Optional[str]) -> list[CommodityPrice]:
+    def get_commodities_prices(self, filter: str | None) -> list[CommodityPrice]:
         """Get all commodities prices (with an optional filter) ."""
         try:
             res = _get_commodities_prices_from_inara()
@@ -266,8 +266,6 @@ class CommoditiesService:
             if station_landing_pad_size > min_landing_pad_size:
                 continue
 
-            if "controlling_minor_faction" in item:
-                print("its here")
             res.append(
                 StationCommodityDetails(
                     distance_from_reference_system=item["distance"],
@@ -283,12 +281,12 @@ class CommoditiesService:
                     if mode == FindCommodityMode.BUY
                     else commodity_in_market["demand"],
                     system_name=item["system_name"],
-                    type=item["type"],
+                    type=item.get("type", "Unknown"),
                     price_percentage_difference=price_percentage_difference,
                     is_fleet_carrier=is_fleet_carrier(
                         item.get("controlling_minor_faction")
                     ),
-                    is_settlement=is_settlement(item["type"]),
+                    is_settlement=is_settlement(item.get("type")),
                 )
             )
 

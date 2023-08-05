@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -12,7 +12,7 @@ from dateutil.parser import parse
 from loguru import logger
 
 
-def _get_picture_url_for_article(api_response: Any, article_id: str) -> Optional[str]:
+def _get_picture_url_for_article(api_response: Any, article_id: str) -> str | None:
     article = next((x for x in api_response["data"] if x["id"] == article_id), None)
     if article is None:
         return None

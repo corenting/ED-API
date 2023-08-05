@@ -1,4 +1,3 @@
-from typing import Optional
 
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
@@ -74,7 +73,7 @@ async def get_where_to_sell_commodity(
 )
 def get_commodities_prices(
     commodities_service: CommoditiesService = Depends(),
-    filter: Optional[str] = None,
+    filter: str | None = None,
 ) -> list[CommodityPrice]:
     """Get all commodities prices (with an optional filter) ."""
     return commodities_service.get_commodities_prices(filter)

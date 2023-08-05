@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -27,19 +26,19 @@ class SystemDetailsFaction:
 
 @dataclass
 class SystemDetails:
-    allegiance: Optional[str]
-    controlling_faction_state: Optional[str]
-    controlling_faction: Optional[str]
-    government: Optional[str]
+    allegiance: str | None
+    controlling_faction_state: str | None
+    controlling_faction: str | None
+    government: str | None
     name: str
     permit_required: bool
-    population: Optional[int]
-    power_state: Optional[str]
-    power: Optional[str]
-    primary_economy: Optional[str]
-    secondary_economy: Optional[str]
-    security: Optional[str]
-    state: Optional[str]
+    population: int | None
+    power_state: str | None
+    power: str | None
+    primary_economy: str | None
+    secondary_economy: str | None
+    security: str | None
+    state: str | None
     x: float
     y: float
     z: float

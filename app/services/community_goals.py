@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from cachier import cachier
 
@@ -28,9 +27,7 @@ def _get_community_goals_from_inara() -> dict:
         "events": [
             {
                 "eventName": "getCommunityGoalsRecent",
-                "eventTimestamp": datetime.datetime.now(
-                    tz=datetime.timezone.utc
-                ).isoformat(),
+                "eventTimestamp": datetime.datetime.now(tz=datetime.UTC).isoformat(),
                 "eventData": [],
             }
         ],
@@ -82,7 +79,7 @@ class CommunityGoalsService:
         notification = {
             "title": goal.title,
             "current_tier": str(goal.current_tier),
-            "date": datetime.datetime.now(tz=datetime.timezone.utc).isoformat(),
+            "date": datetime.datetime.now(tz=datetime.UTC).isoformat(),
         }
 
         if send_fcm_notification(change_type, goal.title, notification):
@@ -127,7 +124,7 @@ class CommunityGoalsService:
     def _store_updated_data(
         self,
         latest_data: list[CommunityGoalStatus],
-        previous_data: Optional[list[CommunityGoalStatus]],
+        previous_data: list[CommunityGoalStatus] | None,
     ) -> None:
         with Session.begin() as session:
             # If no previous data, store all
