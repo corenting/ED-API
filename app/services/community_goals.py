@@ -1,6 +1,8 @@
 import datetime
 
 from cachier import cachier
+from dateutil.parser import parse
+from loguru import logger
 
 from app import __version__
 from app.config import DEBUG, INARA_API_KEY
@@ -9,10 +11,9 @@ from app.database.database import Session
 from app.helpers.fcm import send_fcm_notification
 from app.helpers.httpx import get_httpx_client
 from app.models.community_goals import CommunityGoal
-from app.models.exceptions import ContentFetchingException
-from loguru import logger
+from app.models.exceptions import ContentFetchingError
 
-from dateutil.parser import parse
+INARA_STATUS_OK = 200
 
 
 @cachier(stale_after=datetime.timedelta(minutes=10))
@@ -45,10 +46,10 @@ class CommunityGoalsService:
         """Get latest community goals informations."""
         inara_res = _get_community_goals_from_inara()
         if (
-            inara_res.get("header", {}).get("eventStatus", None) != 200
-            and inara_res.get("events", [{}])[0].get("eventStatus") != 200
+            inara_res.get("header", {}).get("eventStatus", None) != INARA_STATUS_OK
+            and inara_res.get("events", [{}])[0].get("eventStatus") != INARA_STATUS_OK
         ):
-            raise ContentFetchingException()
+            raise ContentFetchingError()
 
         # Return empty if no CGs running
         if "eventData" not in inara_res["events"][0]:

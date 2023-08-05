@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
@@ -9,7 +8,7 @@ from app.models.commodities import (
     FindCommodityMode,
     StationCommodityDetails,
 )
-from app.models.exceptions import CommodityNotFoundException
+from app.models.exceptions import CommodityNotFoundError
 from app.models.stations import StationLandingPadSize
 from app.routers.helpers.responses import get_error_response_doc
 from app.services.commodities import CommoditiesService
@@ -37,7 +36,7 @@ def get_commodities(
 @router.get(
     "/{commodity}/prices",
     response_model=CommodityPrice,
-    responses={**get_error_response_doc(400, CommodityNotFoundException)},
+    responses={**get_error_response_doc(400, CommodityNotFoundError)},
 )
 def get_commodity_price(
     commodity: str,
@@ -46,30 +45,37 @@ def get_commodity_price(
     """Get prices for a specific commodity."""
     try:
         return commodities_service.get_commodity_prices(commodity)
-    except CommodityNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+    except CommodityNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e
 
 
 @router.get(
     "/{commodity}/best_prices",
     response_model=BestPricesStations,
-    responses={**get_error_response_doc(400, CommodityNotFoundException)},
+    responses={**get_error_response_doc(400, CommodityNotFoundError)},
 )
 async def get_where_to_sell_commodity(
     commodity: str,
+    max_age_days: int = 7,
     commodities_service: CommoditiesService = Depends(),
 ) -> BestPricesStations:
-    """Get the best stations to buy or sell a specific commodity."""
+    """Get the best stations to buy or sell a specific commodity.
+
+    Will only include prices from stations where market prices where updates between now
+    and now - max_age_days.
+    """
     try:
-        return await commodities_service.get_best_prices_for_commodity(commodity)
-    except CommodityNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+        return await commodities_service.get_best_prices_for_commodity(
+            commodity, max_age_days
+        )
+    except CommodityNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e
 
 
 @router.get(
     "/prices",
     response_model=list[CommodityPrice],
-    responses={**get_error_response_doc(400, CommodityNotFoundException)},
+    responses={**get_error_response_doc(400, CommodityNotFoundError)},
 )
 def get_commodities_prices(
     commodities_service: CommoditiesService = Depends(),
@@ -86,12 +92,20 @@ async def find_commodity(
     commodity: str,
     min_landing_pad_size: StationLandingPadSize,
     min_quantity: int,
+    max_age_days: int = 7,
     commodities_service: CommoditiesService = Depends(),
 ) -> list[StationCommodityDetails]:
     """Get stations buying or selling a specific commodity near a reference system.
 
     Only works for non-rare commodities.
+    Will only include prices from stations where market prices where updates between now
+    and now - max_age_days.
     """
     return await commodities_service.find_commodity(
-        mode, reference_system, commodity, min_landing_pad_size, min_quantity
+        mode,
+        reference_system,
+        commodity,
+        min_landing_pad_size,
+        min_quantity,
+        max_age_days,
     )

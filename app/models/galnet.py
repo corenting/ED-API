@@ -1,4 +1,5 @@
 from datetime import date
+
 from pydantic.dataclasses import dataclass
 
 

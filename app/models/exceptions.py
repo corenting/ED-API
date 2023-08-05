@@ -1,8 +1,8 @@
-class ContentFetchingException(Exception):
+class ContentFetchingError(Exception):
     pass
 
 
-class SystemNotFoundException(Exception):
+class SystemNotFoundError(Exception):
     error_code = "System not found"
 
     def __init__(self, system_name: str) -> None:
@@ -10,7 +10,7 @@ class SystemNotFoundException(Exception):
         self.error_code = f"System {system_name} not found"
 
 
-class CommodityNotFoundException(Exception):
+class CommodityNotFoundError(Exception):
     error_code = "Commodity not found"
 
     def __init__(self, commodity_name: str) -> None:

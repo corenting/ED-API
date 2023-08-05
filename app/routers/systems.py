@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
-from app.models.exceptions import SystemNotFoundException
+from app.models.exceptions import SystemNotFoundError
 from app.models.stations import Station
 from app.models.systems import SystemDetails, SystemFactionHistory, SystemsDistance
 from app.routers.helpers.responses import get_error_response_doc
@@ -22,7 +22,7 @@ async def get_systems_typeahead(
 @router.get(
     "/distance_calculator",
     response_model=SystemsDistance,
-    responses={**get_error_response_doc(400, SystemNotFoundException)},
+    responses={**get_error_response_doc(400, SystemNotFoundError)},
 )
 async def get_systems_distance_calculator(
     first_system: str,
@@ -34,14 +34,14 @@ async def get_systems_distance_calculator(
         return await systems_service.get_systems_distance_calculator(
             first_system, second_system
         )
-    except SystemNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+    except SystemNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e
 
 
 @router.get(
     "/{system_name}",
     response_model=SystemDetails,
-    responses={**get_error_response_doc(400, SystemNotFoundException)},
+    responses={**get_error_response_doc(400, SystemNotFoundError)},
 )
 async def get_system_details(
     system_name: str,
@@ -50,14 +50,14 @@ async def get_system_details(
     """Get details of a specified system."""
     try:
         return await systems_service.get_system_details(system_name)
-    except SystemNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+    except SystemNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e
 
 
 @router.get(
     "/{system_name}/stations",
     response_model=list[Station],
-    responses={**get_error_response_doc(400, SystemNotFoundException)},
+    responses={**get_error_response_doc(400, SystemNotFoundError)},
 )
 async def get_system_stations(
     system_name: str,
@@ -66,14 +66,14 @@ async def get_system_stations(
     """Get details of a specified system."""
     try:
         return await systems_service.get_system_stations(system_name)
-    except SystemNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+    except SystemNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e
 
 
 @router.get(
     "/{system_name}/factions_history",
     response_model=list[SystemFactionHistory],
-    responses={**get_error_response_doc(400, SystemNotFoundException)},
+    responses={**get_error_response_doc(400, SystemNotFoundError)},
 )
 async def get_system_factions_history(
     system_name: str,
@@ -82,5 +82,5 @@ async def get_system_factions_history(
     """Get factions history for a specified system."""
     try:
         return await systems_service.get_system_factions_history(system_name)
-    except SystemNotFoundException as e:
-        raise HTTPException(status_code=400, detail=e.error_code)
+    except SystemNotFoundError as e:
+        raise HTTPException(status_code=400, detail=e.error_code) from e

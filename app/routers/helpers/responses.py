@@ -1,4 +1,3 @@
-
 from app.routers.error_responses import HTTPError
 
 

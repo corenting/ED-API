@@ -4,11 +4,11 @@ import difflib
 from typing import Any
 
 import httpx
-from dateutil.parser import parse
 from bs4 import BeautifulSoup
 from cachier import cachier
-from app.constants import STATIC_PATH
+from dateutil.parser import parse
 
+from app.constants import STATIC_PATH
 from app.helpers.httpx import get_aynsc_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import (
@@ -18,7 +18,7 @@ from app.models.commodities import (
     FindCommodityMode,
     StationCommodityDetails,
 )
-from app.models.exceptions import CommodityNotFoundException, ContentFetchingException
+from app.models.exceptions import CommodityNotFoundError, ContentFetchingError
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
@@ -122,7 +122,7 @@ class CommoditiesService:
         try:
             commodities = _get_commodities_names_from_spansh()
         except httpx.HTTPError as e:  # type: ignore
-            raise ContentFetchingException() from e
+            raise ContentFetchingError() from e
 
         return [
             item for item in commodities if item.lower().startswith(input_text.lower())
@@ -133,7 +133,7 @@ class CommoditiesService:
         try:
             res = _get_commodities()
         except httpx.HTTPError as e:  # type: ignore
-            raise ContentFetchingException() from e
+            raise ContentFetchingError() from e
         return res
 
     def get_commodities_prices(self, filter: str | None) -> list[CommodityPrice]:
@@ -141,7 +141,7 @@ class CommoditiesService:
         try:
             res = _get_commodities_prices_from_inara()
         except httpx.HTTPError as e:  # type: ignore
-            raise ContentFetchingException() from e
+            raise ContentFetchingError() from e
         else:
             if filter:
                 return [
@@ -156,7 +156,7 @@ class CommoditiesService:
         try:
             res = _get_commodities_prices_from_inara()
         except httpx.HTTPError as e:  # type: ignore
-            raise ContentFetchingException() from e
+            raise ContentFetchingError() from e
 
         matching_commodity = next(
             (
@@ -167,29 +167,34 @@ class CommoditiesService:
             None,
         )
         if matching_commodity is None:
-            raise CommodityNotFoundException(commodity_name)
+            raise CommodityNotFoundError(commodity_name)
 
         return matching_commodity
 
     async def get_best_prices_for_commodity(
-        self, commodity_name: str
+        self, commodity_name: str, max_age_days: int
     ) -> BestPricesStations:
-        """Get the best stations to buy and sell a specific commodity."""
+        """Get the best stations to buy and sell a specific commodity.
+
+        Will only include prices from stations where market prices where updates between now
+        and now - max_age_days.
+        """
         # First get commodity price
         current_commodity_price = self.get_commodity_prices(commodity_name)
 
         return BestPricesStations(
             best_stations_to_buy=await self._get_best_prices_for_commodity_and_mode(
-                current_commodity_price, FindCommodityMode.BUY
+                current_commodity_price, max_age_days, FindCommodityMode.BUY
             ),
             best_stations_to_sell=await self._get_best_prices_for_commodity_and_mode(
-                current_commodity_price, FindCommodityMode.SELL
+                current_commodity_price, max_age_days, FindCommodityMode.SELL
             ),
         )
 
     async def _get_best_prices_for_commodity_and_mode(
         self,
         commodity: CommodityPrice,
+        max_age_days: int,
         mode: FindCommodityMode,
     ) -> list[StationCommodityDetails]:
         async with get_aynsc_httpx_client() as client:
@@ -197,12 +202,12 @@ class CommoditiesService:
                 api_response = await client.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_best_prices_generate_request_body(
-                        mode, commodity.commodity.name
+                        mode, commodity.commodity.name, max_age_days
                     ),
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(
             api_response, commodity, mode, StationLandingPadSize.SMALL
@@ -215,10 +220,13 @@ class CommoditiesService:
         commodity: str,
         min_landing_pad_size: StationLandingPadSize,
         min_quantity: int,
+        max_age_days: int,
     ) -> list[StationCommodityDetails]:
         """Get stations buying or selling a specific commodity near a reference system.
 
         Only works for non-rare commodities.
+        Will only include prices from stations where market prices where updates between now
+        and now - max_age_days.
         """
         # First get commodity price
         current_commodity_price = self.get_commodity_prices(commodity)
@@ -228,12 +236,12 @@ class CommoditiesService:
                 api_response = await client.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_generate_request_body(
-                        mode, reference_system, commodity, min_quantity
+                        mode, reference_system, commodity, min_quantity, max_age_days
                     ),
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(
             api_response, current_commodity_price, mode, min_landing_pad_size
@@ -293,10 +301,21 @@ class CommoditiesService:
         return res
 
     def _find_commodity_best_prices_generate_request_body(
-        self, mode: FindCommodityMode, commodity: str
+        self,
+        mode: FindCommodityMode,
+        commodity: str,
+        max_age_days: int,
     ) -> dict:
+        now = datetime.datetime.now(tz=datetime.UTC).isoformat()
+        max_age = (
+            datetime.datetime.now(tz=datetime.UTC)
+            - datetime.timedelta(days=max_age_days)
+        ).isoformat()
         body = {
-            "filters": {"market": [{"name": commodity}]},
+            "filters": {
+                "market": [{"name": commodity}],
+                "market_updated_at": {"comparison": "<=>", "value": [max_age, now]},
+            },
             "size": 25,
             "page": 0,
         }
@@ -325,14 +344,22 @@ class CommoditiesService:
         reference_system: str,
         commodity: str,
         min_quantity: int,
+        max_age_days: int,
     ) -> dict[str, Any]:
+        now = datetime.datetime.now(tz=datetime.UTC).isoformat()
+        max_age = (
+            datetime.datetime.now(tz=datetime.UTC)
+            - datetime.timedelta(days=max_age_days)
+        ).isoformat()
+
         body = {
             "filters": {
                 "market": [
                     {
                         "name": commodity,
                     }
-                ]
+                ],
+                "market_updated_at": {"comparison": "<=>", "value": [max_age, now]},
             },
             "sort": [
                 {"distance": {"direction": "asc"}},

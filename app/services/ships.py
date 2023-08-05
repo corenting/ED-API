@@ -1,14 +1,13 @@
 import httpx
+from dateutil.parser import parse
 
 from app.constants import STATIC_PATH
 from app.helpers.httpx import get_aynsc_httpx_client
-from app.models.exceptions import ContentFetchingException
+from app.models.exceptions import ContentFetchingError
 from app.models.ships import ShipModel, StationSellingShip
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
-
-from dateutil.parser import parse
 
 
 class ShipsService:
@@ -49,7 +48,7 @@ class ShipsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         stations = api_response.json()["results"]
 
@@ -66,7 +65,9 @@ class ShipsService:
                 shipyard_updated_at=parse(item["shipyard_updated_at"]),
                 system_name=item["system_name"],
                 is_planetary=item["is_planetary"],
-                is_fleet_carrier=is_fleet_carrier(item["controlling_minor_faction"]),
+                is_fleet_carrier=is_fleet_carrier(
+                    item.get("controlling_minor_faction")
+                ),
                 is_settlement=is_settlement(item["type"]),
             )
             for item in stations

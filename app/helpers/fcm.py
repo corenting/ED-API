@@ -1,7 +1,7 @@
 from firebase_admin import exceptions, initialize_app, messaging
+from loguru import logger
 
 from app.config import DEBUG
-from loguru import logger
 
 default_app = initialize_app()
 
@@ -21,7 +21,8 @@ def send_fcm_notification(topic: str, collapse_key: str, data_message: dict) -> 
 
     try:
         messaging.send(message)
-        return True
     except exceptions.FirebaseError:
         logger.error("Error while sending FCM message", exc_info=True)
         return False
+    else:
+        return True

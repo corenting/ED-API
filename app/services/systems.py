@@ -1,11 +1,12 @@
-from datetime import datetime
 import math
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
+from dateutil.parser import parse
 
 from app.helpers.httpx import get_aynsc_httpx_client
-from app.models.exceptions import ContentFetchingException, SystemNotFoundException
+from app.models.exceptions import ContentFetchingError, SystemNotFoundError
 from app.models.stations import Station
 from app.models.systems import (
     System,
@@ -23,12 +24,11 @@ from app.services.helpers.spansh import (
     station_has_service,
 )
 
-from dateutil.parser import parse
-
 
 class SystemsService:
     """Main class for the systems service."""
 
+    MIN_LENGTH_FOR_TYPEHEAD = 3
     FUELRATS_TYPEAHEAD_URL = "https://system.api.fuelrats.com/typeahead"
     SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
     SPANSH_SYSTEMS_SEARCH_URL = "https://spansh.co.uk/api/systems/search"
@@ -40,7 +40,7 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         """
         # If less than 3 chars return nothing
-        if len(input_text) < 3:
+        if len(input_text) < self.MIN_LENGTH_FOR_TYPEHEAD:
             return []
 
         url = f"{self.FUELRATS_TYPEAHEAD_URL}?term={input_text}"
@@ -49,7 +49,7 @@ class SystemsService:
                 api_response = await client.get(url)
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         data = api_response.json()
         if data is None:
@@ -64,12 +64,12 @@ class SystemsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         json_content = api_response.json()
 
         if json_content is None or len(json_content) == 0:
-            raise SystemNotFoundException(system_name)
+            raise SystemNotFoundError(system_name)
 
         return System(
             name=json_content["name"],
@@ -120,18 +120,18 @@ class SystemsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         json_content = api_response.json()
 
         if json_content is None or len(json_content["results"]) == 0:
-            raise SystemNotFoundException(system_name)
+            raise SystemNotFoundError(system_name)
 
         result = json_content["results"][0]
 
         try:
             factions = await self.__get_systems_factions_details(system_name)
-        except ContentFetchingException:
+        except ContentFetchingError:
             factions = []
 
         return SystemDetails(
@@ -173,7 +173,7 @@ class SystemsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         # We need the system too
         system = await self.get_system_details(system_name)
@@ -211,7 +211,7 @@ class SystemsService:
                         item, SpanshStationService.UNIVERSAL_CARTOGRAPHICS
                     ),
                     is_fleet_carrier=is_fleet_carrier(
-                        item["controlling_minor_faction"]
+                        item.get("controlling_minor_faction")
                     ),
                     is_planetary=item["is_planetary"],
                     is_settlement=is_settlement(item["type"]),
@@ -245,7 +245,7 @@ class SystemsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         json_content = api_response.json()
 
@@ -263,7 +263,7 @@ class SystemsService:
                 state=item["state"],
                 government=item["government"],
                 is_player_faction=item["isPlayer"],
-                updated_at=datetime.fromtimestamp(item["lastUpdate"]),
+                updated_at=datetime.fromtimestamp(item["lastUpdate"], tz=UTC),
             )
             factions.append(new_faction)
         return factions
@@ -290,7 +290,7 @@ class SystemsService:
                 SystemFactionHistoryDetails(
                     influence=value,
                     state=state_history_value,
-                    updated_at=datetime.fromtimestamp(int(attribute)),
+                    updated_at=datetime.fromtimestamp(int(attribute), tz=UTC),
                 )
             )
         ret_items.sort(key=lambda o: o.updated_at)
@@ -300,7 +300,7 @@ class SystemsService:
             SystemFactionHistoryDetails(
                 influence=faction["influence"],
                 state=faction["state"],
-                updated_at=datetime.fromtimestamp(int(faction["lastUpdate"])),
+                updated_at=datetime.fromtimestamp(int(faction["lastUpdate"]), tz=UTC),
             )
         )
         return ret_items
@@ -320,20 +320,17 @@ class SystemsService:
                 )
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         json_content = api_response.json()
 
         if json_content is None or len(json_content) == 0:
-            raise SystemNotFoundException(system_name)
+            raise SystemNotFoundError(system_name)
 
-        response = []
-        for faction in json_content["factions"]:
-            response.append(
-                SystemFactionHistory(
-                    faction_name=faction["name"],
-                    history=self._get_system_faction_history(faction),
-                )
+        return [
+            SystemFactionHistory(
+                faction_name=faction["name"],
+                history=self._get_system_faction_history(faction),
             )
-
-        return response
+            for faction in json_content["factions"]
+        ]

@@ -1,15 +1,14 @@
 from typing import Any
 
 import httpx
+from dateutil.parser import parse
+from loguru import logger
 
 from app.helpers.frontier import get_frontier_api_url_for_language
 from app.helpers.httpx import get_aynsc_httpx_client
-from app.models.exceptions import ContentFetchingException
+from app.models.exceptions import ContentFetchingError
 from app.models.language import Language
 from app.models.news import NewsArticle
-from dateutil.parser import parse
-
-from loguru import logger
 
 
 def _get_picture_url_for_article(api_response: Any, article_id: str) -> str | None:
@@ -54,7 +53,7 @@ class NewsService:
                 api_response = await client.get(url)
                 api_response.raise_for_status()
             except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingException() from e
+                raise ContentFetchingError() from e
 
         articles = api_response.json()
 

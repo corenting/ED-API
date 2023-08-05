@@ -1,5 +1,7 @@
-from loguru import logger
 import sys
+
+from loguru import logger
+
 from app import config
 
 __version__ = "4.1.1"
