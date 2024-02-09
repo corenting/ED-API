@@ -1,10 +1,14 @@
-# ED-API
+# 🌌 ED-API
 
-An API for Elite:Dangerous, used mainly by [EDCompanion](https://github.com/corenting/edcompanion).
+The backend API for [EDCompanion](https://github.com/corenting/edcompanion).
+
+Handle tasks like autocomplete endpoints, proxying calls to external APIs etc.
 
 ## Setup
 
-You need an Inara API key for the community goals endpoint, and a FCM server key if you want to send community goals update as FCM push messages.
+What is needed:
+- An [Inara API key](https://inara.cz/elite/inara-api/) for the community goals endpoint
+- An FCM server key if you want tosend community goals update as FCM push messages
 
 See `config.py` for all the setting setup. The app use `environs` to load env variables.
 
@@ -16,7 +20,7 @@ The project is divided in 2 parts :
 
 ## Credits
 
-- [EDCD](https://github.com/EDCD) for the FDevIDs repository used for commodities informations
+- [EDCD](https://github.com/EDCD) for the FDevIDs repository used for commodities information
 - [EDSM](https://www.edsm.net/): provides the [ships pictures](https://github.com/EDSM-NET/ED-Ships-ScreenShots) and the API used to fetch the data for some endpoints
 - [FuelRats](https://fuelrats.com): provides the endpoint used for the systems typeahead function
 - [Inara](https://inara.cz/): used to fetch the data for some endpoints
