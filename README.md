@@ -26,6 +26,10 @@ The project is divided in 2 parts :
 - [Inara](https://inara.cz/): used to fetch the data for some endpoints
 - [Spansh](https://spansh.co.uk): used to fetch the data for some endpoints
 
+## Donations
+
+If you wish to support the app, donations are possible [here](https://corenting.fr/donate).
+
 ## Contact
 
 You can contact me on the [EDCD](https://edcd.github.io/) Discord server (`corenting#6836`).
