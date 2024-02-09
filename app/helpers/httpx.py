@@ -10,6 +10,6 @@ def get_httpx_client() -> httpx.Client:
     return httpx.Client(**CLIENT_PARAMETERS)  # type: ignore
 
 
-def get_aynsc_httpx_client() -> httpx.AsyncClient:
+def get_async_httpx_client() -> httpx.AsyncClient:
     """Get an httpx async client with proper configuration."""
     return httpx.AsyncClient(**CLIENT_PARAMETERS)  # type: ignore

@@ -5,7 +5,7 @@ from typing import Any
 import httpx
 from dateutil.parser import parse
 
-from app.helpers.httpx import get_aynsc_httpx_client
+from app.helpers.httpx import get_async_httpx_client
 from app.models.exceptions import ContentFetchingError, SystemNotFoundError
 from app.models.stations import Station
 from app.models.systems import (
@@ -44,7 +44,7 @@ class SystemsService:
             return []
 
         url = f"{self.FUELRATS_TYPEAHEAD_URL}?term={input_text}"
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(url)
                 api_response.raise_for_status()
@@ -57,7 +57,7 @@ class SystemsService:
         return data
 
     async def _get_system(self, system_name: str) -> System:
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(
                     f"https://www.edsm.net/api-v1/system?systemName={system_name}&showCoordinates=1&showPermit=1"
@@ -107,7 +107,7 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
                     self.SPANSH_SYSTEMS_SEARCH_URL,
@@ -160,7 +160,7 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
                     self.SPANSH_STATIONS_SEARCH_URL,
@@ -244,7 +244,7 @@ class SystemsService:
         self, system_name: str
     ) -> list[SystemDetailsFaction]:
         """Get system factions details."""
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(
                     f"{self.EDSM_SYSTEM_FACTIONS_URL}?systemName={system_name}"
@@ -319,7 +319,7 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(
                     f"https://www.edsm.net/api-system-v1/factions?systemName={system_name}&showHistory=1"

@@ -13,6 +13,7 @@ from app.routers import (
     galnet,
     health,
     news,
+    game_server_health,
     ships,
     systems,
 )
@@ -35,8 +36,10 @@ def exception_callback(*args: Any, **kwargs: Any) -> JSONResponse:
 app.include_router(commodities.router)
 app.include_router(community_goals.router)
 app.include_router(galnet.router)
+app.include_router(game_server_health.router)
 app.include_router(health.router)
 app.include_router(news.router)
 app.include_router(ships.router)
 app.include_router(systems.router)
+
 app.mount(f"/{STATIC_PATH}", StaticFiles(directory=STATIC_PATH), name=STATIC_PATH)

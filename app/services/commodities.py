@@ -9,7 +9,7 @@ from cachier import cachier
 from dateutil.parser import parse
 
 from app.constants import STATIC_PATH
-from app.helpers.httpx import get_aynsc_httpx_client, get_httpx_client
+from app.helpers.httpx import get_async_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import (
     BestPricesStations,
@@ -197,7 +197,7 @@ class CommoditiesService:
         max_age_days: int,
         mode: FindCommodityMode,
     ) -> list[StationCommodityDetails]:
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
                     SPANSH_STATIONS_SEARCH_URL,
@@ -231,7 +231,7 @@ class CommoditiesService:
         # First get commodity price
         current_commodity_price = self.get_commodity_prices(commodity)
 
-        async with get_aynsc_httpx_client() as client:
+        async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
                     SPANSH_STATIONS_SEARCH_URL,
