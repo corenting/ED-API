@@ -56,11 +56,15 @@ class ShipsService:
             StationSellingShip(
                 distance_from_reference_system=item["distance"],
                 distance_to_arrival=item["distance_to_arrival"],
-                max_landing_pad_size=StationLandingPadSize.LARGE
-                if item["has_large_pad"]
-                else StationLandingPadSize.MEDIUM
-                if item["medium_pads"] > 0
-                else StationLandingPadSize.SMALL,
+                max_landing_pad_size=(
+                    StationLandingPadSize.LARGE
+                    if item["has_large_pad"]
+                    else (
+                        StationLandingPadSize.MEDIUM
+                        if item["medium_pads"] > 0
+                        else StationLandingPadSize.SMALL
+                    )
+                ),
                 name=item["name"],
                 shipyard_updated_at=parse(item["shipyard_updated_at"]),
                 system_name=item["system_name"],

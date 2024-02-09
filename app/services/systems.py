@@ -215,15 +215,21 @@ class SystemsService:
                     ),
                     is_planetary=item["is_planetary"],
                     is_settlement=is_settlement(item["type"]),
-                    last_market_update=parse(item["market_updated_at"])
-                    if item.get("market_updated_at")
-                    else None,
-                    last_outfitting_update=parse(item["outfitting_updated_at"])
-                    if item.get("outfitting_updated_at")
-                    else None,
-                    last_shipyard_update=parse(item["shipyard_updated_at"])
-                    if item.get("shipyard_updated_at")
-                    else None,
+                    last_market_update=(
+                        parse(item["market_updated_at"])
+                        if item.get("market_updated_at")
+                        else None
+                    ),
+                    last_outfitting_update=(
+                        parse(item["outfitting_updated_at"])
+                        if item.get("outfitting_updated_at")
+                        else None
+                    ),
+                    last_shipyard_update=(
+                        parse(item["shipyard_updated_at"])
+                        if item.get("shipyard_updated_at")
+                        else None
+                    ),
                     max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
                     system_name=item["system_name"],
@@ -277,7 +283,7 @@ class SystemsService:
         for attribute, value in faction["influenceHistory"].items():
             # State history
             state_history_value = None
-            if type(faction["stateHistory"]) != list:
+            if not isinstance(faction["stateHistory"], list):
                 state_history_value = next(
                     (y for x, y in faction["stateHistory"].items() if x == attribute),
                     None,

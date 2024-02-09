@@ -282,12 +282,16 @@ class CommoditiesService:
                     last_market_update=parse(item["market_updated_at"]) if item.get("market_updated_at") else None,  # type: ignore
                     max_landing_pad_size=station_landing_pad_size,
                     name=item["name"],
-                    price=commodity_in_market["buy_price"]
-                    if mode == FindCommodityMode.BUY
-                    else commodity_in_market["sell_price"],
-                    quantity=commodity_in_market["supply"]
-                    if mode == FindCommodityMode.BUY
-                    else commodity_in_market["demand"],
+                    price=(
+                        commodity_in_market["buy_price"]
+                        if mode == FindCommodityMode.BUY
+                        else commodity_in_market["sell_price"]
+                    ),
+                    quantity=(
+                        commodity_in_market["supply"]
+                        if mode == FindCommodityMode.BUY
+                        else commodity_in_market["demand"]
+                    ),
                     system_name=item["system_name"],
                     type=item.get("type", "Unknown"),
                     price_percentage_difference=price_percentage_difference,
