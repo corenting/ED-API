@@ -22,7 +22,6 @@ The project is divided in 2 parts :
 
 - [EDCD](https://github.com/EDCD) for the FDevIDs repository used for commodities information
 - [EDSM](https://www.edsm.net/): provides the [ships pictures](https://github.com/EDSM-NET/ED-Ships-ScreenShots) and the API used to fetch the data for some endpoints
-- [FuelRats](https://fuelrats.com): provides the endpoint used for the systems typeahead function
 - [Inara](https://inara.cz/): used to fetch the data for some endpoints
 - [Spansh](https://spansh.co.uk): used to fetch the data for some endpoints
 
