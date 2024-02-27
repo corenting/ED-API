@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends
 
 from app.models.game_server_health import GameServerHealth
-from app.models.language import Language
-from app.models.news import NewsArticle
 from app.services.game_server_health import GameServerHealthService
 
 router = APIRouter(prefix="/game_server_health", tags=["Game server health"])

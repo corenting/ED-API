@@ -11,9 +11,9 @@ from app.routers import (
     commodities,
     community_goals,
     galnet,
+    game_server_health,
     health,
     news,
-    game_server_health,
     ships,
     systems,
 )

@@ -1,8 +1,9 @@
+import httpx
 
 from app.helpers.httpx import get_async_httpx_client
 from app.models.exceptions import ContentFetchingError
 from app.models.game_server_health import GameServerHealth
-import httpx
+
 
 class GameServerHealthService:
     """Main class for the game server health service."""
@@ -21,6 +22,4 @@ class GameServerHealthService:
             except httpx.HTTPError as e:  # type: ignore
                 raise ContentFetchingError() from e
 
-        return GameServerHealth(
-            status=api_response.json()["status"]
-        )
+        return GameServerHealth(status=api_response.json()["status"])
