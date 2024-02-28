@@ -29,7 +29,7 @@ class SystemsService:
     """Main class for the systems service."""
 
     MIN_LENGTH_FOR_TYPEHEAD = 3
-    SPAMSH_TYPEAHEAD_URL = "https://spansh.co.uk/api/systems"
+    SPANSH_TYPEAHEAD_URL = "https://spansh.co.uk/api/systems"
     SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
     SPANSH_SYSTEMS_SEARCH_URL = "https://spansh.co.uk/api/systems/search"
     EDSM_SYSTEM_FACTIONS_URL = "https://www.edsm.net/api-system-v1/factions"
@@ -43,7 +43,7 @@ class SystemsService:
         if len(input_text) < self.MIN_LENGTH_FOR_TYPEHEAD:
             return []
 
-        url = f"{self.SPAMSH_TYPEAHEAD_URL}?q={input_text}"
+        url = f"{self.SPANSH_TYPEAHEAD_URL}?q={input_text}"
         async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(url)

@@ -14,6 +14,7 @@ from app.routers import (
     game_server_health,
     health,
     news,
+    outfitting,
     ships,
     systems,
 )
@@ -39,6 +40,7 @@ app.include_router(galnet.router)
 app.include_router(game_server_health.router)
 app.include_router(health.router)
 app.include_router(news.router)
+app.include_router(outfitting.router)
 app.include_router(ships.router)
 app.include_router(systems.router)
 

@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from cachier import cachier
 from dateutil.parser import parse
 
-from app.constants import STATIC_PATH
+from app.constants import DATA_PATH
 from app.helpers.httpx import get_async_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import (
@@ -71,10 +71,9 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
 
 @cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities() -> list[Commodity]:
-    data_path = f"{STATIC_PATH}/data"
-    return _read_commodities_csv_file(
-        f"{data_path}/commodities.csv", False
-    ) + _read_commodities_csv_file(f"{data_path}/rare_commodities.csv", True)
+    commodities = _read_commodities_csv_file(f"{DATA_PATH}/commodities.csv", False)
+    rares = _read_commodities_csv_file(f"{DATA_PATH}/rare_commodities.csv", True)
+    return commodities + rares
 
 
 @cachier(stale_after=datetime.timedelta(days=1))
