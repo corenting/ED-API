@@ -5,13 +5,13 @@ SOURCE_FILES=app manage.py
 
 .PHONY: format
 format:
-	$(PYTHON) black $(SOURCE_FILES)
-	$(PYTHON) ruff --fix $(SOURCE_FILES)
+	$(PYTHON) ruff format $(SRC)
+	$(PYTHON) ruff check --fix $(SRC)
 
 .PHONY: style
 style:
-	$(PYTHON) black --check $(SOURCE_FILES)
-	$(PYTHON) ruff $(SOURCE_FILES)
+	$(PYTHON) ruff format --check $(SRC)
+	$(PYTHON) ruff check $(SOURCE_FILES)
 	$(PYTHON) mypy -- $(SOURCE_FILES)
 
 .PHONY: run
