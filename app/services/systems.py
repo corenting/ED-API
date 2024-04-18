@@ -5,9 +5,10 @@ from typing import Any
 import httpx
 from dateutil.parser import parse
 
+from app.constants import SPANSH_STATIONS_SEARCH_URL
 from app.helpers.httpx import get_async_httpx_client
 from app.models.exceptions import ContentFetchingError, SystemNotFoundError
-from app.models.stations import Station
+from app.models.stations import StationDetails
 from app.models.systems import (
     System,
     SystemDetails,
@@ -30,7 +31,6 @@ class SystemsService:
 
     MIN_LENGTH_FOR_TYPEHEAD = 3
     SPANSH_TYPEAHEAD_URL = "https://spansh.co.uk/api/systems"
-    SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
     SPANSH_SYSTEMS_SEARCH_URL = "https://spansh.co.uk/api/systems/search"
     EDSM_SYSTEM_FACTIONS_URL = "https://www.edsm.net/api-system-v1/factions"
 
@@ -154,7 +154,7 @@ class SystemsService:
             factions=factions,
         )
 
-    async def get_system_stations(self, system_name: str) -> list[Station]:
+    async def get_system_stations(self, system_name: str) -> list[StationDetails]:
         """Get system stations.
 
         :raises ContentFetchingException: Unable to retrieve the data
@@ -163,7 +163,7 @@ class SystemsService:
         async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
-                    self.SPANSH_STATIONS_SEARCH_URL,
+                    SPANSH_STATIONS_SEARCH_URL,
                     json={
                         "filters": {"system_name": {"value": system_name}},
                         "sort": [{"distance": {"direction": "asc"}}],
@@ -183,7 +183,7 @@ class SystemsService:
         if json_content is None or len(json_content["results"]) == 0:
             return []
 
-        stations: list[Station] = []
+        stations: list[StationDetails] = []
         for item in json_content["results"]:
             # Skip station if unknown type
             # This allows to skip settlements with low informations
@@ -192,7 +192,7 @@ class SystemsService:
 
             station_landing_pad_size = get_station_max_landing_pad_size(item)
             stations.append(
-                Station(
+                StationDetails(
                     distance_to_arrival=item["distance_to_arrival"],
                     has_blackmarket=station_has_service(
                         item, SpanshStationService.BLACK_MARKET

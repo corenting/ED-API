@@ -20,7 +20,7 @@ class StationLandingPadSize(Enum):
 
 
 @dataclass
-class Station:
+class StationDetails:
     distance_to_arrival: float
     has_blackmarket: bool
     has_docking: bool
@@ -43,3 +43,16 @@ class Station:
     system_name: str
     system_permit_required: bool
     type: str
+
+
+@dataclass
+class Station:
+    distance_from_reference_system: float
+    distance_to_arrival: float
+    is_fleet_carrier: bool
+    is_planetary: bool
+    is_settlement: bool
+    max_landing_pad_size: StationLandingPadSize
+    system_name: str
+    type: str
+    name: str

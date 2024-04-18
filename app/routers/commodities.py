@@ -6,7 +6,7 @@ from app.models.commodities import (
     Commodity,
     CommodityPrice,
     FindCommodityMode,
-    StationCommodityDetails,
+    StationWithCommodityDetails,
 )
 from app.models.exceptions import CommodityNotFoundError
 from app.models.stations import StationLandingPadSize
@@ -85,7 +85,7 @@ def get_commodities_prices(
     return commodities_service.get_commodities_prices(filter)
 
 
-@router.get("/find", response_model=list[StationCommodityDetails])
+@router.get("/find", response_model=list[StationWithCommodityDetails])
 async def find_commodity(
     mode: FindCommodityMode,
     reference_system: str,
@@ -94,7 +94,7 @@ async def find_commodity(
     min_quantity: int,
     max_age_days: int = 7,
     commodities_service: CommoditiesService = Depends(),
-) -> list[StationCommodityDetails]:
+) -> list[StationWithCommodityDetails]:
     """Get stations buying or selling a specific commodity near a reference system.
 
     Only works for non-rare commodities.

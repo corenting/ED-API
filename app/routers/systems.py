@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
 from app.models.exceptions import SystemNotFoundError
-from app.models.stations import Station
+from app.models.stations import StationDetails
 from app.models.systems import SystemDetails, SystemFactionHistory, SystemsDistance
 from app.routers.helpers.responses import get_error_response_doc
 from app.services.systems import SystemsService
@@ -56,13 +56,13 @@ async def get_system_details(
 
 @router.get(
     "/{system_name}/stations",
-    response_model=list[Station],
+    response_model=list[StationDetails],
     responses={**get_error_response_doc(400, SystemNotFoundError)},
 )
 async def get_system_stations(
     system_name: str,
     systems_service: SystemsService = Depends(),
-) -> list[Station]:
+) -> list[StationDetails]:
     """Get details of a specified system."""
     try:
         return await systems_service.get_system_stations(system_name)

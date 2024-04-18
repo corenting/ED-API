@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from cachier import cachier
 from dateutil.parser import parse
 
-from app.constants import DATA_PATH
+from app.constants import DATA_PATH, SPANSH_STATIONS_SEARCH_URL
 from app.helpers.httpx import get_async_httpx_client, get_httpx_client
 from app.helpers.string import string_to_int
 from app.models.commodities import (
@@ -16,7 +16,7 @@ from app.models.commodities import (
     Commodity,
     CommodityPrice,
     FindCommodityMode,
-    StationCommodityDetails,
+    StationWithCommodityDetails,
 )
 from app.models.exceptions import CommodityNotFoundError, ContentFetchingError
 from app.models.stations import StationLandingPadSize
@@ -28,7 +28,6 @@ SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
 )
 INARA_COMMODITIES = "https://inara.cz/elite/commodities-list/"
-SPANSH_STATIONS_SEARCH_URL = "https://spansh.co.uk/api/stations/search"
 
 
 def _get_commodity_from_name(
@@ -195,7 +194,7 @@ class CommoditiesService:
         commodity: CommodityPrice,
         max_age_days: int,
         mode: FindCommodityMode,
-    ) -> list[StationCommodityDetails]:
+    ) -> list[StationWithCommodityDetails]:
         async with get_async_httpx_client() as client:
             try:
                 api_response = await client.post(
@@ -220,7 +219,7 @@ class CommoditiesService:
         min_landing_pad_size: StationLandingPadSize,
         min_quantity: int,
         max_age_days: int,
-    ) -> list[StationCommodityDetails]:
+    ) -> list[StationWithCommodityDetails]:
         """Get stations buying or selling a specific commodity near a reference system.
 
         Only works for non-rare commodities.
@@ -252,8 +251,8 @@ class CommoditiesService:
         current_commodity_price: CommodityPrice,
         mode: FindCommodityMode,
         min_landing_pad_size: StationLandingPadSize,
-    ) -> list[StationCommodityDetails]:
-        res: list[StationCommodityDetails] = []
+    ) -> list[StationWithCommodityDetails]:
+        res: list[StationWithCommodityDetails] = []
         for item in api_response.json()["results"]:
             commodity_in_market = next(
                 market_item
@@ -274,7 +273,7 @@ class CommoditiesService:
                 continue
 
             res.append(
-                StationCommodityDetails(
+                StationWithCommodityDetails(
                     distance_from_reference_system=item["distance"],
                     distance_to_arrival=item["distance_to_arrival"],
                     is_planetary=item["is_planetary"],
