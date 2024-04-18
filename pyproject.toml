@@ -10,22 +10,22 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
-aenum = "^3.1.15"
-aiofiles = "^23.2.1"
-alembic = "^1.13.1"
-beautifulsoup4 = "^4.12.3"
-cachier = "^2.2.2"
-environs = "^10.3.0"
-fastapi = "^0.109.2"
-firebase-admin = "^6.4.0"
-gunicorn = "^22.0.0"
-httpx = "^0.26.0"
-loguru = "^0.7.2"
-pydantic = "^2.6.1"
-python-dateutil = "^2.8.2"
-SQLAlchemy = "^2.0.25"
-typer = "^0.9.0"
-uvicorn = {extras = ["standard"], version = "^0.27.0.post1 "}
+aenum = ">=3,<4"
+aiofiles = ">=23,<24"
+alembic = ">=1,<2"
+beautifulsoup4 = ">=4,<5"
+cachier = ">=2,<3"
+environs = ">=10,<11"
+fastapi = "<1"
+firebase-admin = ">=6,<7"
+gunicorn = ">=22,<23"
+httpx = "<1"
+loguru = "<1"
+pydantic = ">=2,<3"
+python-dateutil = ">=2,<3"
+SQLAlchemy = ">=2,<3"
+typer = "<1"
+uvicorn = {extras = ["standard"], version = "<1"}
 
 [tool.poetry.dev-dependencies]
 mypy = "*"
