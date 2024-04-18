@@ -65,7 +65,7 @@ async def get_where_to_sell_commodity(
     and now - max_age_days.
     """
     try:
-        return await commodities_service.get_best_prices_for_commodity(
+        return await commodities_service.get_stations_with_best_prices_for_commodity(
             commodity, max_age_days
         )
     except CommodityNotFoundError as e:

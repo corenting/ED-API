@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 from typing import Any
 
@@ -38,3 +39,30 @@ def station_has_service(
         )
         is not None
     )
+
+
+def get_request_body_common_filters() -> dict[str, Any]:
+    """
+    Get common filters used for requesting Spansh API (sorting, page size etc.)
+    """
+    return {
+        "sort": [
+            {"distance": {"direction": "asc"}},
+            {"distance_to_arrival": {"direction": "asc"}},
+        ],
+        "size": 50,
+        "page": 0,
+    }
+
+
+def get_max_age_values_for_request_body(max_age_days: int) -> dict[str, Any]:
+    """
+    Get the dict filter to use to express that a datetime field in the request body
+    should have a max age of the given number of days
+    """
+    now = datetime.datetime.now(tz=datetime.UTC).isoformat()
+    max_age = (
+        datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(days=max_age_days)
+    ).isoformat()
+
+    return {"comparison": "<=>", "value": [max_age, now]}

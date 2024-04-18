@@ -1,5 +1,4 @@
 import csv
-import datetime
 from typing import Any
 
 import httpx
@@ -12,7 +11,11 @@ from app.models.outfitting import Outfitting, StationWithOutfittingDetails
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
-from app.services.helpers.spansh import get_station_max_landing_pad_size
+from app.services.helpers.spansh import (
+    get_max_age_values_for_request_body,
+    get_request_body_common_filters,
+    get_station_max_landing_pad_size,
+)
 
 
 class OutfittingService:
@@ -78,13 +81,8 @@ class OutfittingService:
         outfitting: Outfitting,
         max_age_days: int,
     ) -> dict[str, Any]:
-        now = datetime.datetime.now(tz=datetime.UTC).isoformat()
-        max_age = (
-            datetime.datetime.now(tz=datetime.UTC)
-            - datetime.timedelta(days=max_age_days)
-        ).isoformat()
-
         body = {
+            **get_request_body_common_filters(),
             "filters": {
                 "modules": [
                     {
@@ -93,14 +91,10 @@ class OutfittingService:
                         "rating": [outfitting.outfitting_rating],
                     }
                 ],
-                "outfitting_updated_at": {"comparison": "<=>", "value": [max_age, now]},
+                "outfitting_updated_at": get_max_age_values_for_request_body(
+                    max_age_days
+                ),
             },
-            "sort": [
-                {"distance": {"direction": "asc"}},
-                {"distance_to_arrival": {"direction": "asc"}},
-            ],
-            "size": 50,
-            "page": 0,
             "reference_system": reference_system,
         }
 

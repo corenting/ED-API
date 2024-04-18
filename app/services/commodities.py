@@ -22,7 +22,11 @@ from app.models.exceptions import CommodityNotFoundError, ContentFetchingError
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
-from app.services.helpers.spansh import get_station_max_landing_pad_size
+from app.services.helpers.spansh import (
+    get_max_age_values_for_request_body,
+    get_request_body_common_filters,
+    get_station_max_landing_pad_size,
+)
 
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
@@ -169,48 +173,6 @@ class CommoditiesService:
 
         return matching_commodity
 
-    async def get_best_prices_for_commodity(
-        self, commodity_name: str, max_age_days: int
-    ) -> BestPricesStations:
-        """Get the best stations to buy and sell a specific commodity.
-
-        Will only include prices from stations where market prices where updates between now
-        and now - max_age_days.
-        """
-        # First get commodity price
-        current_commodity_price = self.get_commodity_prices(commodity_name)
-
-        return BestPricesStations(
-            best_stations_to_buy=await self._get_best_prices_for_commodity_and_mode(
-                current_commodity_price, max_age_days, FindCommodityMode.BUY
-            ),
-            best_stations_to_sell=await self._get_best_prices_for_commodity_and_mode(
-                current_commodity_price, max_age_days, FindCommodityMode.SELL
-            ),
-        )
-
-    async def _get_best_prices_for_commodity_and_mode(
-        self,
-        commodity: CommodityPrice,
-        max_age_days: int,
-        mode: FindCommodityMode,
-    ) -> list[StationWithCommodityDetails]:
-        async with get_async_httpx_client() as client:
-            try:
-                api_response = await client.post(
-                    SPANSH_STATIONS_SEARCH_URL,
-                    json=self._find_commodity_best_prices_generate_request_body(
-                        mode, commodity.commodity.name, max_age_days
-                    ),
-                )
-                api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingError() from e
-
-        return self._map_spansh_stations_to_model(
-            api_response, commodity, mode, StationLandingPadSize.SMALL
-        )
-
     async def find_commodity(
         self,
         mode: FindCommodityMode,
@@ -243,6 +205,53 @@ class CommoditiesService:
 
         return self._map_spansh_stations_to_model(
             api_response, current_commodity_price, mode, min_landing_pad_size
+        )
+
+    async def get_stations_with_best_prices_for_commodity(
+        self, commodity_name: str, max_age_days: int
+    ) -> BestPricesStations:
+        """Get the best stations to buy and sell a specific commodity.
+
+        Will only include prices from stations where market prices where updates between now
+        and now - max_age_days.
+        """
+        # First get commodity price
+        current_commodity_price = self.get_commodity_prices(commodity_name)
+
+        return BestPricesStations(
+            best_stations_to_buy=await self._get_station_with_best_prices_for_commodity_and_mode(
+                current_commodity_price, max_age_days, FindCommodityMode.BUY
+            ),
+            best_stations_to_sell=await self._get_station_with_best_prices_for_commodity_and_mode(
+                current_commodity_price, max_age_days, FindCommodityMode.SELL
+            ),
+        )
+
+    async def _get_station_with_best_prices_for_commodity_and_mode(
+        self,
+        commodity: CommodityPrice,
+        max_age_days: int,
+        mode: FindCommodityMode,
+    ) -> list[StationWithCommodityDetails]:
+        """Get the best stations to buy or sell a specific commodity.
+
+        Will only include prices from stations where market prices where updates between now
+        and now - max_age_days.
+        """
+        async with get_async_httpx_client() as client:
+            try:
+                api_response = await client.post(
+                    SPANSH_STATIONS_SEARCH_URL,
+                    json=self._find_commodity_best_prices_generate_request_body(
+                        mode, commodity.commodity.name, max_age_days
+                    ),
+                )
+                api_response.raise_for_status()
+            except httpx.HTTPError as e:  # type: ignore
+                raise ContentFetchingError() from e
+
+        return self._map_spansh_stations_to_model(
+            api_response, commodity, mode, StationLandingPadSize.SMALL
         )
 
     def _map_spansh_stations_to_model(
@@ -310,15 +319,10 @@ class CommoditiesService:
         commodity: str,
         max_age_days: int,
     ) -> dict:
-        now = datetime.datetime.now(tz=datetime.UTC).isoformat()
-        max_age = (
-            datetime.datetime.now(tz=datetime.UTC)
-            - datetime.timedelta(days=max_age_days)
-        ).isoformat()
         body = {
             "filters": {
                 "market": [{"name": commodity}],
-                "market_updated_at": {"comparison": "<=>", "value": [max_age, now]},
+                "market_updated_at": get_max_age_values_for_request_body(max_age_days),
             },
             "size": 25,
             "page": 0,
@@ -350,27 +354,16 @@ class CommoditiesService:
         min_quantity: int,
         max_age_days: int,
     ) -> dict[str, Any]:
-        now = datetime.datetime.now(tz=datetime.UTC).isoformat()
-        max_age = (
-            datetime.datetime.now(tz=datetime.UTC)
-            - datetime.timedelta(days=max_age_days)
-        ).isoformat()
-
         body = {
+            **get_request_body_common_filters(),
             "filters": {
                 "market": [
                     {
                         "name": commodity,
                     }
                 ],
-                "market_updated_at": {"comparison": "<=>", "value": [max_age, now]},
+                "market_updated_at": get_max_age_values_for_request_body(max_age_days),
             },
-            "sort": [
-                {"distance": {"direction": "asc"}},
-                {"distance_to_arrival": {"direction": "asc"}},
-            ],
-            "size": 50,
-            "page": 0,
             "reference_system": reference_system,
         }
 
