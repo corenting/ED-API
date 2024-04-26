@@ -18,7 +18,11 @@ async def get_outfitting_typeahead(
     return outfitting_service.get_outfitting_typeahead(input_text)
 
 
-@router.get("/find", response_model=list[StationWithOutfittingDetails], responses={**get_error_response_doc(400, OutfittingNotFoundError)},)
+@router.get(
+    "/find",
+    response_model=list[StationWithOutfittingDetails],
+    responses={**get_error_response_doc(400, OutfittingNotFoundError)},
+)
 async def find_outfitting(
     reference_system: str,
     outfitting: str,
