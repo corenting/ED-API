@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Iterable
 from datetime import datetime
 
@@ -56,6 +58,16 @@ class ShipModel(MultiValueEnum):
     def get_display_names() -> Iterable[str]:
         """Get a list of ships display names."""
         return (item.values[0] for item in ShipModel)  # type: ignore
+
+    @classmethod
+    def _missing_(cls: type[ShipModel], value: str) -> ShipModel | None:
+        # If missing, check lowercase of any member
+        value = value.lower()
+        for member in cls:  # type: ignore
+            for member_value in member.values:
+                if member_value.lower() == value:
+                    return member
+        return None
 
 
 @dataclass
