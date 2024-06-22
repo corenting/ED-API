@@ -1,7 +1,7 @@
 import httpx
+from loguru import logger
 
 from app.helpers.httpx import get_async_httpx_client
-from app.models.exceptions import ContentFetchingError
 from app.models.game_server_health import GameServerHealth
 
 
@@ -19,7 +19,8 @@ class GameServerHealthService:
             try:
                 api_response = await client.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
-                raise ContentFetchingError() from e
+            except httpx.HTTPError:
+                logger.opt(exception=True).warning("Could not fetch game server health")
+                return GameServerHealth(status="Unknown")
 
         return GameServerHealth(status=api_response.json()["status"])

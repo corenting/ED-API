@@ -40,6 +40,7 @@ class ShipModel(MultiValueEnum):
     MAMBA = "Mamba", "mamba"
     ORCA = "Orca", "orca"
     PYTHON = "Python", "python"
+    PYTHON_MKII = "Python MkII", "python_nx"
     SIDEWINDER = "Sidewinder", "sidewinder"
     TYPE_10_DEFENDER = "Type-10 Defender", "type9_military"
     TYPE_6_TRANSPORTER = "Type-6 Transporter", "type6"
