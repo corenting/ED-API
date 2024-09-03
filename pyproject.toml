@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ed-api"
-version = "4.2.0"
+version = "4.2.1"
 description = "An API for Elite Dangerous"
 authors = ["corenting <corenting@gmail.com>"]
 license = "MIT"
