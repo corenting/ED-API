@@ -1,6 +1,7 @@
 import csv
 import datetime
 import difflib
+import json
 from typing import Any
 
 import httpx
@@ -354,29 +355,20 @@ class CommoditiesService:
         min_quantity: int,
         max_age_days: int,
     ) -> dict[str, Any]:
+        quantity_filter_name = "supply" if mode == FindCommodityMode.BUY else "demand"
         body = {
-            **get_request_body_common_filters(),
             "filters": {
+                "market_updated_at": get_max_age_values_for_request_body(max_age_days),
                 "market": [
                     {
                         "name": commodity,
+                        quantity_filter_name: {"value": [10, 1000000000], "comparison": "<=>"},
                     }
                 ],
-                "market_updated_at": get_max_age_values_for_request_body(max_age_days),
             },
+            **get_request_body_common_filters(),
             "reference_system": reference_system,
         }
-
-        if mode == FindCommodityMode.BUY:
-            body["filters"]["market"][0]["supply"] = {  # type: ignore
-                "value": [min_quantity, 1000000000],
-                "comparison": "<=>",
-            }
-        else:
-            body["filters"]["market"][0]["demand"] = {  # type: ignore
-                "value": [min_quantity, 1000000000],
-                "comparison": "<=>",
-            }
 
         return body
 
