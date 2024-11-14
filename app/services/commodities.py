@@ -1,7 +1,6 @@
 import csv
 import datetime
 import difflib
-import json
 from typing import Any
 
 import httpx
@@ -362,7 +361,10 @@ class CommoditiesService:
                 "market": [
                     {
                         "name": commodity,
-                        quantity_filter_name: {"value": [10, 1000000000], "comparison": "<=>"},
+                        quantity_filter_name: {
+                            "value": [10, 1000000000],
+                            "comparison": "<=>",
+                        },
                     }
                 ],
             },
