@@ -38,6 +38,7 @@ class ShipModel(MultiValueEnum):
     KRAIT_MKII = "Krait MkII", "krait_mkii"
     KRAIT_PHANTOM = "Krait Phantom", "krait_light"
     MAMBA = "Mamba", "mamba"
+    MANDALAY = "Mandalay", "mandalay"
     ORCA = "Orca", "orca"
     PYTHON = "Python", "python"
     PYTHON_MKII = "Python MkII", "python_nx"
