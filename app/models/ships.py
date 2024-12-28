@@ -20,6 +20,7 @@ class ShipModel(MultiValueEnum):
     BELUGA_LINER = "Beluga Liner", "belugaliner"
     COBRA_MKIII = "Cobra MkIII", "cobramkiii"
     COBRA_MKIV = "Cobra MkIV", "cobramkiv"
+    COBRA_MKV = "Cobra MkV", "cobramkv"
     DIAMONDBACK_EXPLORER = "Diamondback Explorer", "diamondbackxl"
     DIAMONDBACK_SCOUT = "Diamondback Scout", "diamondback"
     DOLPHIN = "Dolphin", "dolphin"
