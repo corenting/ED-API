@@ -8,6 +8,7 @@ from app.models.ships import ShipModel, StationSellingShip
 from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
+from app.services.helpers.spansh import get_formatted_reference_system
 
 
 class ShipsService:
@@ -43,7 +44,9 @@ class ShipsService:
                         "sort": [{"distance": {"direction": "asc"}}],
                         "size": 15,
                         "page": 0,
-                        "reference_system": reference_system,
+                        "reference_system": get_formatted_reference_system(
+                            reference_system
+                        ),
                     },
                 )
                 api_response.raise_for_status()

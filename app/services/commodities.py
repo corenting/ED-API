@@ -23,6 +23,7 @@ from app.models.stations import StationLandingPadSize
 from app.services.helpers.fleet_carriers import is_fleet_carrier
 from app.services.helpers.settlements import is_settlement
 from app.services.helpers.spansh import (
+    get_formatted_reference_system,
     get_max_age_values_for_request_body,
     get_request_body_common_filters,
     get_station_max_landing_pad_size,
@@ -369,7 +370,7 @@ class CommoditiesService:
                 ],
             },
             **get_request_body_common_filters(),
-            "reference_system": reference_system,
+            "reference_system": get_formatted_reference_system(reference_system),
         }
 
         return body

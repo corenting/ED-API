@@ -66,3 +66,15 @@ def get_max_age_values_for_request_body(max_age_days: int) -> dict[str, Any]:
     ).isoformat()
 
     return {"comparison": "<=>", "value": [max_age, now]}
+
+
+def get_formatted_reference_system(system: str) -> str:
+    """
+    Format the given reference system name: keep as-is if the first letter is uppercase (as
+    it probably come from the autocomplete), else make it a title to try to at least fix
+    simple cases instead of returning an error.
+    """
+    formatted_system = system.strip()
+    return (
+        formatted_system.title() if formatted_system[0].islower() else formatted_system
+    )
