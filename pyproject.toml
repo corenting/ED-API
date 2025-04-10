@@ -1,6 +1,6 @@
 [project]
 name = "ed-api"
-version = "4.2.2"
+version = "4.3.0"
 description = "An API for Elite Dangerous"
 authors = [
     { name = "Corentin Garcia", email = "corenting@gmail.com" }
