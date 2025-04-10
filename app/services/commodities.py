@@ -105,7 +105,7 @@ def _get_commodities_prices_from_inara() -> list[CommodityPrice]:
             prices.append(
                 CommodityPrice(
                     commodity=commodity,
-                    inara_id=string_to_int(entry.select("a")[0]["href"]),
+                    inara_id=string_to_int(str(entry.select("a")[0]["href"])),
                     average_buy_price=string_to_int(columns[2]),
                     average_sell_price=string_to_int(columns[1]),
                     minimum_buy_price=string_to_int(columns[5]),
