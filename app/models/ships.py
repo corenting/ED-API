@@ -21,6 +21,7 @@ class ShipModel(MultiValueEnum):
     COBRA_MKIII = "Cobra Mk III", "cobramkiii"
     COBRA_MKIV = "Cobra Mk IV", "cobramkiv"
     COBRA_MKV = "Cobra Mk V", "cobramkv"
+    CORSAIR = "Corsair", "corsair"
     DIAMONDBACK_EXPLORER = "Diamondback Explorer", "diamondbackxl"
     DIAMONDBACK_SCOUT = "Diamondback Scout", "diamondback"
     DOLPHIN = "Dolphin", "dolphin"
