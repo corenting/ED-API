@@ -12,13 +12,23 @@ class GalnetService:
     """Main class for the Galnet service."""
 
     BASE_PICTURE_PATH = "http://hosting.zaonce.net/elite-dangerous/galnet"
+    NUMBER_OF_ARTICLES = 50
 
-    async def get_articles(self, language: Language) -> list[GalnetArticle]:
+    def _get_offset_for_articles(self, page: int) -> int:
+        """
+        Get the offset for articles.
+        """
+        return (page - 1) * self.NUMBER_OF_ARTICLES
+
+    async def get_articles(self, language: Language, page: int) -> list[GalnetArticle]:
         """Get the latest Galnet articles.
 
         :raises ContentFetchingException: Unable to retrieve the articles
         """
-        url = f"{get_frontier_api_url_for_language(language)}/galnet_article?&sort=-published_at&page[offset]=0&page[limit]=12"
+        url = (
+            f"{get_frontier_api_url_for_language(language)}/galnet_article?&sort=-published_at"
+            f"&page[offset]={self._get_offset_for_articles(page)}&page[limit]={self.NUMBER_OF_ARTICLES}"
+        )
         async with get_async_httpx_client() as client:
             try:
                 api_response = await client.get(url)
