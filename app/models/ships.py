@@ -37,7 +37,7 @@ class ShipModel(MultiValueEnum):
     IMPERIAL_CUTTER = "Imperial Cutter", "cutter"
     IMPERIAL_EAGLE = "Imperial Eagle", "empire_eagle"
     KEELBACK = "Keelback", "independant_trader"
-    KRAIT_MKII = "Krait MkII", "krait_mkii"
+    KRAIT_MKII = "Krait Mk II", "krait_mkii"
     KRAIT_PHANTOM = "Krait Phantom", "krait_light"
     MAMBA = "Mamba", "mamba"
     MANDALAY = "Mandalay", "mandalay"
