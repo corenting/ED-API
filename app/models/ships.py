@@ -42,6 +42,7 @@ class ShipModel(MultiValueEnum):
     MAMBA = "Mamba", "mamba"
     MANDALAY = "Mandalay", "mandalay"
     ORCA = "Orca", "orca"
+    PANTHER_CLIPPER_MKII = "Panther Clipper Mk II", "panthermkii"
     PYTHON = "Python", "python"
     PYTHON_MKII = "Python Mk II", "python_nx"
     SIDEWINDER = "Sidewinder", "sidewinder"
