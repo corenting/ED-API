@@ -1,5 +1,5 @@
 # Python base (venv and user)
-FROM python:3.13-slim AS base
+FROM python:3.13 AS base
 
 # Install dependencies and dumb-init
 RUN apt-get update && apt-get install -y build-essential curl dumb-init && rm -rf /var/lib/apt/lists/*
@@ -32,6 +32,9 @@ WORKDIR /app/
 RUN useradd -m edapi && \
     chown -R edapi /app/
 USER edapi
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
 # App
 COPY app /app/app

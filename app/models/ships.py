@@ -51,6 +51,7 @@ class ShipModel(MultiValueEnum):
     TYPE_7_TRANSPORTER = "Type-7 Transporter", "type7"
     TYPE_8_TRANSPORTER = "Type-8 Transporter", "type8"
     TYPE_9_HEAVY = "Type-9 Heavy", "type9"
+    TYPE_11_PROSPECTOR = "Type-11 Prospector", "lakonminer"
     VIPER_MKIII = "Viper Mk III", "viper"
     VIPER_MKIV = "Viper Mk IV", "viper_mkiv"
     VULTURE = "Vulture", "vulture"

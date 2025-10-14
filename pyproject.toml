@@ -5,7 +5,7 @@ description = "An API for Elite Dangerous"
 authors = [
     { name = "Corentin Garcia", email = "corenting@gmail.com" }
 ]
-license = { text = "MIT" }
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
 dependencies = [
