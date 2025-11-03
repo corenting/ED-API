@@ -499,14 +499,14 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "environs"
-version = "14.4.0"
+version = "14.5.0"
 description = "simplified environment variable parsing"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "environs-14.4.0-py3-none-any.whl", hash = "sha256:fcd1b0259a2ac1f9ce6e2d2bdbbd51483b83533c37cea1524d5d4abde611270a"},
-    {file = "environs-14.4.0.tar.gz", hash = "sha256:7d9151d0710fc1b02f68bec6863d804ed10121925fb658bbdcb9fc7ddf704f62"},
+    {file = "environs-14.5.0-py3-none-any.whl", hash = "sha256:1abd3e3a5721fb09797438d6c902bc2f35d4580dfaffe68b8ee588b67b504e13"},
+    {file = "environs-14.5.0.tar.gz", hash = "sha256:f7b8f6fcf3301bc674bc9c03e39b5986d116126ffb96764efd34c339ed9464ee"},
 ]
 
 [package.dependencies]
@@ -520,14 +520,14 @@ tests = ["backports.strenum ; python_version < \"3.11\"", "environs[django]", "p
 
 [[package]]
 name = "fastapi"
-version = "0.120.4"
+version = "0.121.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "fastapi-0.120.4-py3-none-any.whl", hash = "sha256:9bdf192308676480d3593e10fd05094e56d6fdc7d9283db26053d8104d5f82a0"},
-    {file = "fastapi-0.120.4.tar.gz", hash = "sha256:2d856bc847893ca4d77896d4504ffdec0fb04312b705065fca9104428eca3868"},
+    {file = "fastapi-0.121.0-py3-none-any.whl", hash = "sha256:8bdf1b15a55f4e4b0d6201033da9109ea15632cb76cf156e7b8b4019f2172106"},
+    {file = "fastapi-0.121.0.tar.gz", hash = "sha256:06663356a0b1ee93e875bbf05a31fb22314f5bed455afaaad2b2dad7f26e98fa"},
 ]
 
 [package.dependencies]
