@@ -55,6 +55,7 @@ class ShipModel(MultiValueEnum):
     VIPER_MKIII = "Viper Mk III", "viper"
     VIPER_MKIV = "Viper Mk IV", "viper_mkiv"
     VULTURE = "Vulture", "vulture"
+    CASPIAN_EXPLORER = "Caspian Explorer", "explorer_nx"
 
     @staticmethod
     def get_internal_names() -> Iterable[str]:
