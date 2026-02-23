@@ -13,14 +13,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      - name: Install Poetry
-        run: pipx install poetry
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - name: Install mise and dependencies
+        uses: jdx/mise-action@v3
         with:
-          python-version: "3.13"
-          cache: 'poetry'
-      - name: Setup environment
+          experimental: true # [default: false] enable experimental features
+      - name: Install dependencies
         run: poetry install
       - name: Style
         run: make style
