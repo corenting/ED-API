@@ -18,6 +18,7 @@ class ShipModel(MultiValueEnum):
     ASP_EXPLORER = "Asp Explorer", "asp"
     ASP_SCOUT = "Asp Scout", "asp_scout"
     BELUGA_LINER = "Beluga Liner", "belugaliner"
+    CASPIAN_EXPLORER = "Caspian Explorer", "explorer_nx"
     COBRA_MKIII = "Cobra Mk III", "cobramkiii"
     COBRA_MKIV = "Cobra Mk IV", "cobramkiv"
     COBRA_MKV = "Cobra Mk V", "cobramkv"
@@ -37,6 +38,7 @@ class ShipModel(MultiValueEnum):
     IMPERIAL_CUTTER = "Imperial Cutter", "cutter"
     IMPERIAL_EAGLE = "Imperial Eagle", "empire_eagle"
     KEELBACK = "Keelback", "independant_trader"
+    KESTREL_MKII = "Kestrel Mk II", "smallcombat01_nx"
     KRAIT_MKII = "Krait Mk II", "krait_mkii"
     KRAIT_PHANTOM = "Krait Phantom", "krait_light"
     MAMBA = "Mamba", "mamba"
@@ -47,15 +49,14 @@ class ShipModel(MultiValueEnum):
     PYTHON_MKII = "Python Mk II", "python_nx"
     SIDEWINDER = "Sidewinder", "sidewinder"
     TYPE_10_DEFENDER = "Type-10 Defender", "type9_military"
+    TYPE_11_PROSPECTOR = "Type-11 Prospector", "lakonminer"
     TYPE_6_TRANSPORTER = "Type-6 Transporter", "type6"
     TYPE_7_TRANSPORTER = "Type-7 Transporter", "type7"
     TYPE_8_TRANSPORTER = "Type-8 Transporter", "type8"
     TYPE_9_HEAVY = "Type-9 Heavy", "type9"
-    TYPE_11_PROSPECTOR = "Type-11 Prospector", "lakonminer"
     VIPER_MKIII = "Viper Mk III", "viper"
     VIPER_MKIV = "Viper Mk IV", "viper_mkiv"
     VULTURE = "Vulture", "vulture"
-    CASPIAN_EXPLORER = "Caspian Explorer", "explorer_nx"
 
     @staticmethod
     def get_internal_names() -> Iterable[str]:
