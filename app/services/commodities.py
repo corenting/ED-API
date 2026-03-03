@@ -101,10 +101,10 @@ def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
             prices.append(
                 CommodityPrice(
                     commodity=commodity,
-                    average_buy_price=entry.get("avgBuyPrice", 0),
-                    average_sell_price=entry.get("avgSellPrice", 0),
-                    minimum_buy_price=entry.get("minBuyPrice", 0),
-                    maximum_sell_price=entry.get("maxSellPrice", 0),
+                    average_buy_price=entry.get("avgBuyPrice", 0) or 0,
+                    average_sell_price=entry.get("avgSellPrice", 0) or 0,
+                    minimum_buy_price=entry.get("minBuyPrice", 0) or 0,
+                    maximum_sell_price=entry.get("maxSellPrice", 0) or 0,
                 )
             )
 
