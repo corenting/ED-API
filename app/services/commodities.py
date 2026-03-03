@@ -80,7 +80,6 @@ def _get_csv_commodities_data() -> list[Commodity]:
     return commodities + rares
 
 
-@cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
     commodities = _get_csv_commodities_data()
@@ -101,10 +100,10 @@ def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
             prices.append(
                 CommodityPrice(
                     commodity=commodity,
-                    average_buy_price=entry["avgBuyPrice"],
-                    average_sell_price=entry["avgSellPrice"],
-                    minimum_buy_price=entry["minBuyPrice"],
-                    maximum_sell_price=entry["maxSellPrice"],
+                    average_buy_price=entry.get("avgBuyPrice", 0),
+                    average_sell_price=entry.get("avgSellPrice", 0),
+                    minimum_buy_price=entry.get("minBuyPrice", 0),
+                    maximum_sell_price=entry.get("maxSellPrice", 0),
                 )
             )
 
