@@ -4,13 +4,12 @@ import difflib
 from typing import Any
 
 import httpx
-from bs4 import BeautifulSoup
 from cachier import cachier
 from dateutil.parser import parse
+from loguru import logger
 
 from app.constants import DATA_PATH, SPANSH_STATIONS_SEARCH_URL
 from app.helpers.httpx import get_async_httpx_client, get_httpx_client
-from app.helpers.string import string_to_int
 from app.models.commodities import (
     BestPricesStations,
     Commodity,
@@ -32,7 +31,7 @@ from app.services.helpers.spansh import (
 SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
     "https://spansh.co.uk/api/stations/field_values/market"
 )
-INARA_COMMODITIES = "https://inara.cz/elite/commodities-list/"
+ARDENT_INSIGHT_COMMODITIES_URL = "https://api.ardent-insight.com/v2/commodities"
 
 
 def _get_commodity_from_name(
@@ -74,43 +73,38 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
 
 
 @cachier(stale_after=datetime.timedelta(days=1))
-def _get_commodities() -> list[Commodity]:
+def _get_csv_commodities_data() -> list[Commodity]:
+    """Get the list of commodities by reading the CSV files."""
     commodities = _read_commodities_csv_file(f"{DATA_PATH}/commodities.csv", False)
     rares = _read_commodities_csv_file(f"{DATA_PATH}/rare_commodities.csv", True)
     return commodities + rares
 
 
 @cachier(stale_after=datetime.timedelta(days=1))
-def _get_commodities_prices_from_inara() -> list[CommodityPrice]:
+def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
-    commodities = _get_commodities()
+    commodities = _get_csv_commodities_data()
 
     with get_httpx_client() as client:
-        inara_res = client.get(INARA_COMMODITIES)
-        inara_res.raise_for_status()
+        api_res = client.get(ARDENT_INSIGHT_COMMODITIES_URL)
+        data = api_res.json()
 
-        soup = BeautifulSoup(inara_res.text, features="html.parser")
-
-        table_items = (
-            entry
-            for entry in soup.select("tbody > tr")
-            if len(entry.select(".subheader")) == 0
-        )
-
-        for entry in table_items:
-            columns = [x.text.strip() for x in entry.select("td")]
-
-            commodity = _get_commodity_from_name(columns[0], commodities)
+        for entry in data:
+            # Get commodity itself from CSV data
+            commodity = _get_commodity_from_name(entry["commodityName"], commodities)
             if commodity is None:
+                logger.warning(
+                    f"Could not find a commodity matching the name {entry['commodityName']} from Ardent Insight in the list of commodities from CSV file. Skipping it."
+                )
                 continue
+
             prices.append(
                 CommodityPrice(
                     commodity=commodity,
-                    inara_id=string_to_int(str(entry.select("a")[0]["href"])),
-                    average_buy_price=string_to_int(columns[2]),
-                    average_sell_price=string_to_int(columns[1]),
-                    minimum_buy_price=string_to_int(columns[5]),
-                    maximum_sell_price=string_to_int(columns[4]),
+                    average_buy_price=entry["avgBuyPrice"],
+                    average_sell_price=entry["avgSellPrice"],
+                    minimum_buy_price=entry["minBuyPrice"],
+                    maximum_sell_price=entry["maxSellPrice"],
                 )
             )
 
@@ -134,7 +128,7 @@ class CommoditiesService:
     def get_commodities(self) -> list[Commodity]:
         """Get all commodities."""
         try:
-            res = _get_commodities()
+            res = _get_csv_commodities_data()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
         return res
@@ -142,7 +136,7 @@ class CommoditiesService:
     def get_commodities_prices(self, filter: str | None) -> list[CommodityPrice]:
         """Get all commodities prices (with an optional filter) ."""
         try:
-            res = _get_commodities_prices_from_inara()
+            res = _get_commodities_prices_from_ardent_insight()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
         else:
@@ -157,7 +151,7 @@ class CommoditiesService:
     def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
         """Get prices for a specific commodity."""
         try:
-            res = _get_commodities_prices_from_inara()
+            res = _get_commodities_prices_from_ardent_insight()
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
 

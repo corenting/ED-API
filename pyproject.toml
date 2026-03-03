@@ -12,7 +12,6 @@ dependencies = [
     "aenum (>=3,<4)",
     "aiofiles (>=24,<25)",
     "alembic (>=1,<2)",
-    "beautifulsoup4 (>=4,<5)",
     "cachier (>=3,<4)",
     "environs (>=14,<15)",
     "fastapi (>=0.115.11,<1)",

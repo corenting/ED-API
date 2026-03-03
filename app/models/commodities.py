@@ -17,7 +17,6 @@ class Commodity:
 @dataclass
 class CommodityPrice:
     commodity: Commodity
-    inara_id: int
     average_buy_price: int
     average_sell_price: int
     minimum_buy_price: int

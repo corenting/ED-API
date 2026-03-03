@@ -2,7 +2,10 @@ import httpx
 
 from app import __version__
 
-CLIENT_PARAMETERS = {"headers": {"User-Agent": f"ED-API/{__version__}"}, "timeout": 3}
+CLIENT_PARAMETERS = {
+    "headers": {"User-Agent": f"ED-API/{__version__} (github.com/corenting/ED-API)"},
+    "timeout": 3,
+}
 
 
 def get_httpx_client() -> httpx.Client:
