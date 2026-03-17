@@ -33,7 +33,7 @@ repository = "https://github.com/corenting/ed-api"
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-mypy = "*"
+pyrefly = "*"
 ruff = "*"
 types-python-dateutil = "*"
 

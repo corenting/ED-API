@@ -10,7 +10,9 @@ def get_error_response_doc(status_code: int, exception: type[Exception]) -> dict
             "detail": error_code,
             "model": HTTPError,
             "content": {
-                "application/json": {"example": HTTPError(detail=error_code).json()}
+                "application/json": {
+                    "example": HTTPError(detail=error_code).model_dump_json()
+                },
             },
         }
     }

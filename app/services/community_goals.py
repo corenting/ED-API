@@ -44,7 +44,7 @@ def _get_community_goals_from_inara() -> dict:
 class CommunityGoalsService:
     def get_community_goals(self) -> list[CommunityGoal]:
         """Get latest community goals informations."""
-        inara_res = _get_community_goals_from_inara()
+        inara_res: dict = _get_community_goals_from_inara()  # type: ignore (cachier wrapper looses type hints)
         if (
             inara_res.get("header", {}).get("eventStatus", None) != INARA_STATUS_OK
             and inara_res.get("events", [{}])[0].get("eventStatus") != INARA_STATUS_OK

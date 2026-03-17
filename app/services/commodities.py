@@ -83,7 +83,7 @@ def _get_csv_commodities_data() -> list[Commodity]:
 @cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
-    commodities = _get_csv_commodities_data()
+    commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
 
     with get_httpx_client() as client:
         api_res = client.get(ARDENT_INSIGHT_COMMODITIES_URL)
@@ -117,7 +117,7 @@ class CommoditiesService:
     def get_commodities_typeahead(self, input_text: str) -> list[str]:
         """Get commodities names for autocomplete."""
         try:
-            commodities = _get_commodities_names_from_spansh()
+            commodities: list[str] = _get_commodities_names_from_spansh()  # type: ignore (cachier wrapper looses type hints)
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
 
@@ -128,15 +128,16 @@ class CommoditiesService:
     def get_commodities(self) -> list[Commodity]:
         """Get all commodities."""
         try:
-            res = _get_csv_commodities_data()
+            res: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
-        return res
+        else:
+            return res
 
     def get_commodities_prices(self, filter: str | None) -> list[CommodityPrice]:
         """Get all commodities prices (with an optional filter) ."""
         try:
-            res = _get_commodities_prices_from_ardent_insight()
+            res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
         else:
@@ -151,7 +152,7 @@ class CommoditiesService:
     def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
         """Get prices for a specific commodity."""
         try:
-            res = _get_commodities_prices_from_ardent_insight()
+            res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
         except httpx.HTTPError as e:  # type: ignore
             raise ContentFetchingError() from e
 
@@ -314,7 +315,7 @@ class CommoditiesService:
         commodity: str,
         max_age_days: int,
     ) -> dict:
-        body = {
+        body: dict = {
             "filters": {
                 "market": [{"name": commodity}],
                 "market_updated_at": get_max_age_values_for_request_body(max_age_days),
@@ -383,7 +384,7 @@ class CommoditiesService:
         if station_price == 0:
             return 0
         difference = station_price - average_price
-        if mode.SELL:
+        if mode == FindCommodityMode.SELL:
             return round((difference / station_price) * 100.0)
         else:
             return round((difference / average_price) * 100.0)

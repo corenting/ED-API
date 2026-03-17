@@ -12,7 +12,7 @@ format:
 style:
 	$(PYTHON) ruff format --check $(SRC)
 	$(PYTHON) ruff check $(SOURCE_FILES)
-	$(PYTHON) mypy -- $(SOURCE_FILES)
+	$(PYTHON) pyrefly check $(SOURCE_FILES)
 
 .PHONY: run
 run:
