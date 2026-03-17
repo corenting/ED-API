@@ -113,7 +113,7 @@ class SystemsService:
                     self.SPANSH_SYSTEMS_SEARCH_URL,
                     json={
                         "filters": {"name": {"value": system_name}},
-                        "sort": [{"distance": {"direction": "asc"}}],
+                        "sort": [],
                         "size": 1,
                         "page": 0,
                     },
