@@ -9,7 +9,7 @@ from app.config import DEBUG, INARA_API_KEY
 from app.database.community_goal_status import CommunityGoalStatus
 from app.database.database import Session
 from app.helpers.fcm import send_fcm_notification
-from app.helpers.httpx import get_httpx_client
+from app.helpers.niquests import get_niquests_session
 from app.models.community_goals import CommunityGoal
 from app.models.exceptions import ContentFetchingError
 
@@ -35,8 +35,8 @@ def _get_community_goals_from_inara() -> dict:
     }
 
     # Get API
-    with get_httpx_client() as client:
-        res = client.post("https://inara.cz/inapi/v1/", json=request_body)
+    with get_niquests_session() as session:
+        res = session.post("https://inara.cz/inapi/v1/", json=request_body)
 
     return res.json()
 

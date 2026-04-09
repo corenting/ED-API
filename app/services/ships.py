@@ -1,8 +1,8 @@
-import httpx
+import niquests
 from dateutil.parser import parse
 
 from app.constants import STATIC_PATH
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.exceptions import ContentFetchingError
 from app.models.ships import ShipModel, StationSellingShip
 from app.models.stations import StationLandingPadSize
@@ -35,9 +35,9 @@ class ShipsService:
 
         :raises ContentFetchingException: Unable to retrieve the articles
         """
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     self.SHIPS_SEARCH_ENDPOINT,
                     json={
                         "filters": {"ships": {"value": [ship_model.values[0]]}},
@@ -50,7 +50,7 @@ class ShipsService:
                     },
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:  # type: ignore
                 raise ContentFetchingError() from e
 
         stations = api_response.json()["results"]

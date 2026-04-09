@@ -1,7 +1,7 @@
-import httpx
+import niquests
 from loguru import logger
 
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.game_server_health import GameServerHealth
 
 
@@ -15,11 +15,11 @@ class GameServerHealthService:
         """
         url = "https://ed-server-status.orerve.net/"
 
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(url)
+                api_response = await session.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError:
+            except niquests.exceptions.RequestException:
                 logger.opt(exception=True).warning("Could not fetch game server health")
                 return GameServerHealth(status="Unknown")
 

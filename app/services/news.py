@@ -1,11 +1,11 @@
 from typing import Any
 
-import httpx
+import niquests
 from dateutil.parser import parse
 from loguru import logger
 
 from app.helpers.frontier import get_frontier_api_url_for_language
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.exceptions import ContentFetchingError
 from app.models.language import Language
 from app.models.news import NewsArticle
@@ -48,11 +48,11 @@ class NewsService:
             "?include=field_image_entity.field_media_image,field_site&filter[hide_listing][condition][path]=field_hide_from_website_listings&filter[hide_listing][condition][operator]=%3D&filter[hide_listing][condition][value]=0&filter[field_featured_bool]=1&sort[sort-published][path]=published_at&sort[sort-published][direction]=DESC&filter[site][condition][path]=field_site.id&filter[site][condition][value]=79c77f84-e711-4897-bc3d-008af069ddbd"
         )
 
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(url)
+                api_response = await session.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:  # type: ignore
                 raise ContentFetchingError() from e
 
         articles = api_response.json()

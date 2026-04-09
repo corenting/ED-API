@@ -2,11 +2,11 @@ import math
 from datetime import UTC, datetime
 from typing import Any
 
-import httpx
+import niquests
 from dateutil.parser import parse
 
 from app.constants import SPANSH_STATIONS_SEARCH_URL
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.exceptions import ContentFetchingError, SystemNotFoundError
 from app.models.stations import StationDetails
 from app.models.systems import (
@@ -44,11 +44,11 @@ class SystemsService:
             return []
 
         url = f"{self.SPANSH_TYPEAHEAD_URL}?q={input_text}"
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(url)
+                api_response = await session.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         data = api_response.json()
@@ -57,13 +57,13 @@ class SystemsService:
         return data
 
     async def _get_system(self, system_name: str) -> System:
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(
+                api_response = await session.get(
                     f"https://www.edsm.net/api-v1/system?systemName={system_name}&showCoordinates=1&showPermit=1"
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         json_content = api_response.json()
@@ -107,9 +107,9 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     self.SPANSH_SYSTEMS_SEARCH_URL,
                     json={
                         "filters": {"name": {"value": system_name}},
@@ -119,7 +119,7 @@ class SystemsService:
                     },
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         json_content = api_response.json()
@@ -160,9 +160,9 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json={
                         "filters": {"system_name": {"value": system_name}},
@@ -172,7 +172,7 @@ class SystemsService:
                     },
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         # We need the system too
@@ -244,13 +244,13 @@ class SystemsService:
         self, system_name: str
     ) -> list[SystemDetailsFaction]:
         """Get system factions details."""
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(
+                api_response = await session.get(
                     f"{self.EDSM_SYSTEM_FACTIONS_URL}?systemName={system_name}"
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         json_content = api_response.json()
@@ -319,13 +319,13 @@ class SystemsService:
         :raises ContentFetchingException: Unable to retrieve the data
         :raises SystemNotFoundException: Unable to retrieve the system
         """
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(
+                api_response = await session.get(
                     f"https://www.edsm.net/api-system-v1/factions?systemName={system_name}&showHistory=1"
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         json_content = api_response.json()

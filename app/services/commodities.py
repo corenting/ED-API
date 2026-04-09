@@ -3,13 +3,13 @@ import datetime
 import difflib
 from typing import Any
 
-import httpx
+import niquests
 from cachier import cachier
 from dateutil.parser import parse
 from loguru import logger
 
 from app.constants import DATA_PATH, SPANSH_STATIONS_SEARCH_URL
-from app.helpers.httpx import get_async_httpx_client, get_httpx_client
+from app.helpers.niquests import get_async_niquests_session, get_niquests_session
 from app.models.commodities import (
     BestPricesStations,
     Commodity,
@@ -48,8 +48,8 @@ def _get_commodity_from_name(
 
 @cachier(stale_after=datetime.timedelta(minutes=60))
 def _get_commodities_names_from_spansh() -> list[str]:
-    with get_httpx_client() as client:
-        res = client.get(SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL)
+    with get_niquests_session() as session:
+        res = session.get(SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL)
         res.raise_for_status()
 
     return res.json()["values"]
@@ -85,8 +85,8 @@ def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
     commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
 
-    with get_httpx_client() as client:
-        api_res = client.get(ARDENT_INSIGHT_COMMODITIES_URL)
+    with get_niquests_session() as session:
+        api_res = session.get(ARDENT_INSIGHT_COMMODITIES_URL)
         data = api_res.json()
 
         for entry in data:
@@ -118,7 +118,7 @@ class CommoditiesService:
         """Get commodities names for autocomplete."""
         try:
             commodities: list[str] = _get_commodities_names_from_spansh()  # type: ignore (cachier wrapper looses type hints)
-        except httpx.HTTPError as e:  # type: ignore
+        except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
 
         return [
@@ -129,7 +129,7 @@ class CommoditiesService:
         """Get all commodities."""
         try:
             res: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
-        except httpx.HTTPError as e:  # type: ignore
+        except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
         else:
             return res
@@ -138,7 +138,7 @@ class CommoditiesService:
         """Get all commodities prices (with an optional filter) ."""
         try:
             res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
-        except httpx.HTTPError as e:  # type: ignore
+        except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
         else:
             if filter:
@@ -153,7 +153,7 @@ class CommoditiesService:
         """Get prices for a specific commodity."""
         try:
             res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
-        except httpx.HTTPError as e:  # type: ignore
+        except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
 
         matching_commodity = next(
@@ -187,16 +187,16 @@ class CommoditiesService:
         # First get commodity price
         current_commodity_price = self.get_commodity_prices(commodity)
 
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_generate_request_body(
                         mode, reference_system, commodity, min_quantity, max_age_days
                     ),
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(
@@ -234,16 +234,16 @@ class CommoditiesService:
         Will only include prices from stations where market prices where updates between now
         and now - max_age_days.
         """
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_best_prices_generate_request_body(
                         mode, commodity.commodity.name, max_age_days
                     ),
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(
@@ -252,7 +252,7 @@ class CommoditiesService:
 
     def _map_spansh_stations_to_model(
         self,
-        api_response: httpx.Response,
+        api_response: niquests.Response,
         current_commodity_price: CommodityPrice,
         mode: FindCommodityMode,
         min_landing_pad_size: StationLandingPadSize,

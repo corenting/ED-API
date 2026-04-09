@@ -1,8 +1,8 @@
-import httpx
+import niquests
 from dateutil.parser import parse
 
 from app.helpers.frontier import get_frontier_api_url_for_language
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.exceptions import ContentFetchingError
 from app.models.galnet import GalnetArticle
 from app.models.language import Language
@@ -29,11 +29,11 @@ class GalnetService:
             f"{get_frontier_api_url_for_language(language)}/galnet_article?&sort=-published_at"
             f"&page[offset]={self._get_offset_for_articles(page)}&page[limit]={self.NUMBER_OF_ARTICLES}"
         )
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.get(url)
+                api_response = await session.get(url)
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:  # type: ignore
                 raise ContentFetchingError() from e
 
         articles = api_response.json()

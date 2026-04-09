@@ -1,11 +1,11 @@
 import csv
 from typing import Any
 
-import httpx
+import niquests
 from dateutil.parser import parse
 
 from app.constants import DATA_PATH, SPANSH_STATIONS_SEARCH_URL
-from app.helpers.httpx import get_async_httpx_client
+from app.helpers.niquests import get_async_niquests_session
 from app.models.exceptions import ContentFetchingError, OutfittingNotFoundError
 from app.models.outfitting import Outfitting, StationWithOutfittingDetails
 from app.models.stations import StationLandingPadSize
@@ -103,7 +103,7 @@ class OutfittingService:
 
     def _map_spansh_stations_to_model(
         self,
-        api_response: httpx.Response,
+        api_response: niquests.Response,
         min_landing_pad_size: StationLandingPadSize,
     ) -> list[StationWithOutfittingDetails]:
         res: list[StationWithOutfittingDetails] = []
@@ -150,16 +150,16 @@ class OutfittingService:
         if outfitting is None:
             raise OutfittingNotFoundError(outfitting_name)
 
-        async with get_async_httpx_client() as client:
+        async with get_async_niquests_session() as session:
             try:
-                api_response = await client.post(
+                api_response = await session.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_outfitting_generate_request_body(
                         reference_system, outfitting, max_age_days
                     ),
                 )
                 api_response.raise_for_status()
-            except httpx.HTTPError as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:  # type: ignore
                 raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(api_response, min_landing_pad_size)
