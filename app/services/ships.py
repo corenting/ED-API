@@ -50,7 +50,7 @@ class ShipsService:
                     },
                 )
                 api_response.raise_for_status()
-            except niquests.exceptions.RequestException as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         stations = api_response.json()["results"]

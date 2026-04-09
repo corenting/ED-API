@@ -159,7 +159,7 @@ class OutfittingService:
                     ),
                 )
                 api_response.raise_for_status()
-            except niquests.exceptions.RequestException as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         return self._map_spansh_stations_to_model(api_response, min_landing_pad_size)

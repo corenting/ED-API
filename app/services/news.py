@@ -52,7 +52,7 @@ class NewsService:
             try:
                 api_response = await session.get(url)
                 api_response.raise_for_status()
-            except niquests.exceptions.RequestException as e:  # type: ignore
+            except niquests.exceptions.RequestException as e:
                 raise ContentFetchingError() from e
 
         articles = api_response.json()
