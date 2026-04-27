@@ -14,16 +14,16 @@ dependencies = [
     "alembic (>=1,<2)",
     "cachier (>=3,<4)",
     "environs (>=14,<15)",
-    "fastapi (>=0.115.11,<1)",
+    "fastapi (>=0.136.1,<1)",
     "firebase-admin (>=6,<7)",
     "gunicorn (>=23,<24)",
     "loguru (>=0.7.3,<1)",
-    "niquests (>=3.18.4,<4)",
-    "pydantic (>=2,<3)",
+    "niquests (>=3.18.6,<4)",
+    "pydantic (>=2.13.3,<3)",
     "python-dateutil (>=2,<3)",
     "SQLAlchemy (>=2,<3)",
-    "typer (>=0.15.1,<1.0.0)",
-    "uvicorn[standard] (>=0.34.0,<1.0.0)",
+    "typer (>=0.25.0,<1.0.0)",
+    "uvicorn[standard] (>=0.46.0,<1.0.0)",
 ]
 
 [project.urls]
