@@ -41,7 +41,7 @@ class ShipModel(MultiValueEnum):
     KESTREL_MKII = "Kestrel Mk II", "smallcombat01_nx"
     KRAIT_MKII = "Krait Mk II", "krait_mkii"
     KRAIT_PHANTOM = "Krait Phantom", "krait_light"
-    LYNX_HIGHLINER = "Lynx Highliner",  "mediumtransport01"
+    LYNX_HIGHLINER = "Lynx Highliner", "mediumtransport01"
     MAMBA = "Mamba", "mamba"
     MANDALAY = "Mandalay", "mandalay"
     ORCA = "Orca", "orca"
