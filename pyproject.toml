@@ -22,7 +22,7 @@ dependencies = [
     "pydantic (>=2,<3)",
     "python-dateutil (>=2,<3)",
     "SQLAlchemy (>=2,<3)",
-    "typer (>=0.15.1,<1.0.0)",
+    "typer (>=0.25.1,<1.0.0)",
     "uvicorn[standard] (>=0.34.0,<1.0.0)",
 ]
 
