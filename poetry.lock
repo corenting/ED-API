@@ -1861,22 +1861,22 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyrefly"
-version = "0.63.1"
+version = "0.64.1"
 description = "A fast type checker and language server for Python with powerful IDE features"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "pyrefly-0.63.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:1bc37f4fe8c3e50f6718bcb1c6cae475e5e24197f6fe8042c3d6ca3d8f2e10da"},
-    {file = "pyrefly-0.63.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:712733b7c4344644eafa827de88a36e697a1aa282f913da89d3ad26e7dcc2dc2"},
-    {file = "pyrefly-0.63.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e6cbba7aedc266be0e6a69305e9caa53b3b4bab190bde046ce37a895af5c20a0"},
-    {file = "pyrefly-0.63.1-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d6a99c4acd7ff8418a15f39dd402d8f9bf7d640a8a2536f7a1b34ef7e1b1167c"},
-    {file = "pyrefly-0.63.1-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:6b6490de58b1ec9fe99aa1fbaf0759079a916c0fb75d345439ba2a427aaebc1a"},
-    {file = "pyrefly-0.63.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d53ec1f8711b24b1e992309b978b219daf2335201f26acafa86f14fbb81804ec"},
-    {file = "pyrefly-0.63.1-py3-none-win32.whl", hash = "sha256:a9a45d3fc563f02cdca4681e899a775561bd71e923d6ac4a8979d93d7c2aff2a"},
-    {file = "pyrefly-0.63.1-py3-none-win_amd64.whl", hash = "sha256:c6470a8eedae0e46d94667fd958cd008f9c2599aa3e6f2f43b6f4e6e87863cc3"},
-    {file = "pyrefly-0.63.1-py3-none-win_arm64.whl", hash = "sha256:b54b068a77341bc50604fb9bd4d0cf37fb74c09fb92344645c596813cc53950a"},
-    {file = "pyrefly-0.63.1.tar.gz", hash = "sha256:6819eb0857f5fcaef463ad58778e4121cb8c7c5a974a4739c8aa867e1ef16980"},
+    {file = "pyrefly-0.64.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:df5c1a8edc83483b8fcc662a188ac09a129e1d051c676794ca9ac1005373ae0a"},
+    {file = "pyrefly-0.64.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:e0388c486816043c745744c7cc7f1215005c3c2d9506c5ee89ebaee013cd62f3"},
+    {file = "pyrefly-0.64.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:da4d384a6466c59ba6bfa46b20f9a9f6b73922aeee43d96c9f89480d5edd3ad9"},
+    {file = "pyrefly-0.64.1-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:52fad756a47c9fc1d912f8564f2afdb816c4d057dfd8f90f07adce52314a5b56"},
+    {file = "pyrefly-0.64.1-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:970a888b37eea53136a364b43e1466179ff8bb383e894c0afec3a3055e15cd9e"},
+    {file = "pyrefly-0.64.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:92ac7078f174a79d489a0d0c43d858523f8e5b95f4981269f2f75c4aaa66be3d"},
+    {file = "pyrefly-0.64.1-py3-none-win32.whl", hash = "sha256:3d16c90365af2f424c6e6a5c87d85ca94e8618ebcb4bf4c910634fd65d32b2e6"},
+    {file = "pyrefly-0.64.1-py3-none-win_amd64.whl", hash = "sha256:1fda307ecf414274445108a5df5b58c6fa1702a51b4ee6c1df87efeeb97dec59"},
+    {file = "pyrefly-0.64.1-py3-none-win_arm64.whl", hash = "sha256:8f83a74c1463842d486d6578a000feccf47cd54d6d7d6628ffe73b1055ca9dce"},
+    {file = "pyrefly-0.64.1.tar.gz", hash = "sha256:6303095afeedf4a93c7cf5e273ad0ada3d76f3a66b8769e06a6b96f0b2b22a39"},
 ]
 
 [[package]]
@@ -2383,14 +2383,14 @@ shellingham = ">=1.3.0"
 
 [[package]]
 name = "types-python-dateutil"
-version = "2.9.0.20260408"
+version = "2.9.0.20260508"
 description = "Typing stubs for python-dateutil"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "types_python_dateutil-2.9.0.20260408-py3-none-any.whl", hash = "sha256:473139d514a71c9d1fbd8bb328974bedcb1cc3dba57aad04ffa4157f483c216f"},
-    {file = "types_python_dateutil-2.9.0.20260408.tar.gz", hash = "sha256:8b056ec01568674235f64ecbcef928972a5fac412f5aab09c516dfa2acfbb582"},
+    {file = "types_python_dateutil-2.9.0.20260508-py3-none-any.whl", hash = "sha256:bfc6fd2d81aa86e5ac97206a64304f6bd247426eedbca9b98619bbc48c6a1c10"},
+    {file = "types_python_dateutil-2.9.0.20260508.tar.gz", hash = "sha256:596a6d63d81f587bf04c8254fb78df9d2344e915ce67948d7400512e3a6206d5"},
 ]
 
 [[package]]
