@@ -1,18 +1,16 @@
 
 PYTHON=poetry run
 
-SOURCE_FILES=app manage.py
-
 .PHONY: format
 format:
-	$(PYTHON) ruff format $(SRC)
-	$(PYTHON) ruff check --fix $(SRC)
+	$(PYTHON) ruff format .
+	$(PYTHON) ruff check --fix .
 
 .PHONY: style
 style:
-	$(PYTHON) ruff format --check $(SRC)
-	$(PYTHON) ruff check $(SOURCE_FILES)
-	$(PYTHON) pyrefly check $(SOURCE_FILES)
+	$(PYTHON) ruff format --check .
+	$(PYTHON) ruff check .
+	$(PYTHON) pyrefly check .
 
 .PHONY: run
 run:

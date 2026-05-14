@@ -15,6 +15,7 @@ config.set_main_option("sqlalchemy.url", DATABASE_URI)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
+# pyrefly: ignore [bad-argument-type]
 fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
@@ -62,6 +63,7 @@ def run_migrations_online():
 
     """
     connectable = engine_from_config(
+        # pyrefly: ignore [bad-argument-type]
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,

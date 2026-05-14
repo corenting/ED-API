@@ -52,10 +52,11 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 "app/database/__init__.py" = ["F401"]
 
-[tool.mypy]
-plugins = "pydantic.mypy"
-ignore_missing_imports = true
-disallow_untyped_defs = true
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
