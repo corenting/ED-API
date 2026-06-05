@@ -1,10 +1,11 @@
 from typing import Any
 
+from cachier import disable_caching
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import __version__
+from app import __version__, config
 from app.constants import STATIC_PATH
 from app.database.database import Base, engine
 from app.routers import (
@@ -26,6 +27,10 @@ app = FastAPI(
     description="An API for Elite Dangerous 🌌.",
     version=__version__,
 )
+
+# Disable caching on DEBUG
+if config.DEBUG:
+    disable_caching()
 
 
 @app.exception_handler(Exception)

@@ -34,15 +34,19 @@ SPANSH_COMMODITIES_TYPEAHEAD_SERVICE_URL = (
 ARDENT_INSIGHT_COMMODITIES_URL = "https://api.ardent-insight.com/v2/commodities"
 
 
+def _compare_commodity_names(name_1: str, name_2: str) -> bool:
+    return name_1.lower().replace("_", "").replace("-", "").replace(
+        " ", ""
+    ) == name_2.lower().replace("_", "").replace("-", "").replace(" ", "")
+
+
 def _get_commodity_from_name(
     name: str, commodities: list[Commodity]
 ) -> Commodity | None:
     """Get the commodity with the specified name using difflib for handling small differences."""
     # First check simple matches
     for name_from_csv in (x.api_name for x in commodities):
-        if name_from_csv.lower().replace("_", "").replace(
-            "-", ""
-        ) == name.lower().replace("_", "").replace("-", ""):
+        if _compare_commodity_names(name_from_csv, name):
             return next(x for x in commodities if x.api_name == name_from_csv)
 
     # Else use difflib
@@ -90,7 +94,7 @@ def _get_csv_commodities_data() -> list[Commodity]:
 
 
 @cachier(stale_after=datetime.timedelta(days=1))
-def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
+def _get_commodities_prices_from_ardent_insight_api() -> list[CommodityPrice]:
     prices = []
     commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
 
@@ -146,7 +150,9 @@ class CommoditiesService:
     def get_commodities_prices(self, filter: str | None) -> list[CommodityPrice]:
         """Get all commodities prices (with an optional filter) ."""
         try:
-            res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
+            res: list[CommodityPrice] = (
+                _get_commodities_prices_from_ardent_insight_api()  # type: ignore (cachier wrapper looses type hints)
+            )
         except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
         else:
@@ -161,7 +167,9 @@ class CommoditiesService:
     def get_commodity_prices(self, commodity_name: str) -> CommodityPrice:
         """Get prices for a specific commodity."""
         try:
-            res: list[CommodityPrice] = _get_commodities_prices_from_ardent_insight()  # type: ignore (cachier wrapper looses type hints)
+            res: list[CommodityPrice] = (
+                _get_commodities_prices_from_ardent_insight_api()  # type: ignore (cachier wrapper looses type hints)
+            )
         except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
 
@@ -169,7 +177,8 @@ class CommoditiesService:
             (
                 price
                 for price in res
-                if price.commodity.name.lower() == commodity_name.lower()
+                if _compare_commodity_names(price.commodity.name, commodity_name)
+                or _compare_commodity_names(price.commodity.api_name, commodity_name)
             ),
             None,
         )
