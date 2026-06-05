@@ -81,7 +81,7 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
     return items
 
 
-# @cachier(stale_after=datetime.timedelta(days=1))
+@cachier(stale_after=datetime.timedelta(days=1))
 def _get_csv_commodities_data() -> list[Commodity]:
     """Get the list of commodities by reading the CSV files."""
     commodities = _read_commodities_csv_file(f"{DATA_PATH}/commodities.csv", False)
@@ -89,7 +89,7 @@ def _get_csv_commodities_data() -> list[Commodity]:
     return commodities + rares
 
 
-# @cachier(stale_after=datetime.timedelta(days=1))
+@cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
     commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
