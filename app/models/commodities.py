@@ -10,6 +10,7 @@ from app.models.stations import Station
 class Commodity:
     id: int
     name: str
+    api_name: str
     category: str
     is_rare: bool
 

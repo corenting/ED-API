@@ -38,6 +38,14 @@ def _get_commodity_from_name(
     name: str, commodities: list[Commodity]
 ) -> Commodity | None:
     """Get the commodity with the specified name using difflib for handling small differences."""
+    # First check simple matches
+    for name_from_csv in (x.api_name for x in commodities):
+        if name_from_csv.lower().replace("_", "").replace(
+            "-", ""
+        ) == name.lower().replace("_", "").replace("-", ""):
+            return next(x for x in commodities if x.api_name == name_from_csv)
+
+    # Else use difflib
     match = difflib.get_close_matches(name, [x.name for x in commodities])
     if match is None or len(match) == 0:
         return None
@@ -64,6 +72,7 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
             Commodity(
                 id=int(row["id"]),
                 name=row["name"],
+                api_name=row["symbol"],
                 category=row["category"],
                 is_rare=is_rare,
             )
@@ -72,7 +81,7 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
     return items
 
 
-@cachier(stale_after=datetime.timedelta(days=1))
+# @cachier(stale_after=datetime.timedelta(days=1))
 def _get_csv_commodities_data() -> list[Commodity]:
     """Get the list of commodities by reading the CSV files."""
     commodities = _read_commodities_csv_file(f"{DATA_PATH}/commodities.csv", False)
@@ -80,7 +89,7 @@ def _get_csv_commodities_data() -> list[Commodity]:
     return commodities + rares
 
 
-@cachier(stale_after=datetime.timedelta(days=1))
+# @cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_ardent_insight() -> list[CommodityPrice]:
     prices = []
     commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
