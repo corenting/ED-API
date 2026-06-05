@@ -86,7 +86,7 @@ def _read_commodities_csv_file(path: str, is_rare: bool) -> list[Commodity]:
 
 
 @cachier(stale_after=datetime.timedelta(days=1))
-def _get_csv_commodities_data() -> list[Commodity]:
+def _get_commodities_data_from_csv() -> list[Commodity]:
     """Get the list of commodities by reading the CSV files."""
     commodities = _read_commodities_csv_file(f"{DATA_PATH}/commodities.csv", False)
     rares = _read_commodities_csv_file(f"{DATA_PATH}/rare_commodities.csv", True)
@@ -96,7 +96,7 @@ def _get_csv_commodities_data() -> list[Commodity]:
 @cachier(stale_after=datetime.timedelta(days=1))
 def _get_commodities_prices_from_ardent_insight_api() -> list[CommodityPrice]:
     prices = []
-    commodities: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
+    commodities: list[Commodity] = _get_commodities_data_from_csv()  # type: ignore (cachier wrapper looses type hints)
 
     with get_niquests_session() as session:
         api_res = session.get(ARDENT_INSIGHT_COMMODITIES_URL)
@@ -141,7 +141,7 @@ class CommoditiesService:
     def get_commodities(self) -> list[Commodity]:
         """Get all commodities."""
         try:
-            res: list[Commodity] = _get_csv_commodities_data()  # type: ignore (cachier wrapper looses type hints)
+            res: list[Commodity] = _get_commodities_data_from_csv()  # type: ignore (cachier wrapper looses type hints)
         except niquests.exceptions.RequestException as e:
             raise ContentFetchingError() from e
         else:
