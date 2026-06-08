@@ -210,7 +210,11 @@ class CommoditiesService:
                 api_response = await session.post(
                     SPANSH_STATIONS_SEARCH_URL,
                     json=self._find_commodity_generate_request_body(
-                        mode, reference_system, commodity, min_quantity, max_age_days
+                        mode,
+                        reference_system,
+                        current_commodity_price.commodity.name,
+                        min_quantity,
+                        max_age_days,
                     ),
                 )
                 api_response.raise_for_status()
@@ -369,6 +373,7 @@ class CommoditiesService:
         max_age_days: int,
     ) -> dict[str, Any]:
         quantity_filter_name = "supply" if mode == FindCommodityMode.BUY else "demand"
+
         body = {
             "filters": {
                 "market_updated_at": get_max_age_values_for_request_body(max_age_days),
@@ -376,7 +381,7 @@ class CommoditiesService:
                     {
                         "name": commodity,
                         quantity_filter_name: {
-                            "value": [10, 1000000000],
+                            "value": [min_quantity, 1000000000],
                             "comparison": "<=>",
                         },
                     }
@@ -386,6 +391,7 @@ class CommoditiesService:
             "reference_system": get_formatted_reference_system(reference_system),
         }
 
+        print(body)
         return body
 
     def _get_price_difference(

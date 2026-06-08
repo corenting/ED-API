@@ -1534,14 +1534,14 @@ files = [
 
 [[package]]
 name = "niquests"
-version = "3.19.0"
+version = "3.19.1"
 description = "Niquests is a simple, yet elegant, HTTP library. It is a drop-in replacement for Requests, which is under feature freeze."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "niquests-3.19.0-py3-none-any.whl", hash = "sha256:d75efeedda74be9718b2e3508d8c900bd411a3f554c57e3b4d24d9245fc37a1f"},
-    {file = "niquests-3.19.0.tar.gz", hash = "sha256:e3c9fc8aa7c77c3d066dd6a0551d15eee1660ac14a497264577115c3296022ff"},
+    {file = "niquests-3.19.1-py3-none-any.whl", hash = "sha256:ed04a8e2813f0b12f2ec82982c500fd115499b88d1abfa689fc9116ecdc68ede"},
+    {file = "niquests-3.19.1.tar.gz", hash = "sha256:2c34591744c7ade45f5f3a65a637cf1366d399eb514200005a8823de0d66b91e"},
 ]
 
 [package.dependencies]
@@ -2578,15 +2578,15 @@ test = ["aiohttp (>=3.10.5)", "flake8 (>=6.1,<7.0)", "mypy (>=0.800)", "psutil",
 
 [[package]]
 name = "wassima"
-version = "2.1.0"
+version = "2.1.1"
 description = "Access your OS root certificates with utmost ease"
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 markers = "sys_platform != \"emscripten\""
 files = [
-    {file = "wassima-2.1.0-py3-none-any.whl", hash = "sha256:4e8bc4b439f91f4da24bd2260be662fcb42d1cc439d7678420237d314e55a854"},
-    {file = "wassima-2.1.0.tar.gz", hash = "sha256:709f375c778d9be84568d802d1e1b62a2ed3942b1fa4c83830533a69cf36c243"},
+    {file = "wassima-2.1.1-py3-none-any.whl", hash = "sha256:ab0f12c091ff697f111eea5f925aafd83736909a1c9c764a8bbf874b2e4d4a42"},
+    {file = "wassima-2.1.1.tar.gz", hash = "sha256:9c6ad4aa3cfbe91fd75f9eae315ba563bbc7d9d2479aef0c288fa7f1ca3b0c53"},
 ]
 
 [[package]]
