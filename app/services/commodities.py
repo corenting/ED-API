@@ -391,7 +391,6 @@ class CommoditiesService:
             "reference_system": get_formatted_reference_system(reference_system),
         }
 
-        print(body)
         return body
 
     def _get_price_difference(
