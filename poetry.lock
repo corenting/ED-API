@@ -1511,14 +1511,14 @@ files = [
 
 [[package]]
 name = "niquests"
-version = "3.20.0"
+version = "3.20.1"
 description = "Niquests is a simple, yet elegant, HTTP library. It is a drop-in replacement for Requests, which is under feature freeze."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "niquests-3.20.0-py3-none-any.whl", hash = "sha256:86281a62314d7395f049d748480589e273dc1f429953afbac377fff142860429"},
-    {file = "niquests-3.20.0.tar.gz", hash = "sha256:dba85ce23ac5052f0a1e1c1cf1c017511a993f906686e8b6c84e0b54818fd1dc"},
+    {file = "niquests-3.20.1-py3-none-any.whl", hash = "sha256:71062880739c94d67aead1f8b7972baad3236b97a55a490493729789d1639fc4"},
+    {file = "niquests-3.20.1.tar.gz", hash = "sha256:55951812cf997963bfef8e4f797ff0460ca571e53ec184039b010e12152c0e41"},
 ]
 
 [package.dependencies]
@@ -2466,19 +2466,18 @@ zstd = ["zstandard (>=0.18.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "uvicorn"
-version = "0.50.2"
+version = "0.51.0"
 description = "The lightning-fast ASGI server."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "uvicorn-0.50.2-py3-none-any.whl", hash = "sha256:4ae72a385630bcc17a0adb8290f26c993865e0b43a2114c2aab96420172c056a"},
-    {file = "uvicorn-0.50.2.tar.gz", hash = "sha256:b92bf03509b82bcb9d49e7335b4fd364518ad021c2dc18b4e6a2fec8c955a0bb"},
+    {file = "uvicorn-0.51.0-py3-none-any.whl", hash = "sha256:5d38af6cd620f2ae3849fb44fd4879e0890aa1febe8d47eb355fb45d93fe6a5b"},
+    {file = "uvicorn-0.51.0.tar.gz", hash = "sha256:f6f4b69b657c312f516dd2d268ab9ae6f254b11e4bac504f37b2ab58b24dd0b0"},
 ]
 
 [package.dependencies]
 click = ">=7.0"
-colorama = {version = ">=0.4", optional = true, markers = "sys_platform == \"win32\" and extra == \"standard\""}
 h11 = ">=0.8"
 httptools = {version = ">=0.8.0", optional = true, markers = "extra == \"standard\""}
 python-dotenv = {version = ">=0.13", optional = true, markers = "extra == \"standard\""}
@@ -2488,7 +2487,7 @@ watchfiles = {version = ">=0.20", optional = true, markers = "extra == \"standar
 websockets = {version = ">=13.0", optional = true, markers = "extra == \"standard\""}
 
 [package.extras]
-standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.8.0)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.15.1) ; sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\"", "watchfiles (>=0.20)", "websockets (>=13.0)"]
+standard = ["httptools (>=0.8.0)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.15.1) ; sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\"", "watchfiles (>=0.20)", "websockets (>=13.0)"]
 
 [[package]]
 name = "uvloop"
@@ -2821,4 +2820,4 @@ dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.14,<4.0"
-content-hash = "7d89785f3e3c503d85f2b5208a52669b18f58146ba55aeef66f07022a777f0db"
+content-hash = "63e72c121596e60b5a6440df929e0d85b2467706cd7b2136bac155467f4dafe8"

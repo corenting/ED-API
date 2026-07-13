@@ -18,12 +18,12 @@ dependencies = [
     "firebase-admin (>=6,<7)",
     "gunicorn (>=23,<24)",
     "loguru (>=0.7.3,<1)",
-    "niquests (>=3.18.4,<4)",
+    "niquests (>=3.20.1,<4)",
     "pydantic (>=2,<3)",
     "python-dateutil (>=2,<3)",
     "SQLAlchemy (>=2.0.50,<3)",
     "typer (>=0.25.1,<1.0.0)",
-    "uvicorn[standard] (>=0.48.0,<1.0.0)",
+    "uvicorn[standard] (>=0.51.0,<1.0.0)",
 ]
 
 [project.urls]
